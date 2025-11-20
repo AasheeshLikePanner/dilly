@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { IssuesTable } from "@/components/ui/issues-table";
 
 export default function DashboardPage() {
   return (
@@ -56,6 +57,9 @@ export default function DashboardPage() {
             <ValueLineBarChart />
           </DialogContent>
         </Dialog>
+      </div>
+      <div className="mt-8">
+        <IssuesTable />
       </div>
     </div>
   );

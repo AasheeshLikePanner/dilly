@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingDown } from "lucide-react";
 import { useRef, useState } from "react";
 import { useSpring, useMotionValueEvent } from "motion/react";
+import { Button } from "@/components/ui/button";
+import { ArrowsOut } from "phosphor-react";
 
 const chartData = [
   { month: "January", mobile: 245 },
@@ -56,15 +58,20 @@ export function ClippedAreaChart({ className }: { className?: string }) {
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle>
-          ${springY.get().toFixed(0)}
-          <Badge variant="secondary" className="ml-2">
-            <TrendingDown className="h-4 w-4" />
-            <span>-5.2%</span>
-          </Badge>
-        </CardTitle>
-        <CardDescription>Total revenue for last year</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div>
+          <CardTitle>
+            ${springY.get().toFixed(0)}
+            <Badge variant="secondary" className="ml-2">
+              <TrendingDown className="h-4 w-4" />
+              <span>-5.2%</span>
+            </Badge>
+          </CardTitle>
+          <CardDescription>Total revenue for last year</CardDescription>
+        </div>
+        <Button variant="ghost" size="icon">
+          <ArrowsOut className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <ChartContainer

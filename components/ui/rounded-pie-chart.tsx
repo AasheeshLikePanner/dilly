@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowsOut } from "phosphor-react";
 import { cn } from "@/lib/utils";
 
 export const description = "A pie chart with a label list";
@@ -58,18 +60,23 @@ const chartConfig = {
 export function RoundedPieChart({ className }: { className?: string }) {
   return (
     <Card className={cn("flex flex-col", className)}>
-      <CardHeader className="items-center pb-0">
-        <CardTitle>
-          Pie Chart
-          <Badge
-            variant="outline"
-            className="text-green-500 bg-green-500/10 border-none ml-2"
-          >
-            <TrendingUp className="h-4 w-4" />
-            <span>5.2%</span>
-          </Badge>
-        </CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between pb-0">
+        <div className="items-center">
+          <CardTitle>
+            Pie Chart
+            <Badge
+              variant="outline"
+              className="text-green-500 bg-green-500/10 border-none ml-2"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span>5.2%</span>
+            </Badge>
+          </CardTitle>
+          <CardDescription>January - June 2024</CardDescription>
+        </div>
+        <Button variant="ghost" size="icon">
+          <ArrowsOut className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer

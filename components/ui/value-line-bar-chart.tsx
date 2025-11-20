@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { JetBrains_Mono } from "next/font/google";
 import { useMotionValueEvent, useSpring } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowsOut } from "phosphor-react";
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -86,19 +88,24 @@ export function ValueLineBarChart({ className }: { className?: string }) {
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span
-            className={cn(jetBrainsMono.className, "text-2xl tracking-tighter")}
-          >
-            ${maxValueIndex.value}
-          </span>
-          <Badge variant="secondary">
-            <TrendingUp className="h-4 w-4" />
-            <span>5.2%</span>
-          </Badge>
-        </CardTitle>
-        <CardDescription>vs. last quarter</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <span
+              className={cn(jetBrainsMono.className, "text-2xl tracking-tighter")}
+            >
+              ${maxValueIndex.value}
+            </span>
+            <Badge variant="secondary">
+              <TrendingUp className="h-4 w-4" />
+              <span>5.2%</span>
+            </Badge>
+          </CardTitle>
+          <CardDescription>vs. last quarter</CardDescription>
+        </div>
+        <Button variant="ghost" size="icon">
+          <ArrowsOut className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <AnimatePresence mode="wait">
