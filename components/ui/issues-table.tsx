@@ -16,6 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -24,41 +32,15 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash, Image, Check, X } from "phosphor-react";
+import { Pencil, Trash, Image, Check, X, Copy } from "phosphor-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import issuesData from "@/data/issues.json";
 
 const generateId = (issueType: string) => {
   const randomString = Math.random().toString(36).substring(2, 8);
   return `${issueType.toLowerCase()}-${randomString}`;
 };
-
-const issuesData = [
-  {
-    issueType: "Bug",
-    title: "App Crash on Startup",
-    description: "The app crashes on startup on iOS 17.",
-    status: "In Progress",
-    dateAttached: "2024-05-23",
-    assets: true,
-  },
-  {
-    issueType: "Feature",
-    title: "Dark Mode Toggle",
-    description: "Add a dark mode toggle to the settings page.",
-    status: "Open",
-    dateAttached: "2024-05-22",
-    assets: false,
-  },
-  {
-    issueType: "Documentation",
-    title: "Outdated API Docs",
-    description: "The API documentation for the /users endpoint is outdated.",
-    status: "Closed",
-    dateAttached: "2024-05-21",
-    assets: true,
-  },
-];
 
 const initialIssues = issuesData.map(issue => ({
   ...issue,
@@ -89,6 +71,8 @@ export function IssuesTable() {
   const [issues, setIssues] = useState(initialIssues);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<any>({});
+  const [userToBlock, setUserToBlock] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleEdit = (issue: any) => {
     setEditingRowId(issue.id);
@@ -110,114 +94,167 @@ export function IssuesTable() {
     setEditedData({ ...editedData, [field]: value });
   };
 
+  const handleBlockUser = () => {
+    if (userToBlock) {
+      console.log(`Blocking user: ${userToBlock}`);
+      // Here you would typically make an API call to block the user
+      setUserToBlock(null);
+    }
+  };
+
+  const handleCopy = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>Issue Title</TableHead>
-          <TableHead>Issue Type</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost">
-                  Status <span className="ml-2">▾</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {statusOptions.map((option) => (
-                  <DropdownMenuItem key={option}>{option}</DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TableHead>
-          <TableHead>Date Attached</TableHead>
-          <TableHead>Assets</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {issues.map((issue) => (
-          <TableRow key={issue.id}>
-            {editingRowId === issue.id ? (
-              <>
-                <TableCell>{issue.id}</TableCell>
-                <TableCell>
-                  <Input value={editedData.title} onChange={(e) => handleChange('title', e.target.value)} />
-                </TableCell>
-                <TableCell>
-                  <Select value={editedData.issueType} onValueChange={(value) => handleChange('issueType', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {issueTypeOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Input value={editedData.description} onChange={(e) => handleChange('description', e.target.value)} />
-                </TableCell>
-                <TableCell>
-                  <Select value={editedData.status} onValueChange={(value) => handleChange('status', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>{issue.dateAttached}</TableCell>
-                <TableCell>
-                  {issue.assets && <Image className="h-5 w-5" />}
-                </TableCell>
-                <TableCell className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={handleSave}>
-                    <Check className="h-4 w-4" />
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[150px]">ID</TableHead>
+            <TableHead>Issue Title</TableHead>
+            <TableHead>Issue Type</TableHead>
+            <TableHead className="max-w-[300px]">Description</TableHead>
+            <TableHead>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">
+                    Status <span className="ml-2">▾</span>
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={handleCancel}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </>
-            ) : (
-              <>
-                <TableCell>{issue.id}</TableCell>
-                <TableCell>{issue.title}</TableCell>
-                <TableCell>{issue.issueType}</TableCell>
-                <TableCell>{issue.description}</TableCell>
-                <TableCell>
-                  <Badge className={cn("border-transparent", getStatusClasses(issue.status))}>
-                    {issue.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{issue.dateAttached}</TableCell>
-                <TableCell>
-                  {issue.assets && <Image className="h-5 w-5" />}
-                </TableCell>
-                <TableCell className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(issue)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </>
-            )}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {statusOptions.map((option) => (
+                    <DropdownMenuItem key={option}>{option}</DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableHead>
+            <TableHead>Submitted By</TableHead>
+            <TableHead>Date Attached</TableHead>
+            <TableHead>Assets</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {issues.map((issue) => (
+            <TableRow key={issue.id}>
+              {editingRowId === issue.id ? (
+                <>
+                  <TableCell className="truncate">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate">{editedData.id}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Input value={editedData.title} onChange={(e) => handleChange('title', e.target.value)} />
+                  </TableCell>
+                  <TableCell>
+                    <Select value={editedData.issueType} onValueChange={(value) => handleChange('issueType', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {issueTypeOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Input value={editedData.description} onChange={(e) => handleChange('description', e.target.value)} />
+                  </TableCell>
+                  <TableCell>
+                    <Select value={editedData.status} onValueChange={(value) => handleChange('status', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>{editedData.submittedBy}</TableCell>
+                  <TableCell>{editedData.dateAttached}</TableCell>
+                  <TableCell>
+                    {editedData.assets && <Image className="h-5 w-5" />}
+                  </TableCell>
+                  <TableCell className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={handleSave}>
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={handleCancel}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </>
+              ) : (
+                <>
+                  <TableCell className="truncate">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate">{issue.id}</span>
+                      <Button variant="ghost" size="icon" onClick={() => handleCopy(issue.id)}>
+                        {copiedId === issue.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell>{issue.title}</TableCell>
+                  <TableCell>{issue.issueType}</TableCell>
+                  <TableCell className="max-w-[300px] truncate">{issue.description}</TableCell>
+                  <TableCell>
+                    <Badge className={cn("border-transparent", getStatusClasses(issue.status))}>
+                      {issue.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell
+                    className="cursor-pointer hover:line-through hover:text-red-500"
+                    onClick={() => setUserToBlock(issue.submittedBy)}
+                  >
+                    {issue.submittedBy}
+                  </TableCell>
+                  <TableCell>{issue.dateAttached}</TableCell>
+                  <TableCell>
+                    {issue.assets && <Image className="h-5 w-5" />}
+                  </TableCell>
+                  <TableCell className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(issue)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Dialog open={!!userToBlock} onOpenChange={() => setUserToBlock(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Block User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to block {userToBlock}?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUserToBlock(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleBlockUser}>
+              Block
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

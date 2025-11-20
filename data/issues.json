@@ -1,0 +1,65 @@
+[
+  {
+    "issueType": "Bug",
+    "title": "App Crash on Startup",
+    "description": "The app crashes on startup on iOS 17.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-23",
+    "assets": true,
+    "submittedBy": "aniket@example.com"
+  },
+  {
+    "issueType": "Feature",
+    "title": "Dark Mode Toggle",
+    "description": "Add a dark mode toggle to the settings page.",
+    "status": "Open",
+    "dateAttached": "2024-05-22",
+    "assets": false,
+    "submittedBy": "user123"
+  },
+  {
+    "issueType": "Documentation",
+    "title": "Outdated API Docs",
+    "description": "The API documentation for the /users endpoint is outdated.",
+    "status": "Closed",
+    "dateAttached": "2024-05-21",
+    "assets": true,
+    "submittedBy": "jane.doe@example.com"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Login button not working",
+    "description": "The login button is unresponsive on the login page.",
+    "status": "Open",
+    "dateAttached": "2024-05-20",
+    "assets": false,
+    "submittedBy": "john.smith"
+  },
+  {
+    "issueType": "Feature",
+    "title": "Add social media sharing",
+    "description": "Allow users to share their results on social media.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-19",
+    "assets": true,
+    "submittedBy": "social_guru"
+  },
+  {
+    "issueType": "Documentation",
+    "title": "Incorrect examples in docs",
+    "description": "The code examples in the documentation are incorrect.",
+    "status": "Resolved",
+    "dateAttached": "2024-05-18",
+    "assets": false,
+    "submittedBy": "doc_writer"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Images not loading",
+    "description": "Images are not loading in the gallery.",
+    "status": "Testing",
+    "dateAttached": "2024-05-17",
+    "assets": true,
+    "submittedBy": "photo_fanatic"
+  }
+]
