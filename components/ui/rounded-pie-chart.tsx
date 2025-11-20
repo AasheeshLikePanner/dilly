@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const description = "A pie chart with a label list";
 
@@ -54,9 +55,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function RoundedPieChart() {
+export function RoundedPieChart({ className }: { className?: string }) {
   return (
-    <Card className="flex flex-col">
+    <Card className={cn("flex flex-col", className)}>
       <CardHeader className="items-center pb-0">
         <CardTitle>
           Pie Chart

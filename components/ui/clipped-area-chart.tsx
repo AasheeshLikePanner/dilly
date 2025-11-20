@@ -36,7 +36,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ClippedAreaChart() {
+export function ClippedAreaChart({ className }: { className?: string }) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [axis, setAxis] = useState(0);
 
@@ -55,7 +55,7 @@ export function ClippedAreaChart() {
   });
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle>
           ${springY.get().toFixed(0)}

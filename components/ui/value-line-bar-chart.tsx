@@ -50,7 +50,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ValueLineBarChart() {
+export function ValueLineBarChart({ className }: { className?: string }) {
   const [activeIndex, setActiveIndex] = React.useState<number | undefined>(
     undefined
   );
@@ -85,7 +85,7 @@ export function ValueLineBarChart() {
   }, [maxValueIndex.value, maxValueIndexSpring]);
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <span
