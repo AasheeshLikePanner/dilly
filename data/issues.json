@@ -2,7 +2,7 @@
   {
     "issueType": "Bug",
     "title": "App Crash on Startup",
-    "description": "The app crashes on startup on iOS 17.",
+    "description": "The app crashes on startup on iOS 17. This is a critical bug affecting a significant portion of our user base and needs immediate attention. We have received multiple reports.",
     "status": "In Progress",
     "dateAttached": "2024-05-23",
     "assets": true,
@@ -11,7 +11,7 @@
   {
     "issueType": "Feature",
     "title": "Dark Mode Toggle",
-    "description": "Add a dark mode toggle to the settings page.",
+    "description": "Add a dark mode toggle to the settings page for improved user experience, especially in low-light conditions. This feature has been highly requested by users.",
     "status": "Open",
     "dateAttached": "2024-05-22",
     "assets": false,
@@ -20,7 +20,7 @@
   {
     "issueType": "Documentation",
     "title": "Outdated API Docs",
-    "description": "The API documentation for the /users endpoint is outdated.",
+    "description": "The API documentation for the /users endpoint is outdated and causing confusion for developers. It needs to be updated to reflect the latest changes.",
     "status": "Closed",
     "dateAttached": "2024-05-21",
     "assets": true,
@@ -29,7 +29,7 @@
   {
     "issueType": "Bug",
     "title": "Login button not working",
-    "description": "The login button is unresponsive on the login page.",
+    "description": "The login button is unresponsive on the login page, preventing users from accessing their accounts. This is a high-priority bug.",
     "status": "Open",
     "dateAttached": "2024-05-20",
     "assets": false,
@@ -38,7 +38,7 @@
   {
     "issueType": "Feature",
     "title": "Add social media sharing",
-    "description": "Allow users to share their results on social media.",
+    "description": "Allow users to share their results on social media platforms like Twitter and Facebook directly from the app.",
     "status": "In Progress",
     "dateAttached": "2024-05-19",
     "assets": true,
@@ -47,7 +47,7 @@
   {
     "issueType": "Documentation",
     "title": "Incorrect examples in docs",
-    "description": "The code examples in the documentation are incorrect.",
+    "description": "The code examples in the documentation are incorrect and lead to errors when followed. They need to be reviewed and corrected.",
     "status": "Resolved",
     "dateAttached": "2024-05-18",
     "assets": false,
@@ -56,10 +56,172 @@
   {
     "issueType": "Bug",
     "title": "Images not loading",
-    "description": "Images are not loading in the gallery.",
+    "description": "Images are not loading in the gallery view, appearing as broken placeholders. This affects the visual appeal and functionality.",
     "status": "Testing",
     "dateAttached": "2024-05-17",
     "assets": true,
     "submittedBy": "photo_fanatic"
+  },
+  {
+    "issueType": "Feature",
+    "title": "User Profile Customization",
+    "description": "Implement options for users to customize their profile pictures and bio information. This will enhance personalization.",
+    "status": "Open",
+    "dateAttached": "2024-05-16",
+    "assets": false,
+    "submittedBy": "profile_master"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Search filter not working",
+    "description": "The search filter on the main page is not returning correct results or sometimes no results at all. This impacts usability.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-15",
+    "assets": true,
+    "submittedBy": "search_user"
+  },
+  {
+    "issueType": "Other",
+    "title": "Performance Optimization",
+    "description": "Investigate and optimize application performance, especially during data loading and complex operations. Users report slowness.",
+    "status": "Testing",
+    "dateAttached": "2024-05-14",
+    "assets": false,
+    "submittedBy": "perf_expert"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Broken links in footer",
+    "description": "Several links in the website footer are broken, leading to 404 pages. This needs to be fixed to maintain site integrity.",
+    "status": "Open",
+    "dateAttached": "2024-05-13",
+    "assets": true,
+    "submittedBy": "webmaster"
+  },
+  {
+    "issueType": "Feature",
+    "title": "Email Notifications",
+    "description": "Add email notification functionality for important events, such as new messages or updates. This will keep users informed.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-12",
+    "assets": false,
+    "submittedBy": "notify_me"
+  },
+  {
+    "issueType": "Documentation",
+    "title": "Missing setup guide",
+    "description": "A comprehensive setup guide for new developers is missing from the documentation. This hinders onboarding.",
+    "status": "Closed",
+    "dateAttached": "2024-05-11",
+    "assets": true,
+    "submittedBy": "new_dev"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Incorrect data display",
+    "description": "Data displayed in the dashboard charts is sometimes incorrect or misaligned with the actual figures. This is a data integrity issue.",
+    "status": "Resolved",
+    "dateAttached": "2024-05-10",
+    "assets": false,
+    "submittedBy": "data_analyst"
+  },
+  {
+    "issueType": "Feature",
+    "title": "Export to PDF option",
+    "description": "Allow users to export reports and data to PDF format for offline viewing and sharing. This adds significant value.",
+    "status": "Open",
+    "dateAttached": "2024-05-09",
+    "assets": true,
+    "submittedBy": "pdf_lover"
+  },
+  {
+    "issueType": "Other",
+    "title": "Accessibility improvements",
+    "description": "Conduct an accessibility audit and implement necessary improvements to comply with WCAG standards. This is crucial for inclusivity.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-08",
+    "assets": false,
+    "submittedBy": "a11y_advocate"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Mobile layout issues",
+    "description": "The application's layout is broken on various mobile devices, leading to a poor user experience. Responsive design needs fixing.",
+    "status": "Testing",
+    "dateAttached": "2024-05-07",
+    "assets": true,
+    "submittedBy": "mobile_user"
+  },
+  {
+    "issueType": "Feature",
+    "title": "Two-factor authentication",
+    "description": "Implement two-factor authentication (2FA) for enhanced security of user accounts. This is a critical security feature.",
+    "status": "Open",
+    "dateAttached": "2024-05-06",
+    "assets": false,
+    "submittedBy": "security_fan"
+  },
+  {
+    "issueType": "Documentation",
+    "title": "API endpoint examples",
+    "description": "Add more detailed examples for each API endpoint in the documentation to make it easier for developers to integrate. Current examples are too basic.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-05",
+    "assets": true,
+    "submittedBy": "api_user"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Incorrect date formatting",
+    "description": "Dates are displayed in an inconsistent and sometimes incorrect format across the application. This needs standardization.",
+    "status": "Resolved",
+    "dateAttached": "2024-05-04",
+    "assets": false,
+    "submittedBy": "date_checker"
+  },
+  {
+    "issueType": "Feature",
+    "title": "User feedback form",
+    "description": "Integrate a user feedback form within the application to collect suggestions and bug reports directly from users. This will improve product development.",
+    "status": "Open",
+    "dateAttached": "2024-05-03",
+    "assets": true,
+    "submittedBy": "feedback_collector"
+  },
+  {
+    "issueType": "Other",
+    "title": "Database migration",
+    "description": "Plan and execute a migration of the current database to a more scalable and performant solution. This is a backend infrastructure task.",
+    "status": "In Progress",
+    "dateAttached": "2024-05-02",
+    "assets": false,
+    "submittedBy": "db_admin"
+  },
+  {
+    "issueType": "Bug",
+    "title": "Email verification not sending",
+    "description": "Email verification links are not being sent to new users, preventing them from activating their accounts. This is a critical onboarding issue.",
+    "status": "Testing",
+    "dateAttached": "2024-05-01",
+    "assets": true,
+    "submittedBy": "new_signup"
+  },
+  {
+    "issueType": "Feature",
+    "title": "Customizable Dashboard",
+    "description": "Allow users to customize the widgets and layout of their dashboard to prioritize information relevant to them. This enhances user control.",
+    "status": "Open",
+    "dateAttached": "2024-04-30",
+    "assets": false,
+    "submittedBy": "dashboard_fan"
+  },
+  {
+    "issueType": "Documentation",
+    "title": "Tutorial videos",
+    "description": "Create a series of short tutorial videos to guide users through key features of the application. Visual guides are often more effective.",
+    "status": "In Progress",
+    "dateAttached": "2024-04-29",
+    "assets": true,
+    "submittedBy": "video_creator"
   }
 ]

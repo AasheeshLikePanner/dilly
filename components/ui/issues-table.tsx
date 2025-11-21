@@ -73,6 +73,7 @@ export function IssuesTable() {
   const [editedData, setEditedData] = useState<any>({});
   const [userToBlock, setUserToBlock] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const handleEdit = (issue: any) => {
     setEditingRowId(issue.id);
@@ -108,16 +109,28 @@ export function IssuesTable() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleRowClick = (id: string) => {
+    setExpandedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[150px]">ID</TableHead>
-            <TableHead>Issue Title</TableHead>
-            <TableHead>Issue Type</TableHead>
-            <TableHead className="max-w-[300px]">Description</TableHead>
-            <TableHead>
+            <TableHead className="w-[140px]">ID</TableHead>
+            <TableHead className="w-[200px]">Issue Title</TableHead>
+            <TableHead className="w-[100px]">Issue Type</TableHead>
+            <TableHead className="w-[300px]">Description</TableHead>
+            <TableHead className="w-[100px]">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost">
@@ -132,109 +145,130 @@ export function IssuesTable() {
               </DropdownMenu>
             </TableHead>
             <TableHead>Submitted By</TableHead>
-            <TableHead>Date Attached</TableHead>
-            <TableHead>Assets</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead className="w-[120px]">Date Attached</TableHead>
+            <TableHead className="w-[60px]">Assets</TableHead>
+            <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {issues.map((issue) => (
-            <TableRow key={issue.id}>
-              {editingRowId === issue.id ? (
-                <>
-                  <TableCell className="truncate">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate">{editedData.id}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Input value={editedData.title} onChange={(e) => handleChange('title', e.target.value)} />
-                  </TableCell>
-                  <TableCell>
-                    <Select value={editedData.issueType} onValueChange={(value) => handleChange('issueType', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {issueTypeOptions.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Input value={editedData.description} onChange={(e) => handleChange('description', e.target.value)} />
-                  </TableCell>
-                  <TableCell>
-                    <Select value={editedData.status} onValueChange={(value) => handleChange('status', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>{editedData.submittedBy}</TableCell>
-                  <TableCell>{editedData.dateAttached}</TableCell>
-                  <TableCell>
-                    {editedData.assets && <Image className="h-5 w-5" />}
-                  </TableCell>
-                  <TableCell className="flex gap-2">
-                    <Button variant="ghost" size="icon" onClick={handleSave}>
-                      <Check className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={handleCancel}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </>
-              ) : (
-                <>
-                  <TableCell className="truncate">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate">{issue.id}</span>
-                      <Button variant="ghost" size="icon" onClick={() => handleCopy(issue.id)}>
-                        {copiedId === issue.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+          {issues.map((issue) => {
+            const isExpanded = expandedRows.has(issue.id);
+            return (
+              <TableRow key={issue.id} onClick={() => handleRowClick(issue.id)} className="cursor-pointer">
+                {editingRowId === issue.id ? (
+                  <>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span>{editedData.id}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Input value={editedData.title} onChange={(e) => handleChange('title', e.target.value)} />
+                    </TableCell>
+                    <TableCell>
+                      <Select value={editedData.issueType} onValueChange={(value) => handleChange('issueType', value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {issueTypeOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Input value={editedData.description} onChange={(e) => handleChange('description', e.target.value)} />
+                    </TableCell>
+                    <TableCell>
+                      <Select value={editedData.status} onValueChange={(value) => handleChange('status', value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>{editedData.submittedBy}</TableCell>
+                    <TableCell>{editedData.dateAttached}</TableCell>
+                    <TableCell>
+                      {editedData.assets && <Image className="h-5 w-5" />}
+                    </TableCell>
+                    <TableCell className="flex gap-2">
+                      <Button variant="ghost" size="icon" onClick={handleSave}>
+                        <Check className="h-4 w-4" />
                       </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell>{issue.title}</TableCell>
-                  <TableCell>{issue.issueType}</TableCell>
-                  <TableCell className="max-w-[300px] truncate">{issue.description}</TableCell>
-                  <TableCell>
-                    <Badge className={cn("border-transparent", getStatusClasses(issue.status))}>
-                      {issue.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell
-                    className="cursor-pointer hover:line-through hover:text-red-500"
-                    onClick={() => setUserToBlock(issue.submittedBy)}
-                  >
-                    {issue.submittedBy}
-                  </TableCell>
-                  <TableCell>{issue.dateAttached}</TableCell>
-                  <TableCell>
-                    {issue.assets && <Image className="h-5 w-5" />}
-                  </TableCell>
-                  <TableCell className="flex gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(issue)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </>
-              )}
-            </TableRow>
-          ))}
+                      <Button variant="ghost" size="icon" onClick={handleCancel}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </>
+                ) : (
+                  <>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>{issue.id}</span>
+                        <Button variant="ghost" size="icon" onClick={() => handleCopy(issue.id)}>
+                          {copiedId === issue.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
+                        {issue.title}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
+                        {issue.issueType}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
+                        {issue.description}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={cn("border-transparent", getStatusClasses(issue.status), { "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
+                        {issue.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer hover:line-through hover:text-red-500"
+                      onClick={() => setUserToBlock(issue.submittedBy)}
+                    >
+                      <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
+                        {issue.submittedBy}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
+                        {issue.dateAttached}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {issue.assets && <Image className="h-5 w-5" />}
+                    </TableCell>
+                    <TableCell className="flex gap-2">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(issue)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </>
+                )}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
       <Dialog open={!!userToBlock} onOpenChange={() => setUserToBlock(null)}>
