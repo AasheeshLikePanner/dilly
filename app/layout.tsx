@@ -17,6 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { House, ChartPieSlice, Gear, Question, UserCircle } from "phosphor-react";
+import SidebarHeaderContent from "@/components/sidebar-header-content"; // Import the new component
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +36,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const workspaceId = searchParams.get('workspaceId') || undefined; // Get workspaceId from URL
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
       >
         <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <Sidebar
@@ -47,9 +51,7 @@ export default function RootLayout({
             onMouseLeave={() => setIsSidebarOpen(false)}
           >
             <SidebarHeader>
-              <Button variant="ghost" size="icon">
-                <span className="text-lg font-bold">D</span>
-              </Button>
+              <SidebarHeaderContent initialWorkspaceId={workspaceId} />
             </SidebarHeader>
             <SidebarContent className="p-2">
               <SidebarMenu>
@@ -93,8 +95,8 @@ export default function RootLayout({
               </SidebarMenu>
             </SidebarFooter>
           </Sidebar>
-          <SidebarInset className="bg-card">
-            <header className="flex items-center justify-between p-4">
+          <SidebarInset>
+            <header className="flex items-center justify-between">
               <div>
                 {/* Other header content */}
               </div>
