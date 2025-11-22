@@ -145,7 +145,7 @@ export default function Page() {
             </div>
             
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs text-blue-200/80 leading-5">
-              <strong>Pro Tip:</strong> Each variant exports a standalone component. Ensure you have <code>framer-motion</code> installed for the physics animations to work.
+              <strong>Pro Tip:</strong> cEach variant exports a standalone component. Ensure you have <code>framer-motion</code> installed for the physics animations to work.
             </div>
           </div>
         </div>

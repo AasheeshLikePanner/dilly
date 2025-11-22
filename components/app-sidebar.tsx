@@ -166,12 +166,12 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                             </a>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
-                        {/* Number Feedback */}
+                        {/* Form Feedback */}
                         <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider/rateexperience'))} tooltip="Number Feedback">
-                            <a href={getHrefWithSlug('/components/feedback/slider/rateexperience')}>
+                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))} tooltip="Form Feedback">
+                            <a href={getHrefWithSlug('/components/feedback/form')}>
                                 <ChatCircleText />
-                                <span>Number Feedback</span>
+                                <span>Form Feedback</span>
                             </a>
                           </SidebarMenuButton>
                         </SidebarMenuItem>

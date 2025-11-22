@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, Terminal, Sparkles, Box } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // Ensure these are imported correctly from your file
-import { VariantPhoton, VariantMagnetic, VariantCrystal } from '@/components/slider-reaction';
+import { VariantForm } from '@/components/text-feedback';
 
 // --- Custom Code Block Component ---
 const CodeSnippet = ({ title, code, language = "typescript" }) => {
@@ -48,14 +48,14 @@ const CodeSnippet = ({ title, code, language = "typescript" }) => {
   );
 };
 
-export default function SliderFeedbackPage() {
-  const installCmd = "npm install @/components/slider-reaction framer-motion lucide-react";
-  const usageCode = `import { VariantPhoton } from '@/components/slider-reaction';
+export default function TextFeedbackPage() {
+  const installCmd = "npm install @/components/text-feedback framer-motion lucide-react";
+  const usageCode = `import { VariantForm } from '@/components/text-feedback';
 
 export default function Page() {
   return (
     <div className="flex justify-center p-10">
-      <VariantPhoton />
+      <VariantForm />
     </div>
   );
 }`;
@@ -85,13 +85,13 @@ export default function Page() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-400 mb-4"
           >
             <Sparkles size={12} className="text-yellow-400" />
-            <span>New Interactive Sliders</span>
+            <span>New Text Feedback Form</span>
           </motion.div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
-            Slider Feedback
+            Text Feedback
           </h2>
           <p className="text-zinc-400 text-lg max-w-lg mx-auto leading-relaxed">
-            Precise, physics-based micro-interactions for gathering numeric sentiment.
+            A simple and elegant form for collecting detailed user feedback.
           </p>
         </div>
 
@@ -101,27 +101,19 @@ export default function Page() {
           {/* Left: The Preview Area */}
           <div className="lg:col-span-3">
             <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50">
-              <Tabs defaultValue="photon" className="w-full">
+              <Tabs defaultValue="form" className="w-full">
                 
                 {/* iOS Style Segmented Control */}
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <TabsList className="w-full bg-[#1A1A1A] p-1 rounded-xl border border-white/5">
-                    <TabsTrigger value="photon" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Photon</TabsTrigger>
-                    <TabsTrigger value="magnetic" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Magnetic</TabsTrigger>
-                    <TabsTrigger value="crystal" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Crystal</TabsTrigger>
+                    <TabsTrigger value="form" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Form</TabsTrigger>
                   </TabsList>
                 </div>
 
                 {/* Content Area */}
                 <div className="h-[400px] w-full flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#0A0A0A] to-[#0A0A0A]">
-                  <TabsContent value="photon" className="mt-0 w-full">
-                    <VariantPhoton />
-                  </TabsContent>
-                  <TabsContent value="magnetic" className="mt-0 w-full">
-                    <VariantMagnetic />
-                  </TabsContent>
-                  <TabsContent value="crystal" className="mt-0 w-full">
-                    <VariantCrystal />
+                  <TabsContent value="form" className="mt-0 w-full">
+                    <VariantForm />
                   </TabsContent>
                 </div>
               </Tabs>
@@ -145,7 +137,7 @@ export default function Page() {
             </div>
             
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs text-blue-200/80 leading-5">
-              <strong>Pro Tip:</strong> Each variant exports a standalone component. Ensure you have <code>framer-motion</code> installed for the physics animations to work.
+              <strong>Pro Tip:</strong> The form component is standalone. Ensure you have <code>framer-motion</code> installed for the animations to work.
             </div>
           </div>
         </div>
