@@ -71,13 +71,12 @@ export default function App() {
           console.error('Error fetching workspaces:', workspacesError);
         }
       } else {
-        // Redirect to auth if no user
         router.push('/auth');
       }
       setLoading(false);
     };
     initData();
-  }, [router]);
+  }, []);
 
   // Cleanup object URL
   useEffect(() => {
@@ -159,6 +158,22 @@ export default function App() {
       .single();
 
     if (data) {
+      // Insert into workspace_members
+      const { error: memberError } = await supabase
+        .from('workspace_members')
+        .insert({
+          user_id: userProfile.id,
+          workspace_id: data.id,
+          role: 'owner',
+        });
+
+      if (memberError) {
+        console.error("Error adding user to workspace_members:", memberError);
+        toast.error("Failed to add user as owner to workspace.");
+        setIsCreating(false);
+        return;
+      }
+
       setWorkspaces([...workspaces, data]);
       // Reset form and view
       setView('list');
@@ -166,9 +181,10 @@ export default function App() {
       setNewWorkspaceDescription('');
       setNewWorkspaceLogo(null);
       setLogoPreview(null);
+      toast.success("Workspace created successfully!");
     } else {
       console.error("Error creating workspace:", error);
-      alert("Failed to create workspace.");
+      toast.error("Failed to create workspace.");
     }
     setIsCreating(false);
   };
@@ -184,9 +200,12 @@ export default function App() {
     setIsLaunching(true);
     setTimeout(() => {
       const workspace = workspaces.find(w => w.id === selectedId);
-      alert(`Environment Synced. Entering ${workspace?.name}...`);
+      if (workspace?.slug) {
+        router.push(`/dashboard/${workspace.slug}`);
+      } else {
+        alert(`Environment Synced. Entering ${workspace?.name}...`);
+      }
       setIsLaunching(false);
-      // In Next.js: router.push(`/dashboard/${workspace?.slug}`)
     }, 1500);
   };
 
@@ -287,7 +306,7 @@ export default function App() {
             </div>
 
             {/* LAUNCH BUTTON */}
-            <div className="h-14 flex items-center justify-center overflow-hidden">
+            <div className="h-14 flex items-center justify-center">
               <button
                 onClick={handleLaunch}
                 disabled={!selectedId || isLaunching}

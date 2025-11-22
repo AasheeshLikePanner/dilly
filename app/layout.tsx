@@ -18,7 +18,9 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { House, ChartPieSlice, Gear, Question, UserCircle } from "phosphor-react";
 import SidebarHeaderContent from "@/components/sidebar-header-content";
-import { useSearchParams, usePathname } from 'next/navigation'; // Import usePathname
+import { useSearchParams, usePathname } from 'next/navigation';
+
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,10 +44,15 @@ export default function RootLayout({
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
-  const pathname = usePathname(); // Get current pathname
+  const pathname = usePathname();
   const workspaceId = searchParams.get('workspaceId') || undefined;
 
-  const hideSidebar = pathname === '/workspaces' || pathname === '/auth' || pathname === '/workspaces/new';
+  // Fixed: Check if pathname starts with /dashboard to keep sidebar visible
+  const hideSidebar = 
+    pathname === '/workspaces' || 
+    pathname === '/auth' || 
+    pathname === '/workspaces/new' || 
+    pathname === '/';
 
   if (hideSidebar) {
     return (
@@ -54,6 +61,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
         >
           {children}
+          <Toaster />
         </body>
       </html>
     );
@@ -124,6 +132,7 @@ export default function RootLayout({
             {children}
           </SidebarInset>
         </SidebarProvider>
+        <Toaster />
       </body>
     </html>
   );

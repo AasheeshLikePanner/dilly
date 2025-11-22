@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -23,6 +23,7 @@ interface SidebarHeaderContentProps {
 export default function SidebarHeaderContent({ initialWorkspaceId }: SidebarHeaderContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [allWorkspaces, setAllWorkspaces] = useState<Array<Workspace & { role: WorkspaceMember['role'] }>>([]);
   const [loading, setLoading] = useState(true);
@@ -32,26 +33,21 @@ export default function SidebarHeaderContent({ initialWorkspaceId }: SidebarHead
 
   useEffect(() => {
     const fetchWorkspaceData = async () => {
+      console.log('SidebarHeaderContent: fetchWorkspaceData started');
       setLoading(true);
       setError(null);
 
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('SidebarHeaderContent: user:', user);
       if (!user) {
         router.push('/auth');
         return;
       }
 
-      const currentPath = window.location.pathname;
-
-      if (!currentWorkspaceId) {
-        if (currentPath !== '/workspaces' && currentPath !== '/workspaces/new') {
-          router.push('/workspaces');
-        } else {
-          setLoading(false);
-          setWorkspace(null);
-        }
-        return;
-      }
+      // Extract slug from pathname if on dashboard route
+      const dashboardMatch = pathname.match(/^\/dashboard\/([^/]+)/);
+      const slugFromPath = dashboardMatch ? dashboardMatch[1] : null;
+      console.log('SidebarHeaderContent: slugFromPath:', slugFromPath);
 
       try {
         const { data: profileData, error: profileError } = await supabase
@@ -59,6 +55,7 @@ export default function SidebarHeaderContent({ initialWorkspaceId }: SidebarHead
           .select('id')
           .eq('id', user.id)
           .single();
+        console.log('SidebarHeaderContent: profileData:', profileData);
 
         if (profileError || !profileData) {
           throw new Error(profileError?.message || 'Profile not found. Please ensure your profile exists.');
@@ -79,6 +76,7 @@ export default function SidebarHeaderContent({ initialWorkspaceId }: SidebarHead
             )
           `)
           .eq('user_id', userProfileId);
+        console.log('SidebarHeaderContent: memberData:', memberData);
 
         if (memberError) {
           throw new Error(memberError.message);
@@ -93,18 +91,35 @@ export default function SidebarHeaderContent({ initialWorkspaceId }: SidebarHead
           ...(member.workspaces as Workspace),
           role: member.role,
         }));
+        console.log('SidebarHeaderContent: userWorkspaces:', userWorkspaces);
         setAllWorkspaces(userWorkspaces);
 
-        const activeWorkspace = userWorkspaces.find(ws => ws.id === currentWorkspaceId);
+        // Find workspace by ID or slug
+        let activeWorkspace;
+        if (currentWorkspaceId) {
+          activeWorkspace = userWorkspaces.find(ws => ws.id === currentWorkspaceId);
+        } else if (slugFromPath) {
+          activeWorkspace = userWorkspaces.find(ws => ws.slug === slugFromPath);
+        }
+        console.log('SidebarHeaderContent: activeWorkspace:', activeWorkspace);
 
-        if (!activeWorkspace) {
+        if (!activeWorkspace && slugFromPath) {
+          console.log('SidebarHeaderContent: Redirecting to /workspaces (workspace not found for slug)');
           router.push('/workspaces');
           return;
         }
-        setWorkspace(activeWorkspace);
+
+        if (!activeWorkspace && !slugFromPath) {
+          // If no workspace ID/slug and not on dashboard, it's okay
+          setWorkspace(null);
+          setLoading(false);
+          return;
+        }
+
+        setWorkspace(activeWorkspace || null);
 
       } catch (err: any) {
-        console.error('Error fetching workspace data:', err.message);
+        console.error('SidebarHeaderContent: Error in fetchWorkspaceData:', err.message);
         setError(err.message);
         router.push('/workspaces');
       } finally {
@@ -113,11 +128,12 @@ export default function SidebarHeaderContent({ initialWorkspaceId }: SidebarHead
     };
 
     fetchWorkspaceData();
-  }, [currentWorkspaceId, router]);
+  }, [currentWorkspaceId, pathname, router]);
 
   const handleWorkspaceSwitch = (workspaceId: string) => {
-    if (workspaceId !== currentWorkspaceId) {
-      router.push(`/dashboard?workspaceId=${workspaceId}`);
+    const selectedWorkspace = allWorkspaces.find(ws => ws.id === workspaceId);
+    if (selectedWorkspace && workspaceId !== currentWorkspaceId) {
+      router.push(`/dashboard/${selectedWorkspace.slug}?workspaceId=${workspaceId}`);
     }
   };
 

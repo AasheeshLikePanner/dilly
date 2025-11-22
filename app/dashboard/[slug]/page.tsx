@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import { ClippedAreaChart } from "@/components/ui/clipped-area-chart";
 import { RoundedPieChart } from "@/components/ui/rounded-pie-chart";
 import { ValueLineBarChart } from "@/components/ui/value-line-bar-chart";
@@ -12,7 +13,9 @@ import {
 } from "@/components/ui/dialog";
 import { IssuesTable } from "@/components/ui/issues-table";
 
-export default function DashboardPage() {
+export default function DashboardPage({ params }: { params: { slug: string } }) {
+  const resolvedParams = React.use(params);
+  const { slug } = resolvedParams;
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
