@@ -4,6 +4,31 @@ import { Database } from './database.types'; // Assuming you might generate type
 
 // Define types for the public schema tables
 
+export type UserRole = 
+  | 'founder'
+  | 'ceo'
+  | 'cto'
+  | 'designer'
+  | 'ui_ux'
+  | 'engineer'
+  | 'frontend_engineer'
+  | 'backend_engineer'
+  | 'fullstack_engineer'
+  | 'mobile_engineer'
+  | 'data_engineer'
+  | 'ml_engineer'
+  | 'product_manager'
+  | 'project_manager'
+  | 'marketing'
+  | 'sales'
+  | 'devops'
+  | 'qa_tester'
+  | 'community_manager'
+  | 'support'
+  | 'finance'
+  | 'hr'
+  | 'other';
+
 export type Profile = {
   id: string; // UUID from auth.users
   created_at: string; // timestamptz
@@ -12,6 +37,7 @@ export type Profile = {
   full_name: string | null; // text
   avatar_url: string | null; // text
   email: string | null; // text, UNIQUE (can be synced from auth.users)
+  role: UserRole; // user_role
 };
 
 export type Workspace = {

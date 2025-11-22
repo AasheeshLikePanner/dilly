@@ -1,6 +1,6 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import {
   Sidebar,
@@ -17,8 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { House, ChartPieSlice, Gear, Question, UserCircle } from "phosphor-react";
-import SidebarHeaderContent from "@/components/sidebar-header-content"; // Import the new component
-import { useSearchParams } from 'next/navigation'; // Import useSearchParams
+import SidebarHeaderContent from "@/components/sidebar-header-content";
+import { useSearchParams, usePathname } from 'next/navigation'; // Import usePathname
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +30,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,12 +42,27 @@ export default function RootLayout({
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
-  const workspaceId = searchParams.get('workspaceId') || undefined; // Get workspaceId from URL
+  const pathname = usePathname(); // Get current pathname
+  const workspaceId = searchParams.get('workspaceId') || undefined;
+
+  const hideSidebar = pathname === '/workspaces' || pathname === '/auth' || pathname === '/workspaces/new';
+
+  if (hideSidebar) {
+    return (
+      <html lang="en" className="dark h-full">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
+        >
+          {children}
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en" className="dark h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
       >
         <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <Sidebar
