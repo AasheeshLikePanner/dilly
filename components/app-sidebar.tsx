@@ -141,40 +141,44 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                         {/* Roadmap */}
-                        <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/projects/roadmap'))} tooltip="Roadmap">
-                            <a href={getHrefWithSlug('/projects/roadmap')}>
-                                <MapTrifold />
-                                <span>Roadmap</span>
-                            </a>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
                       </SidebarMenu>
                     </SidebarGroup>
             
                     {/* Group 3: Community */}
                     <SidebarGroup>
                       <SidebarGroupLabel>Community</SidebarGroupLabel>
-                      <SidebarGroupContent>
-                        <SidebarMenu>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/feedback'))} tooltip="Feedback Board">
-                              <a href={getHrefWithSlug('/feedback')}>
+                      <SidebarMenu>
+                        {/* Emoji Feedback */}
+                        <SidebarMenuItem>
+                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))} tooltip="Emoji Feedback">
+                            <a href={getHrefWithSlug('/components/feedback/emoji')}>
                                 <ChatCircleText />
-                                <span>Feedback Board</span>
-                              </a>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/help'))} tooltip="Help Center">
-                                                <a href={getHrefWithSlug('/help')}>
-                                                  <Lifebuoy />
-                                                  <span>Support</span>
-                                                </a>
-                                              </SidebarMenuButton>                        </SidebarMenuItem>
-                        </SidebarMenu>
-                      </SidebarGroupContent>
+                                <span>Emoji Feedback</span>
+                            </a>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        {/* Slider Feedback */}
+                        <SidebarMenuItem>
+                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))} tooltip="Slider Feedback">
+                            <a href={getHrefWithSlug('/components/feedback/slider')}>
+                                <ChatCircleText />
+                                <span>Slider Feedback</span>
+                            </a>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        {/* Number Feedback */}
+                        <SidebarMenuItem>
+                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider/rateexperience'))} tooltip="Number Feedback">
+                            <a href={getHrefWithSlug('/components/feedback/slider/rateexperience')}>
+                                <ChatCircleText />
+                                <span>Number Feedback</span>
+                            </a>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      </SidebarMenu>
                     </SidebarGroup>
+            
+
                   </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
