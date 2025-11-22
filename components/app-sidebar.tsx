@@ -15,7 +15,11 @@ import {
   Lifebuoy,
   MapTrifold,
   UserCircle,
-  SignOut // Import SignOut icon
+  SignOut, // Import SignOut icon
+  Smiley, // New icon for Emoji Feedback
+  SlidersHorizontal, // New icon for Slider Feedback
+  NotePencil, // New icon for Form Feedback
+  Cube // New icon for Feedback parent
 } from "phosphor-react"
 
 import {
@@ -146,34 +150,61 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
             
                     {/* Group 3: Community */}
                     <SidebarGroup>
-                      <SidebarGroupLabel>Community</SidebarGroupLabel>
+                      <SidebarGroupLabel>Components</SidebarGroupLabel>
                       <SidebarMenu>
-                        {/* Emoji Feedback */}
                         <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))} tooltip="Emoji Feedback">
-                            <a href={getHrefWithSlug('/components/feedback/emoji')}>
-                                <ChatCircleText />
-                                <span>Emoji Feedback</span>
-                            </a>
+                          {/* Non-clickable parent "Feedback" */}
+                          <SidebarMenuButton tooltip="Feedback">
+                            <Cube /> {/* Using a generic icon for the parent */}
+                            <span>Feedback</span>
                           </SidebarMenuButton>
+                          <SidebarMenuSub>
+                            {/* Emoji Feedback */}
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
+                                <a href={getHrefWithSlug('/components/feedback/emoji')}>
+                                    <Smiley />
+                                    <span>Emoji Feedback</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            {/* Slider Feedback */}
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
+                                <a href={getHrefWithSlug('/components/feedback/slider')}>
+                                    <SlidersHorizontal />
+                                    <span>Slider Feedback</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                            {/* Form Feedback */}
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
+                                <a href={getHrefWithSlug('/components/feedback/form')}>
+                                    <NotePencil />
+                                    <span>Form Feedback</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
                         </SidebarMenuItem>
-                        {/* Slider Feedback */}
                         <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))} tooltip="Slider Feedback">
-                            <a href={getHrefWithSlug('/components/feedback/slider')}>
-                                <ChatCircleText />
-                                <span>Slider Feedback</span>
-                            </a>
+                          {/* Non-clickable parent "Bug Reporting" */}
+                          <SidebarMenuButton tooltip="Bug Reporting">
+                            <Bug /> {/* Using Bug icon for the parent */}
+                            <span>Bug Reporting</span>
                           </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        {/* Form Feedback */}
-                        <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))} tooltip="Form Feedback">
-                            <a href={getHrefWithSlug('/components/feedback/form')}>
-                                <ChatCircleText />
-                                <span>Form Feedback</span>
-                            </a>
-                          </SidebarMenuButton>
+                          <SidebarMenuSub>
+                            {/* Simple Bug Form */}
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>
+                                <a href={getHrefWithSlug('/components/bug-reporting/form')}>
+                                    <NotePencil /> {/* Reusing NotePencil for a form */}
+                                    <span>Simple Form</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </SidebarMenuSub>
                         </SidebarMenuItem>
                       </SidebarMenu>
                     </SidebarGroup>

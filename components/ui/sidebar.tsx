@@ -516,7 +516,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      className={cn(sidebarMenuButtonVariants({ variant, size }), !isActive && "opacity-50", "hover:opacity-100", className)}
       {...props}
     />
   )
@@ -690,6 +690,8 @@ function SidebarMenuSubButton({
         size === "sm" && "text-xs",
         size === "md" && "text-sm",
         "group-data-[collapsible=icon]:hidden",
+        !isActive && "opacity-50", // Add opacity-50 when not active
+        "hover:opacity-100", // Add full opacity on hover
         className
       )}
       {...props}
