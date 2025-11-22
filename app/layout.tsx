@@ -3,22 +3,12 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarProvider,
   SidebarInset,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { House, ChartPieSlice, Gear, Question, UserCircle } from "phosphor-react";
-import SidebarHeaderContent from "@/components/sidebar-header-content";
 import { useSearchParams, usePathname } from 'next/navigation';
+import { AppSidebar } from "@/components/app-sidebar";
+import { useState } from "react"; // Import useState
 
 import { Toaster } from '@/components/ui/sonner';
 
@@ -42,10 +32,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const workspaceId = searchParams.get('workspaceId') || undefined;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Fixed: Check if pathname starts with /dashboard to keep sidebar visible
   const hideSidebar = 
@@ -73,56 +63,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
       >
         <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-          <Sidebar
-            collapsible="icon"
+          <AppSidebar 
+            workspaceId={workspaceId} 
             onMouseEnter={() => setIsSidebarOpen(true)}
             onMouseLeave={() => setIsSidebarOpen(false)}
-          >
-            <SidebarHeader>
-              <SidebarHeaderContent initialWorkspaceId={workspaceId} />
-            </SidebarHeader>
-            <SidebarContent className="p-2">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <House className="h-5 w-5" />
-                    Home
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <ChartPieSlice className="h-5 w-5" />
-                    Dashboard
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarContent>
-            <SidebarFooter>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <Gear className="h-5 w-5" />
-                    Settings
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <Question className="h-5 w-5" />
-                    Help
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <UserCircle className="h-5 w-5" />
-                    User Profile
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarTrigger />
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarFooter>
-          </Sidebar>
+          />
           <SidebarInset>
             <header className="flex items-center justify-between">
               <div>

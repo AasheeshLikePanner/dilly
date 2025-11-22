@@ -42,13 +42,14 @@ const generateId = (issueType: string) => {
   return `${issueType.toLowerCase()}-${randomString}`;
 };
 
-const initialIssues = issuesData.map(issue => ({
-  ...issue,
-  id: generateId(issue.issueType),
-}));
+const initialIssues = issuesData
+  .filter(issue => issue.issueType === "Bug") // Filter for bugs
+  .map(issue => ({
+    ...issue,
+    id: generateId(issue.issueType),
+  }));
 
 const statusOptions = ["Open", "In Progress", "Closed", "Resolved", "Testing"];
-const issueTypeOptions = ["Bug", "Feature", "Documentation", "Other"];
 
 const getStatusClasses = (status: string) => {
   switch (status) {
@@ -128,7 +129,6 @@ export function IssuesTable() {
           <TableRow>
             <TableHead className="w-[140px]">ID</TableHead>
             <TableHead className="w-[200px]">Issue Title</TableHead>
-            <TableHead className="w-[100px]">Issue Type</TableHead>
             <TableHead className="w-[300px]">Description</TableHead>
             <TableHead className="w-[100px]">
               <DropdownMenu>
@@ -164,20 +164,6 @@ export function IssuesTable() {
                     </TableCell>
                     <TableCell>
                       <Input value={editedData.title} onChange={(e) => handleChange('title', e.target.value)} />
-                    </TableCell>
-                    <TableCell>
-                      <Select value={editedData.issueType} onValueChange={(value) => handleChange('issueType', value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {issueTypeOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                     </TableCell>
                     <TableCell>
                       <Input value={editedData.description} onChange={(e) => handleChange('description', e.target.value)} />
@@ -223,11 +209,6 @@ export function IssuesTable() {
                     <TableCell>
                       <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
                         {issue.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className={cn({ "whitespace-nowrap overflow-hidden text-ellipsis": !isExpanded })}>
-                        {issue.issueType}
                       </div>
                     </TableCell>
                     <TableCell>
