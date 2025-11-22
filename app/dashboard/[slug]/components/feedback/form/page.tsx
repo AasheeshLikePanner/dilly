@@ -3,9 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, Terminal, Sparkles, Box } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// Ensure these are imported correctly from your file
-import { VariantForm } from '@/components/text-feedback';
+import TextInputFeedback from '@/components/text-feedback';
 
 // --- Custom Code Block Component ---
 const CodeSnippet = ({ title, code, language = "typescript" }) => {
@@ -50,12 +48,12 @@ const CodeSnippet = ({ title, code, language = "typescript" }) => {
 
 export default function TextFeedbackPage() {
   const installCmd = "npm install @/components/text-feedback framer-motion lucide-react";
-  const usageCode = `import { VariantForm } from '@/components/text-feedback';
+  const usageCode = `import TextInputFeedback from '@/components/text-feedback';
 
 export default function Page() {
   return (
     <div className="flex justify-center p-10">
-      <VariantForm />
+      <TextInputFeedback />
     </div>
   );
 }`;
@@ -100,23 +98,8 @@ export default function Page() {
           
           {/* Left: The Preview Area */}
           <div className="lg:col-span-3">
-            <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50">
-              <Tabs defaultValue="form" className="w-full">
-                
-                {/* iOS Style Segmented Control */}
-                <div className="p-4 border-b border-white/5 bg-white/[0.02]">
-                  <TabsList className="w-full bg-[#1A1A1A] p-1 rounded-xl border border-white/5">
-                    <TabsTrigger value="form" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Form</TabsTrigger>
-                  </TabsList>
-                </div>
-
-                {/* Content Area */}
-                <div className="h-[400px] w-full flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#0A0A0A] to-[#0A0A0A]">
-                  <TabsContent value="form" className="mt-0 w-full">
-                    <VariantForm />
-                  </TabsContent>
-                </div>
-              </Tabs>
+            <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50 h-[400px] w-full flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#0A0A0A] to-[#0A0A0A]">
+              <TextInputFeedback />
             </div>
           </div>
 

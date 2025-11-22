@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, Terminal, Sparkles, Box } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // Ensure these are imported correctly from your file
-import { VariantPhoton, VariantMagnetic, VariantCrystal } from '@/components/slider-reaction';
+import { VariantShapeShifter, VariantCinematic, VariantCrystal } from '@/components/slider-reaction';
 
 // --- Custom Code Block Component ---
 const CodeSnippet = ({ title, code, language = "typescript" }) => {
@@ -50,12 +50,12 @@ const CodeSnippet = ({ title, code, language = "typescript" }) => {
 
 export default function SliderFeedbackPage() {
   const installCmd = "npm install @/components/slider-reaction framer-motion lucide-react";
-  const usageCode = `import { VariantPhoton } from '@/components/slider-reaction';
+  const usageCode = `import { VariantShapeShifter } from '@/components/slider-reaction';
 
 export default function Page() {
   return (
     <div className="flex justify-center p-10">
-      <VariantPhoton />
+      <VariantShapeShifter />
     </div>
   );
 }`;
@@ -85,13 +85,13 @@ export default function Page() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-400 mb-4"
           >
             <Sparkles size={12} className="text-yellow-400" />
-            <span>New Interactive Sliders</span>
+            <span>New Numeric Precision Sliders</span>
           </motion.div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
-            Slider Feedback
+            Numeric Precision
           </h2>
           <p className="text-zinc-400 text-lg max-w-lg mx-auto leading-relaxed">
-            Precise, physics-based micro-interactions for gathering numeric sentiment.
+            Experimental physics-based inputs designed for high-end user experiences.
           </p>
         </div>
 
@@ -101,24 +101,24 @@ export default function Page() {
           {/* Left: The Preview Area */}
           <div className="lg:col-span-3">
             <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50">
-              <Tabs defaultValue="photon" className="w-full">
+              <Tabs defaultValue="shape-shifter" className="w-full">
                 
                 {/* iOS Style Segmented Control */}
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <TabsList className="w-full bg-[#1A1A1A] p-1 rounded-xl border border-white/5">
-                    <TabsTrigger value="photon" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Photon</TabsTrigger>
-                    <TabsTrigger value="magnetic" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Magnetic</TabsTrigger>
+                    <TabsTrigger value="shape-shifter" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Shape Shifter</TabsTrigger>
+                    <TabsTrigger value="cinematic" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Cinematic</TabsTrigger>
                     <TabsTrigger value="crystal" className="flex-1 rounded-lg text-xs font-medium data-[state=active]:bg-[#2A2A2A] data-[state=active]:text-white text-zinc-500 transition-all">Crystal</TabsTrigger>
                   </TabsList>
                 </div>
 
                 {/* Content Area */}
                 <div className="h-[400px] w-full flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#0A0A0A] to-[#0A0A0A]">
-                  <TabsContent value="photon" className="mt-0 w-full">
-                    <VariantPhoton />
+                  <TabsContent value="shape-shifter" className="mt-0 w-full">
+                    <VariantShapeShifter />
                   </TabsContent>
-                  <TabsContent value="magnetic" className="mt-0 w-full">
-                    <VariantMagnetic />
+                  <TabsContent value="cinematic" className="mt-0 w-full">
+                    <VariantCinematic />
                   </TabsContent>
                   <TabsContent value="crystal" className="mt-0 w-full">
                     <VariantCrystal />
