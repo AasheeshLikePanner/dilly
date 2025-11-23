@@ -265,9 +265,9 @@ const ApiKeyItem = ({ apiKey, onRevoke }: ApiKeyItemProps) => {
         </div>
         
         <div className="flex items-center gap-2">
-            <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-9 w-9 p-0">
-                <Trash className='w-10' /> {/* Use Trash from phosphor-react, remove text-white */}
-            </Button>        
+             <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-12 w-12 px-3 py-3">
+                <Trash size={24} className="text-red-500" />
+             </Button>        
             </div>
       </div>
 
