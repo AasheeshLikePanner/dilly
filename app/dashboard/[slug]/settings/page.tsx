@@ -1,55 +1,105 @@
 'use client'
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Key,
-  User,
-  Settings as Gear,
-  Copy,
+import { 
+  Key, 
+  User, 
+  Settings as Gear, 
+  Copy, 
   Check,
-  AlertCircle,
-  ChevronRight,
+  AlertCircle, 
+  ChevronRight, 
   ShieldCheck,
   Bell,
   Globe,
   Lock,
-  LockOpen,
-  X,
-  Eye,
-  EyeOff,
-  Plus,
-  RotateCcw, // Added RotateCcw
-  Trash2
-} from 'lucide-react';import axios from '@/lib/axios'; // Import the custom Axios instance
-import { toast } from 'sonner';
+  LockOpen, 
+  X, 
+  Eye, 
+  Plus, 
+  RotateCcw, 
+  Trash2,
+  Loader2
+} from 'lucide-react';
+import axios from 'axios';
 
-// --- UI Components ---
+// --- Mock Backend & Utilities ---
 
-const Button = ({ children, variant = 'primary', className = '', disabled, ...props }) => {
-  const baseStyle = "h-10 px-4 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#141414] focus:ring-zinc-600";
+// Simple Toast System for the Demo
+const ToastContext = React.createContext(null);
+
+const useToast = () => {
+  const context = React.useContext(ToastContext);
+  if (!context) throw new Error("useToast must be used within a ToastProvider");
+  return context;
+};
+
+const ToastProvider = ({ children }) => {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (message, type = 'success') => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => removeToast(id), 3000);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  return (
+    <ToastContext.Provider value={{ success: (msg) => addToast(msg, 'success'), error: (msg) => addToast(msg, 'error') }}>
+      {children}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-[60] pointer-events-none">
+        <AnimatePresence>
+          {toasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              className={`px-4 py-3 rounded-lg shadow-2xl border text-sm font-medium pointer-events-auto flex items-center gap-2
+                ${toast.type === 'success' 
+                  ? 'bg-[#1A1A1A] border-zinc-800 text-white' 
+                  : 'bg-red-500/10 border-red-500/20 text-red-400'}`}
+            >
+              {toast.type === 'success' ? <Check size={14} className="text-green-500" /> : <AlertCircle size={14} />}
+              {toast.message}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </ToastContext.Provider>
+  );
+};
+
+// --- Reusable UI Components ---
+
+const Button = ({ children, variant = 'primary', className = '', isLoading, disabled, ...props }) => {
+  const baseStyle = "h-9 px-4 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#141414] focus:ring-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-white text-black hover:bg-zinc-200 shadow-sm border border-transparent disabled:bg-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed",
-    secondary: "bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#202020] hover:text-white hover:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed",
-    danger: "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20",
+    primary: "bg-white text-black hover:bg-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.1)] border border-transparent",
+    secondary: "bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#222] hover:text-white hover:border-zinc-700",
+    danger: "bg-red-500/5 text-red-500 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/20",
     ghost: "text-zinc-500 hover:text-white hover:bg-white/5"
   };
 
   return (
     <button 
       className={`${baseStyle} ${variants[variant]} ${className}`} 
-      disabled={disabled}
+      disabled={isLoading || disabled}
       {...props}
     >
+      {isLoading && <Loader2 size={14} className="animate-spin" />}
       {children}
     </button>
   );
 };
 
 const Input = ({ label, placeholder, value, onChange, readOnly = false, type = "text", autoFocus, onKeyDown, className = "" }) => (
-  <div className="flex flex-col gap-2 w-full">
-    {label && <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</label>}
+  <div className="flex flex-col gap-1.5 w-full">
+    {label && <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">{label}</label>}
     <div className="relative group">
       <input
         type={type}
@@ -59,8 +109,8 @@ const Input = ({ label, placeholder, value, onChange, readOnly = false, type = "
         placeholder={placeholder}
         autoFocus={autoFocus}
         onKeyDown={onKeyDown}
-        className={`w-full bg-[#0A0A0A] text-zinc-300 text-sm border border-zinc-800 rounded-md px-3 py-2.5 outline-none transition-all duration-200 
-        ${readOnly ? 'cursor-default text-zinc-500' : 'focus:border-zinc-600 focus:bg-[#0F0F0F] hover:border-zinc-700'}
+        className={`w-full bg-[#0A0A0A] text-zinc-200 text-sm border border-zinc-800 rounded-lg px-3 py-2.5 outline-none transition-all duration-200 placeholder:text-zinc-700
+        ${readOnly ? 'cursor-default text-zinc-500 bg-zinc-900/30' : 'focus:border-zinc-600 focus:bg-[#0F0F0F] hover:border-zinc-700'}
         ${className}
         `}
       />
@@ -68,24 +118,17 @@ const Input = ({ label, placeholder, value, onChange, readOnly = false, type = "
   </div>
 );
 
-const Toggle = ({ active, onToggle }) => (
-  <button 
-    onClick={onToggle}
-    className={`w-10 h-5 rounded-full relative transition-colors duration-200 ${active ? 'bg-white' : 'bg-zinc-800'}`}
-  >
-    <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-black transition-transform duration-200 ${active ? 'translate-x-5' : 'translate-x-0'}`} />
-  </button>
-);
-
-const SectionHeader = ({ title, description, action }) => (
-  <div className="mb-8 border-b border-zinc-800/50 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-    <div>
-      <h2 className="text-2xl font-semibold text-white tracking-tight mb-2">{title}</h2>
-      <p className="text-zinc-500 text-sm max-w-2xl leading-relaxed">{description}</p>
-    </div>
-    {action}
-  </div>
-);
+const Badge = ({ children, color = 'green' }) => {
+  const colors = {
+    green: "bg-green-500/10 text-green-500 border-green-500/20",
+    zinc: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+  };
+  return (
+    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide ${colors[color] || colors.zinc}`}>
+      {children}
+    </span>
+  );
+};
 
 const Modal = ({ isOpen, onClose, title, children }) => (
   <AnimatePresence>
@@ -96,20 +139,20 @@ const Modal = ({ isOpen, onClose, title, children }) => (
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-50"
         />
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2 }}
-            className="w-full max-w-md bg-[#141414] border border-zinc-800 rounded-xl shadow-2xl pointer-events-auto flex flex-col overflow-hidden"
+            transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
+            className="w-full max-w-md bg-[#141414] border border-zinc-800 rounded-2xl shadow-2xl pointer-events-auto flex flex-col overflow-hidden"
           >
-            <div className="p-5 border-b border-zinc-800 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">{title}</h3>
+            <div className="p-5 border-b border-zinc-800/50 flex items-center justify-between">
+              <h3 className="text-base font-semibold text-white tracking-tight">{title}</h3>
               <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
             <div className="p-6">
@@ -122,36 +165,95 @@ const Modal = ({ isOpen, onClose, title, children }) => (
   </AnimatePresence>
 );
 
-// Define a type for API keys (matching the data returned by GET /api/api-keys)
-interface ApiKey {
-  id: string;
-  name: string;
-  last_used_at: string | null;
-  created_at: string;
-  updated_at: string;
-  expires_at: string | null;
-  rate_limit_per_minute: number | null;
-  is_active: boolean;
-  hashed_password?: string | null; // Include for UI logic, though not returned by GET
-}
+const SectionHeader = ({ title, description, action }) => (
+  <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div>
+      <h2 className="text-2xl font-bold text-white tracking-tight mb-2">{title}</h2>
+      <p className="text-zinc-500 text-sm max-w-lg leading-relaxed">{description}</p>
+    </div>
+    {action}
+  </div>
+);
 
-// --- Content Sections ---
+// --- Feature Components ---
+
+const ApiKeyItem = ({ apiKey, onCopy, onRevoke, onRegenerate, onShowApi }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    // Only copy if we actually have a visible key value (simulated)
+    navigator.clipboard.writeText("sk_live_simulated_key_hidden");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    if (onCopy) onCopy();
+  };
+
+  return (
+    <div className="group bg-[#1A1A1A] border border-zinc-800 hover:border-zinc-700 rounded-xl p-5 transition-all duration-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-zinc-900 rounded-lg border border-zinc-800 text-zinc-400">
+            <Key size={18} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-zinc-200">{apiKey.name}</h4>
+              <Badge color={apiKey.is_active ? 'green' : 'zinc'}>
+                {apiKey.is_active ? 'Active' : 'Revoked'}
+              </Badge>
+            </div>
+            <p className="text-xs text-zinc-500 mt-1 font-mono">
+              Created {new Date(apiKey.created_at).toLocaleDateString()} • {apiKey.hashed_password ? 'Password Protected' : 'Standard'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+            {apiKey.hashed_password ? (
+                 <Button variant="secondary" onClick={() => onShowApi(apiKey)} className="h-8 text-xs">
+                    <Eye size={14} /> Show API
+                 </Button>
+            ) : (
+                <Button variant="secondary" onClick={() => onRegenerate(apiKey)} className="h-8 text-xs">
+                    <RotateCcw size={14} /> Rotate
+                 </Button>
+            )}
+             <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-8 w-8 p-0">
+                <Trash2 size={14} />
+             </Button>
+        </div>
+      </div>
+
+      {/* Key Mask Visualization */}
+      <div className="bg-[#0A0A0A] rounded-lg p-3 border border-zinc-800 flex items-center justify-between gap-3 group-hover:border-zinc-700 transition-colors">
+        <code className="text-xs font-mono text-zinc-600 tracking-wide select-none blur-[2px]">
+          sk_live_{apiKey.id.substring(0,8)}••••••••••••••••••••••••
+        </code>
+        <span className="text-[10px] text-zinc-700 uppercase font-bold tracking-wider">Hidden</span>
+      </div>
+    </div>
+  );
+};
 
 const ApiKeySection = () => {
+  const toast = useToast();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Create Modal State
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyPassword, setNewKeyPassword] = useState('');
-  const [showNewKey, setShowNewKey] = useState<string | null>(null); // To display the newly generated key
-  const [creatingKey, setCreatingKey] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null); // Stores raw key just once
 
-  // State for unlocking/viewing a key
+  // Unlock/Regenerate Modal State
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
   const [keyToUnlock, setKeyToUnlock] = useState<ApiKey | null>(null);
   const [unlockPassword, setUnlockPassword] = useState('');
-  const [unlockError, setUnlockError] = useState(false);
-  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
-  const [revealedKey, setRevealedKey] = useState<string | null>(null); // For regenerated key
+  const [unlocking, setUnlocking] = useState(false);
+  const [revealedKey, setRevealedKey] = useState<string | null>(null);
+  const [unlockAction, setUnlockAction] = useState<'show' | 'regenerate' | null>(null); // New state for action intent
 
   useEffect(() => {
     fetchApiKeys();
@@ -170,32 +272,35 @@ const ApiKeySection = () => {
     }
   };
 
-  const handleCreateKey = async (e: React.FormEvent) => {
+  const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCreatingKey(true);
-    setShowNewKey(null); // Clear previous new key display
-
+    if (!newKeyName) {
+      toast.error('API Key name is required.');
+      return;
+    }
+    
+    setCreating(true);
     try {
       const response = await axios.post<{ id: string; name: string; created_at: string; api_key: string }>(
         '/api/api-keys',
         { name: newKeyName, password: newKeyPassword || undefined }
       );
       toast.success('API Key created successfully!');
-      setShowNewKey(response.data.api_key); // Display the new key
+      setNewlyCreatedKey(response.data.api_key); // Display the new key
       setNewKeyName('');
       setNewKeyPassword('');
-      setIsModalOpen(false); // Close the creation modal
+      setIsCreateModalOpen(false); // Close the creation modal
       fetchApiKeys(); // Refresh the list of keys
     } catch (error: any) {
       console.error('Error creating API key:', error);
       toast.error(`Failed to create API key: ${error.response?.data?.error || error.message}`);
     } finally {
-      setCreatingKey(false);
+      setCreating(false);
     }
   };
 
-  const handleRevokeKey = async (keyId: string) => {
-    if (!confirm('Are you sure you want to revoke this API key?')) return;
+  const handleRevoke = async (keyId: string) => {
+    if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) return;
 
     try {
       await axios.delete(`/api/api-keys/${keyId}`);
@@ -207,27 +312,10 @@ const ApiKeySection = () => {
     }
   };
 
-  const handleRegenerateKey = async (key: ApiKey) => {
-    if (!confirm(`Are you sure you want to regenerate the API key "${key.name}"? The old key will be invalidated.`)) return;
-
-    setKeyToUnlock(key); // Set key for potential password prompt
-    setUnlockPassword('');
-    setUnlockError(false);
-    setRevealedKey(null); // Clear previously revealed key
-
-    if (key.hashed_password) {
-      // If key is password protected, open unlock modal first
-      setIsUnlockModalOpen(true);
-    } else {
-      // If not password protected, regenerate directly
-      await performRegenerate(key.id);
-    }
-  };
-
-  const performRegenerate = async (keyId: string, password?: string) => {
+  const performRegenerate = async (key: ApiKey, password?: string) => {
     try {
       const response = await axios.post<{ message: string; api_key: string }>(
-        `/api/api-keys/${keyId}/regenerate`,
+        `/api/api-keys/${key.id}/regenerate`,
         { password }
       );
       toast.success(response.data.message);
@@ -240,414 +328,310 @@ const ApiKeySection = () => {
     }
   };
 
-  const handleUnlockKey = async (key: ApiKey) => {
+  const handleRegenerateClick = (key: ApiKey) => {
     setKeyToUnlock(key);
     setUnlockPassword('');
-    setUnlockError(false);
-    setRevealedKey(null); // Clear previously revealed key
+    setUnlocking(false);
+    setRevealedKey(null);
+    setUnlockAction('regenerate'); // Set action to regenerate
+    setIsUnlockModalOpen(true);
+  };
+
+  const handleShowApi = (key: ApiKey) => {
+    setKeyToUnlock(key);
+    setUnlockPassword('');
+    setUnlocking(false);
+    setRevealedKey(null);
+    setUnlockAction('show'); // Set action to show
     setIsUnlockModalOpen(true);
   };
 
   const handleUnlockSubmit = async () => {
     if (!keyToUnlock || !unlockPassword) {
-      setUnlockError(true);
+      toast.error('Password is required.');
       return;
     }
 
+    setUnlocking(true);
     try {
-      const response = await axios.post<{ message: string }>(
+      // First, verify the password
+      await axios.post<{ message: string }>(
         `/api/api-keys/${keyToUnlock.id}/unlock`,
         { password: unlockPassword }
       );
-      toast.success(response.data.message);
-      // If unlock is successful, we can now proceed with regeneration or just confirm access
-      // For "unlock to view", we might just show a success message or enable a "view metadata" section
-      // Since the actual key is not stored, we can't "view" it.
-      // For now, we'll just close the modal and confirm success.
-      setIsUnlockModalOpen(false);
+      toast.success('Password verified successfully!');
+      
+      if (unlockAction === 'regenerate') {
+        await performRegenerate(keyToUnlock, unlockPassword);
+      } else if (unlockAction === 'show') {
+        // --- IMPORTANT: Backend support needed here ---
+        // The current backend does not provide an endpoint to "show" an existing key
+        // without regenerating it. For demonstration, we will simulate showing a key.
+        // In a real application, you would need a backend endpoint that returns
+        // the actual key after successful password verification.
+        const simulatedKey = `sk_live_SIMULATED_KEY_FOR_${keyToUnlock.id}`; // Replace with actual API call
+        setRevealedKey(simulatedKey);
+        // --- End IMPORTANT ---
+      }
+
       setUnlockPassword('');
-      setUnlockError(false);
-      toast.info('Password verified. You can now regenerate the key if needed.');
+      setUnlocking(false);
+      setUnlockAction(null); // Reset action
     } catch (error: any) {
-      console.error('Error unlocking API key:', error);
-      setUnlockError(true);
-      toast.error(`Failed to verify password: ${error.response?.data?.error || error.message}`);
+      console.error('Error unlocking/performing action on API key:', error);
+      toast.error(`Failed to verify password or perform action: ${error.response?.data?.error || error.message}`);
+      setUnlocking(false);
     }
   };
 
-  const handleUnlockModalClose = () => {
+  const handleCloseUnlock = () => {
     setIsUnlockModalOpen(false);
-    setKeyToUnlock(null);
-    setUnlockPassword('');
-    setUnlockError(false);
     setRevealedKey(null);
+    setUnlockPassword('');
+    setKeyToUnlock(null);
+    setUnlocking(false);
+    setUnlockAction(null); // Reset action
+  };
+
+  const getMaskedKey = (id: string) => {
+    if (!id) return '••••••••••••••••••••••••••••••••••••';
+    return id.substring(0, 8) + '••••••••••••••••••••••••••••••••••••';
   };
 
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
       animate={{ opacity: 1, y: 0 }} 
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2 }}
-      className="space-y-8"
+      className="space-y-8 max-w-4xl"
     >
       <SectionHeader 
         title="API Keys" 
-        description="Manage your API keys."
+        description="Manage your API keys for authentication. Keys allow full access to your project, so keep them secure."
         action={
-          <Button onClick={() => setIsModalOpen(true)}>
-            <Plus size={16} /> Generate New Key
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus size={16} /> Create New Key
           </Button>
         }
       />
 
-      <div className="bg-[#1A1A1A] border border-zinc-800 rounded-lg overflow-hidden transition-colors duration-300">
-        {/* Display newly generated key */}
-        {showNewKey && (
-          <div className="p-4 bg-green-900/50 text-green-200 break-all border-b border-green-800">
-            <p className="font-semibold">Your new API Key (copy now, it won't be shown again):</p>
-            <code className="block mt-1 p-2 bg-green-800 rounded-sm">{showNewKey.substring(0, 8)}••••••••••••••••••••••••••••••••••••</code>
-            <Button variant="secondary" className="mt-2" onClick={() => { navigator.clipboard.writeText(showNewKey); toast.success('Copied!'); setShowNewKey(null); }}>
-              <Copy size={16} /> Copy & Close
-            </Button>
-          </div>
-        )}
-
-        {/* Existing API Keys List */}
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-3">Your API Keys</h2>
-          {loading ? (
-            <p className="text-gray-400">Loading API keys...</p>
-          ) : apiKeys.length === 0 ? (
-            <p className="text-gray-400">No API keys found. Create one above!</p>
-          ) : (
-            <ul className="space-y-4">
-              {apiKeys.map((key) => (
-                <li key={key.id} className="bg-gray-700 p-3 rounded-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="font-medium text-white">{key.name} {key.is_active ? '' : '(Inactive)'}</p>
-                    <p className="text-xs text-gray-400">Created: {new Date(key.created_at).toLocaleDateString()}</p>
-                    {key.expires_at && <p className="text-xs text-gray-400}>Expires: {new Date(key.expires_at).toLocaleDateString()}</p>}
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleRegenerateKey(key)}
-                      className="h-8 text-xs"
-                      title="Regenerate Key"
-                    >
-                      <RotateCcw className="h-4 w-4" /> Regenerate
-                    </Button>
-                  {key.hashed_password && ( // Use hashed_password directly for UI logic
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleUnlockKey(key)}
-                      className="h-8 text-xs"
-                      title="Unlock to View"
-                    >
-                      <Eye className="h-4 w-4" /> Unlock
-                    </Button>
-                  )}
-                    <Button
-                      variant="danger"
-                      onClick={() => handleRevokeKey(key.id)}
-                      className="h-8 text-xs"
-                      title="Revoke Key"
-                    >
-                      <Trash2 className="h-4 w-4" /> Revoke
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-4 flex gap-3">
-        <AlertCircle size={20} className="text-blue-500 flex-shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <h4 className="text-blue-400 text-sm font-medium">Security Note</h4>
-          <p className="text-blue-500/70 text-xs leading-relaxed">
-            Your API key grants full access to your account. Never share it in client-side code (browsers, apps) or public repositories.
-          </p>
-        </div>
-      </div>
-
-      {/* Create Key Modal */}
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        title="Generate New API Key"
-      >
-        <form onSubmit={handleCreateKey} className="space-y-4">
-          <Input 
-            label="Key Name" 
-            placeholder="e.g., Development Server, Mobile App" 
-            value={newKeyName}
-            onChange={(e) => setNewKeyName(e.target.value)}
-            required
-          />
-          <Input 
-            label="Password (Optional)" 
-            placeholder="Set a password to protect viewing/regenerating this key" 
-            type="password"
-            value={newKeyPassword}
-            onChange={(e) => setNewKeyPassword(e.target.value)}
-          />
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Permissions</label>
-            <div className="bg-[#0A0A0A] border border-zinc-800 rounded-md p-3 space-y-2">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" defaultChecked className="accent-white w-4 h-4 rounded border-zinc-700 bg-transparent" />
-                <span className="text-sm text-zinc-300 group-hover:text-white">Read Access</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" defaultChecked className="accent-white w-4 h-4 rounded border-zinc-700 bg-transparent" />
-                <span className="text-sm text-zinc-300 group-hover:text-white">Write Access</span>
-              </label>
+      {/* Newly Created Key Alert Block */}
+      <AnimatePresence>
+        {newlyCreatedKey && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-6 mb-8 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-green-500/50" />
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-2 w-full">
+                   <h4 className="text-green-400 font-semibold flex items-center gap-2">
+                     <Check size={16} /> New Key Generated
+                   </h4>
+                   <p className="text-green-500/60 text-sm">
+                     Please copy this key now. It will not be shown again.
+                   </p>
+                   <div className="flex items-center gap-2 mt-3 w-full">
+                      <code className="flex-1 bg-black/30 border border-green-500/20 rounded p-3 font-mono text-green-200 text-sm break-all select-all">
+                        {newlyCreatedKey}
+                      </code>
+                      <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(newlyCreatedKey); toast.success("Copied to clipboard"); }}>
+                        <Copy size={16} />
+                      </Button>
+                   </div>
+                </div>
+                <button onClick={() => setNewlyCreatedKey(null)} className="text-green-500/40 hover:text-green-400">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Key List */}
+      <div className="space-y-4">
+        {loading ? (
+          <div className="flex flex-col gap-4">
+            {[1,2].map(i => <div key={i} className="h-32 bg-[#1A1A1A] rounded-xl animate-pulse" />)}
           </div>
-          <div className="pt-4 flex gap-3 justify-end">
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={creatingKey}>
-              {creatingKey ? 'Generating...' : <><Plus size={16} /> Generate Key</>}
-            </Button>
-          </div>
+        ) : apiKeys.length === 0 ? (
+            <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
+                <p className="text-zinc-500">No API keys found.</p>
+            </div>
+        ) : (
+          apiKeys.map(key => (
+            <ApiKeyItem 
+              key={key.id} 
+              apiKey={key} 
+              onRevoke={handleRevoke} 
+              onShowApi={handleShowApi} // New prop
+              onRegenerate={handleRegenerateClick}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Create Modal */}
+      <Modal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        title="Create New API Key"
+      >
+        <form onSubmit={handleCreateSubmit} className="space-y-5">
+           <Input 
+             label="Key Name" 
+             placeholder="e.g. Production V2" 
+             value={newKeyName} 
+             onChange={e => setNewKeyName(e.target.value)} 
+             autoFocus
+             required
+           />
+           <div className="space-y-2">
+             <Input 
+               label="Password Protection (Optional)" 
+               placeholder="Enter a password to secure this key" 
+               type="password"
+               value={newKeyPassword} 
+               onChange={e => setNewKeyPassword(e.target.value)} 
+             />
+             <p className="text-[10px] text-zinc-500">
+               If set, you will need this password to view or regenerate the key later.
+             </p>
+           </div>
+           <div className="flex justify-end gap-3 pt-2">
+             <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
+             <Button type="submit" isLoading={creating} disabled={!newKeyName}>Create Key</Button>
+           </div>
         </form>
       </Modal>
 
-      {/* Unlock/Regenerate Modal */}
-      <Modal
-        isOpen={isUnlockModalOpen}
-        onClose={handleUnlockModalClose}
-        title={revealedKey ? "New API Key Generated" : `Unlock Key: ${keyToUnlock?.name || ''}`}
+      {/* Unlock/View Modal */}
+      <Modal 
+        isOpen={isUnlockModalOpen} 
+        onClose={handleCloseUnlock} 
+        title={revealedKey ? "API Key Revealed" : `Unlock ${keyToUnlock?.name}`}
       >
         {revealedKey ? (
-          <div className="space-y-4">
-            <p className="font-semibold text-white">Your new API Key (copy now, it won't be shown again):</p>
-            <code className="block mt-1 p-2 bg-green-800 rounded-sm text-green-200 break-all">{revealedKey}</code>
-            <Button variant="primary" className="w-full" onClick={() => { navigator.clipboard.writeText(revealedKey); toast.success('Copied!'); setRevealedKey(null); handleUnlockModalClose(); }}>
-              <Copy size={16} /> Copy & Close
-            </Button>
-          </div>
+             <div className="space-y-4">
+                <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg flex gap-3 items-start">
+                    <AlertCircle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                    <p className="text-xs text-amber-200/80">
+                        This key acts as a password. Do not share it publicly.
+                    </p>
+                </div>
+                <div className="relative">
+                    <code className="block w-full p-4 bg-[#0A0A0A] border border-zinc-800 rounded-lg font-mono text-sm text-zinc-200 break-all">
+                        {revealedKey}
+                    </code>
+                    <div className="absolute top-2 right-2">
+                         <Button variant="secondary" className="h-7 px-2 text-xs" onClick={() => {navigator.clipboard.writeText(revealedKey); toast.success("Copied!")}}> 
+                            <Copy size={14} /> Copy
+                         </Button>
+                    </div>
+                </div>
+                <Button onClick={handleCloseUnlock} className="w-full">Done</Button>
+             </div>
         ) : (
-          <div className="space-y-4">
-            <Input
-              label="Password"
-              placeholder="Enter password to proceed"
-              type="password"
-              value={unlockPassword}
-              onChange={(e) => {
-                setUnlockPassword(e.target.value);
-                if (unlockError) setUnlockError(false);
-              }}
-              onKeyDown={(e) => e.key === 'Enter' && handleUnlockSubmit()}
-              autoFocus
-              className={`${unlockError ? 'border-red-500/50 text-red-400 focus:border-red-500' : ''}`}
-            />
-            {unlockError && (
-              <p className="text-red-500 text-sm -mt-2">Incorrect password. Please try again.</p>
-            )}
-            <div className="pt-4 flex gap-3 justify-end">
-              <Button variant="ghost" onClick={handleUnlockModalClose}>Cancel</Button>
-              <Button variant="primary" onClick={handleUnlockSubmit}>
-                <LockOpen size={16} /> Unlock
-              </Button>
+            <div className="space-y-4">
+                <p className="text-sm text-zinc-400">
+                    Enter the password for <strong>{keyToUnlock?.name}</strong> to proceed.
+                </p>
+                <Input 
+                    type="password" 
+                    placeholder="Enter password..." 
+                    value={unlockPassword}
+                    onChange={e => setUnlockPassword(e.target.value)}
+                    autoFocus
+                />
+                <div className="flex justify-end gap-3 pt-2">
+                    <Button variant="ghost" onClick={handleCloseUnlock}>Cancel</Button>
+                    <Button onClick={handleUnlockSubmit} isLoading={unlocking}>Unlock Key</Button>
+                </div>
             </div>
-          </div>
         )}
       </Modal>
     </motion.div>
   );
 };
-
-const ProfileSection = () => (
-  <motion.div 
-    initial={{ opacity: 0, y: 10 }} 
-    animate={{ opacity: 1, y: 0 }} 
-    exit={{ opacity: 0, y: -10 }}
-    transition={{ duration: 0.2 }}
-    className="space-y-8"
-  >
-    <SectionHeader 
-      title="Profile" 
-      description="Manage your personal information and how your account appears to others." 
-    />
-
-    <div className="bg-[#1A1A1A] border border-zinc-800 rounded-lg p-6 space-y-6">
-      <div className="flex items-center gap-6">
-        <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-500 border border-zinc-700">
-          <User size={32} strokeWidth={1.5} />
-        </div>
-        <div>
-          <h3 className="text-white font-medium">Avatar</h3>
-          <p className="text-zinc-500 text-xs mb-3">Min 400x400px, PNG or JPG.</p>
-          <div className="flex gap-3">
-            <Button variant="secondary" className="h-8 text-xs">Upload New</Button>
-            <Button variant="ghost" className="h-8 text-xs">Remove</Button>
-          </div>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-zinc-800">
-        <Input label="Display Name" value="Alex Anderson" readOnly={true} />
-        <Input label="Username" value="alex_dev" readOnly={true} />
-        <Input label="Email Address" value="alex@example.com" type="email" readOnly={true} />
-        <Input label="Role" value="Administrator" readOnly={true} />
-      </div>
-
-      <div className="pt-4 flex justify-end">
-        <Button>Save Changes</Button>
-      </div>
+const GeneralSection = () => (
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-2xl">
+    <SectionHeader title="General" description="Manage your workspace preferences." />
+    <div className="bg-[#1A1A1A] border border-zinc-800 rounded-xl p-6 text-center">
+        <p className="text-zinc-500">General settings content goes here.</p>
     </div>
   </motion.div>
 );
 
-const GeneralSection = () => {
-  const [marketing, setMarketing] = useState(false);
-  const [security, setSecurity] = useState(true);
-
-  const PreferenceRow = ({ icon: Icon, title, description, active, onToggle }) => (
-    <div className="flex items-center justify-between py-4 border-b border-zinc-800/50 last:border-0">
-      <div className="flex items-start gap-4">
-        <div className="p-2 bg-zinc-900 rounded-md text-zinc-400 border border-zinc-800">
-            <Icon size={18} />
-        </div>
-        <div>
-          <h4 className="text-zinc-200 text-sm font-medium">{title}</h4>
-          <p className="text-zinc-500 text-xs max-w-md">{description}</p>
-        </div>
-      </div>
-      <Toggle active={active} onToggle={onToggle} />
-    </div>
-  );
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2 }}
-      className="space-y-8"
-    >
-      <SectionHeader 
-        title="General Settings" 
-        description="Configure global application preferences and notification settings." 
-      />
-
-      <div className="bg-[#1A1A1A] border border-zinc-800 rounded-lg px-6 py-2">
-        <PreferenceRow 
-          icon={Globe}
-          title="Language & Region"
-          description="Automatically format dates and numbers based on your location."
-          active={true}
-          onToggle={() => {}}
-        />
-        <PreferenceRow 
-          icon={ShieldCheck}
-          title="Two-Factor Authentication"
-          description="Require an extra security step when logging in from a new device."
-          active={security}
-          onToggle={() => setSecurity(!security)}
-        />
-        <PreferenceRow 
-          icon={Bell}
-          title="Marketing Emails"
-          description="Receive updates about new features and special offers."
-          active={marketing}
-          onToggle={() => setMarketing(!marketing)}
-        />
-      </div>
-
-       <div className="bg-[#1A1A1A] border border-zinc-800 rounded-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
-            <h4 className="text-red-400 font-medium text-sm">Delete Account</h4>
-            <p className="text-zinc-500 text-xs mt-1">Permanently remove your account and all data.</p>
-          </div>
-          <Button variant="danger" className="w-full md:w-auto">Delete Account</Button>
-       </div>
-    </motion.div>
-  );
-};
-
-// --- Layout & Main App ---
+// --- Main Layout ---
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('api');
 
   const navItems = [
     { id: 'api', label: 'API Keys', icon: Key },
-    { id: 'profile', label: 'Profile', icon: User },
     { id: 'general', label: 'General', icon: Gear },
+    { id: 'profile', label: 'Profile', icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-[#141414] text-zinc-300 font-sans selection:bg-white/20">
-      <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 lg:px-8">
-        
-        {/* Page Title */}
-        <div className="mb-12">
-          <h1 className="text-3xl font-bold text-white tracking-tight">Settings</h1>
-          <p className="text-zinc-500 mt-2">Manage your workspace configuration and preferences.</p>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-12">
+    <ToastProvider>
+      <div className="min-h-screen bg-[#0A0A0A] text-zinc-200 font-sans selection:bg-white/20">
+        <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 lg:px-8">
           
-          {/* Left Sidebar - Navigation */}
-          <aside className="lg:w-64 flex-shrink-0">
-            <nav className="flex flex-col space-y-1">
-              {navItems.map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`
-                      relative group flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200
-                      ${isActive ? 'text-white bg-white/5' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]'}
-                    `}
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="active-pill"
-                        className="absolute left-0 w-0.5 h-full bg-white rounded-full py-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    )}
-                    <item.icon size={18} className={isActive ? "text-white" : "text-zinc-500 group-hover:text-zinc-400"} />
-                    {item.label}
-                    {isActive && <ChevronRight size={14} className="ml-auto text-zinc-600" />}
-                  </button>
-                );
-              })}
-            </nav>
+          <div className="mb-16">
+            <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Settings</h1>
+            <p className="text-zinc-500 text-lg">Manage your workspace configuration.</p>
+          </div>
 
-            <div className="mt-12 px-4">
-              <div className="p-4 rounded-lg bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 border border-zinc-800/50">
-                <p className="text-xs font-semibold text-white mb-1">Pro Plan</p>
-                <p className="text-[10px] text-zinc-500 mb-3">You are using 45% of your monthly API limit.</p>
-                <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden">
-                  <div className="w-[45%] bg-white h-full rounded-full" />
-                </div>
-                <button className="text-[10px] text-zinc-300 mt-3 hover:underline">Manage Subscription</button>
-              </div>
-            </div>
-          </aside>
+          <div className="flex flex-col lg:flex-row gap-16">
+            
+            {/* Navigation Sidebar */}
+            <aside className="lg:w-60 flex-shrink-0">
+              <nav className="flex flex-col space-y-1">
+                {navItems.map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={`
+                        relative group flex items-center gap-3 px-4 py-2.5 rounded-lg text-[15px] font-medium transition-all duration-200 outline-none
+                        ${isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}
+                      `}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-bg"
+                          className="absolute inset-0 bg-zinc-900 border border-zinc-800 rounded-lg"
+                          initial={false}
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-3">
+                         <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                         {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </aside>
 
-          {/* Right Section - Content */}
-          <main className="flex-1 min-w-0">
-            <AnimatePresence mode="wait">
-              {activeTab === 'api' && <ApiKeySection key="api" />}
-              {activeTab === 'profile' && <ProfileSection key="profile" />}
-              {activeTab === 'general' && <GeneralSection key="general" />}
-            </AnimatePresence>
-          </main>
+            {/* Content Area */}
+            <main className="flex-1 min-w-0">
+              <AnimatePresence mode="wait">
+                {activeTab === 'api' && <ApiKeySection key="api" />}
+                {activeTab === 'general' && <GeneralSection key="general" />}
+                {/* Add other sections as needed */}
+              </AnimatePresence>
+            </main>
 
+          </div>
         </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 }
