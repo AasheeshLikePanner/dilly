@@ -1,27 +1,60 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bug, Send, Check } from 'lucide-react';
+import { Bug, Send, Check, AlertCircle, Loader2 } from 'lucide-react'; // Added AlertCircle, Loader2
+import axios from 'axios'; // Import axios
+import { useWorkspace } from '@/components/workspace-context'; // Import useWorkspace
+import { useToast } from '@/app/dashboard/[slug]/settings/page'; // Assuming useToast is exported from here
 
 export const VariantSimpleBugForm = () => {
+  const { workspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = useWorkspace(); // Get workspace context
+  const toast = useToast(); // Get toast context
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
+  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'error'
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) return;
+    if (!title.trim() || !description.trim()) {
+      toast.error('Title and description are required.');
+      return;
+    }
+    if (isWorkspaceLoading) {
+      toast.error('Workspace is still loading. Please wait.');
+      return;
+    }
+    if (workspaceError || !workspaceId) {
+      toast.error('Workspace ID is not available. Cannot submit bug.');
+      return;
+    }
 
     setStatus('sending');
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Assuming default values for type, priority, status for this simple form
+      await axios.post('/api/bugs', {
+        workspace_id: workspaceId,
+        title: title.trim(),
+        description: description.trim(),
+        type: 'bug', // Default type
+        priority: 'medium', // Default priority
+        status: 'open', // Default status
+      });
       setStatus('sent');
+      toast.success('Bug report submitted successfully!');
       setTimeout(() => {
         setStatus('idle');
         setTitle('');
         setDescription('');
       }, 3000);
-    }, 1500);
+    } catch (err: any) {
+      console.error('Error submitting bug:', err);
+      setStatus('error');
+      toast.error(`Failed to submit bug: ${err.response?.data?.error || err.message}`);
+      setTimeout(() => setStatus('idle'), 3000); // Reset status after a delay
+    }
   };
+
+  const isDisabled = !title.trim() || !description.trim() || status === 'sending' || isWorkspaceLoading || !!workspaceError;
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
@@ -31,6 +64,35 @@ export const VariantSimpleBugForm = () => {
         layout
         className="relative w-full max-w-md bg-[#121214] border border-white/5 rounded-[28px] overflow-hidden z-10 ring-1 ring-white/5"
       >
+        {/* Loading/Error Overlay */}
+        {(isWorkspaceLoading || workspaceError) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-30 bg-[#121214]/95 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6"
+          >
+            {isWorkspaceLoading && (
+              <>
+                <Loader2 size={32} className="animate-spin text-zinc-500 mb-4" />
+                <h3 className="text-white font-bold text-xl tracking-tight">Loading Workspace...</h3>
+                <p className="text-zinc-500 text-sm mt-2 max-w-[200px] leading-relaxed">
+                  Please wait while we fetch workspace details.
+                </p>
+              </>
+            )}
+            {workspaceError && !isWorkspaceLoading && (
+              <>
+                <AlertCircle size={32} className="text-red-500 mb-4" />
+                <h3 className="text-white font-bold text-xl tracking-tight">Error Loading Workspace</h3>
+                <p className="text-zinc-500 text-sm mt-2 max-w-[200px] leading-relaxed">
+                  {workspaceError}. Cannot submit bug without a valid workspace.
+                </p>
+              </>
+            )}
+          </motion.div>
+        )}
+
         {/* Success Overlay */}
         <AnimatePresence>
           {status === 'sent' && (
@@ -90,6 +152,7 @@ export const VariantSimpleBugForm = () => {
               placeholder="Short summary of the bug"
               className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-red-500/50"
               required
+              disabled={isDisabled}
             />
           </div>
 
@@ -103,6 +166,7 @@ export const VariantSimpleBugForm = () => {
               rows={5}
               className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg p-3 text-sm text-white placeholder:text-zinc-500 resize-y focus:outline-none focus:ring-2 focus:ring-red-500/50"
               required
+              disabled={isDisabled}
             />
           </div>
 
@@ -112,12 +176,12 @@ export const VariantSimpleBugForm = () => {
             whileTap={{ scale: 0.98 }}
             className={`
               w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all duration-300
-              ${!title.trim() || !description.trim() || status === 'sending'
+              ${isDisabled
                 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
                 : 'bg-red-500 text-white hover:bg-red-600 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
               }
             `}
-            disabled={!title.trim() || !description.trim() || status === 'sending'}
+            disabled={isDisabled}
           >
             <AnimatePresence mode="wait">
               {status === 'sending' ? (

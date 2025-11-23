@@ -37,29 +37,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { name, password, expires_at, rate_limit_per_minute } = await request.json();
+  const { name, expires_at, rate_limit_per_minute, workspace_id } = await request.json();
 
   if (!name) {
     return NextResponse.json({ error: 'API key name is required' }, { status: 400 });
   }
 
-  const newApiKey = uuidv4(); // Generate a new unhashed API key
-  const hashedKey = await bcrypt.hash(newApiKey, 10); // Hash the API key
+  // Generate API key parts
+  const publicId = uuidv4().replace(/-/g, '').slice(0, 24); // Using uuidv4 for publicId
+  const secret = uuidv4().replace(/-/g, '').slice(0, 32); // Using uuidv4 for secret
 
-  let hashedPassword = null;
-  if (password) {
-    hashedPassword = await bcrypt.hash(password, 10); // Hash the provided password
-  }
+  // Hash the secret
+  const secretHash = await bcrypt.hash(secret, 10);
 
   const { data, error: dbError } = await supabase
     .from('api_keys')
     .insert({
       user_id: user.id,
       name,
-      hashed_key: hashedKey,
-      hashed_password: hashedPassword,
+      public_id: publicId,
+      secret_hash: secretHash,
       expires_at,
       rate_limit_per_minute,
+      workspace_id: workspace_id || null, // Include workspace_id, allow null
     })
     .select('id, name, created_at') // Select minimal data to return
     .single();
@@ -69,6 +69,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: dbError.message }, { status: 500 });
   }
 
-  // Return the unhashed API key ONCE
-  return NextResponse.json({ ...data, api_key: newApiKey });
+  // Return the full unhashed API key ONCE
+  const fullApiKey = `ak_live_${publicId}.${secret}`;
+  return NextResponse.json({ ...data, api_key: fullApiKey });
 }

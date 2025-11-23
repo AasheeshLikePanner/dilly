@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { Trash } from 'phosphor-react'; // Import Trash from phosphor-react
 import axios from 'axios';
+import { WorkspaceProvider, useWorkspace } from '@/components/workspace-context'; // Import WorkspaceProvider and useWorkspace
+import { useParams } from 'next/navigation';
 
 // --- Mock Backend & Utilities ---
 
@@ -284,9 +286,10 @@ const ApiKeyItem = ({ apiKey, onDelete }: ApiKeyItemProps) => {
 
 const ApiKeySection = () => {
   const toast = useToast();
+  const { workspaceId, isLoading, error } = useWorkspace(); // Destructure isLoading and error
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Create Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
@@ -321,12 +324,20 @@ const ApiKeySection = () => {
       toast.error('API Key name is required.');
       return;
     }
-    
+    if (!workspaceId) { // Ensure workspaceId is available
+      toast.error('Workspace ID is not available. Cannot create API key.');
+      return;
+    }
+
     setCreating(true);
     try {
       const response = await axios.post<{ id: string; name: string; created_at: string; api_key: string }>(
         '/api/api-keys',
-        { name: newKeyName, password: newKeyPassword || undefined }
+        {
+          name: newKeyName,
+          password: newKeyPassword || undefined,
+          workspace_id: workspaceId // Use workspaceId from context
+        }
       );
       toast.success('API Key created successfully!');
       setNewlyCreatedKey(response.data.api_key); // Display the new key
@@ -368,101 +379,120 @@ const ApiKeySection = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }} 
-      animate={{ opacity: 1, y: 0 }} 
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       className="space-y-8 max-w-4xl"
     >
-      <SectionHeader 
-        title="API Keys" 
+      <SectionHeader
+        title="API Keys"
         description="Manage your API keys for authentication. Keys allow full access to your project, so keep them secure."
         action={
-          <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Button onClick={() => setIsCreateModalOpen(true)} disabled={isLoading || !!error}>
             <Plus size={16} /> Create New Key
           </Button>
         }
       />
 
-      {/* Newly Created Key Alert Block */}
-      <AnimatePresence>
-        {newlyCreatedKey && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-6 mb-8 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-green-500/50" />
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-2 w-full">
-                   <h4 className="text-green-400 font-semibold flex items-center gap-2">
-                     <Check size={16} /> New Key Generated
-                   </h4>
-                   <p className="text-green-500/60 text-sm">
-                     Please copy this key now. It will not be shown again.
-                   </p>
-                   <div className="flex items-center gap-2 mt-3 w-full">
-                      <code className="flex-1 bg-black/30 border border-green-500/20 rounded p-3 font-mono text-green-200 text-sm break-all select-all">
-                        {newlyCreatedKey}
-                      </code>
-                      <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(newlyCreatedKey); toast.success("Copied to clipboard"); }}>
-                        <Copy size={16} />
-                      </Button>
-                   </div>
-                </div>
-                <button onClick={() => setNewlyCreatedKey(null)} className="text-green-500/40 hover:text-green-400">
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isLoading && (
+        <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
+          <Loader2 size={24} className="animate-spin mx-auto text-zinc-500" />
+          <p className="text-zinc-500 mt-4">Loading workspace details...</p>
+        </div>
+      )}
 
-      {/* Key List */}
-      <div className="space-y-4">
-        {loading ? (
-          <div className="flex flex-col gap-4">
-            {[1,2].map(i => <div key={i} className="h-32 bg-[#1A1A1A] rounded-xl animate-pulse" />)}
+      {error && !isLoading && (
+        <div className="text-center py-12 border border-red-500/20 bg-red-500/5 rounded-xl text-red-400">
+          <AlertCircle size={24} className="mx-auto" />
+          <p className="mt-4">Error: {error}</p>
+          <p className="text-sm text-red-500/70">Cannot create API keys without a valid workspace.</p>
+        </div>
+      )}
+
+      {!isLoading && !error && (
+        <>
+          {/* Newly Created Key Alert Block */}
+          <AnimatePresence>
+            {newlyCreatedKey && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-6 mb-8 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-green-500/50" />
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-2 w-full">
+                       <h4 className="text-green-400 font-semibold flex items-center gap-2">
+                         <Check size={16} /> New Key Generated
+                       </h4>
+                       <p className="text-green-500/60 text-sm">
+                         Please copy this key now. It will not be shown again.
+                       </p>
+                       <div className="flex items-center gap-2 mt-3 w-full">
+                          <code className="flex-1 bg-black/30 border border-green-500/20 rounded p-3 font-mono text-green-200 text-sm break-all select-all">
+                            {newlyCreatedKey}
+                          </code>
+                          <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(newlyCreatedKey); toast.success("Copied to clipboard"); }}>
+                            <Copy size={16} />
+                          </Button>
+                       </div>
+                    </div>
+                    <button onClick={() => setNewlyCreatedKey(null)} className="text-green-500/40 hover:text-green-400">
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Key List */}
+          <div className="space-y-4">
+            {loading ? (
+              <div className="flex flex-col gap-4">
+                {[1,2].map(i => <div key={i} className="h-32 bg-[#1A1A1A] rounded-xl animate-pulse" />)}
+              </div>
+            ) : apiKeys.length === 0 ? (
+                <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
+                    <p className="text-zinc-500">No API keys found.</p>
+                </div>
+            ) : (
+              apiKeys.map(key => (
+                <ApiKeyItem
+                  key={key.id}
+                  apiKey={key}
+                  onDelete={handleDelete}
+                />
+              ))
+            )}
           </div>
-        ) : apiKeys.length === 0 ? (
-            <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
-                <p className="text-zinc-500">No API keys found.</p>
-            </div>
-        ) : (
-          apiKeys.map(key => (
-            <ApiKeyItem 
-              key={key.id} 
-              apiKey={key} 
-              onDelete={handleDelete} 
-            />
-          ))
-        )}
-      </div>
+        </>
+      )}
 
       {/* Create Modal */}
-      <Modal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
         title="Create New API Key"
       >
         <form onSubmit={handleCreateSubmit} className="space-y-5">
-           <Input 
-             label="Key Name" 
-             placeholder="e.g. Production V2" 
-             value={newKeyName} 
-             onChange={e => setNewKeyName(e.target.value)} 
+           <Input
+             label="Key Name"
+             placeholder="e.g. Production V2"
+             value={newKeyName}
+             onChange={e => setNewKeyName(e.target.value)}
              autoFocus
              required
            />
            <div className="space-y-2">
-             <Input 
-               label="Password Protection (Optional)" 
-               placeholder="Enter a password to secure this key" 
+             <Input
+               label="Password Protection (Optional)"
+               placeholder="Enter a password to secure this key"
                type="password"
-               value={newKeyPassword} 
-               onChange={e => setNewKeyPassword(e.target.value)} 
+               value={newKeyPassword}
+               onChange={e => setNewKeyPassword(e.target.value)}
              />
              <p className="text-[10px] text-zinc-500">
                If set, you will need this password to view or regenerate the key later.
@@ -470,7 +500,7 @@ const ApiKeySection = () => {
            </div>
            <div className="flex justify-end gap-3 pt-2">
              <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
-             <Button type="submit" isLoading={creating} disabled={!newKeyName}>Create Key</Button>
+             <Button type="submit" isLoading={creating} disabled={!newKeyName || isLoading || !!error}>Create Key</Button>
            </div>
         </form>
       </Modal>
@@ -491,22 +521,48 @@ const ApiKeySection = () => {
           </div>
         </div>
       </Modal>
-    </motion.div>
-  );
+    </motion.div>  );
 };
-const GeneralSection = () => (
-  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-2xl">
-    <SectionHeader title="General" description="Manage your workspace preferences." />
-    <div className="bg-[#1A1A1A] border border-zinc-800 rounded-xl p-6 text-center">
-        <p className="text-zinc-500">General settings content goes here.</p>
-    </div>
-  </motion.div>
-);
+
+
+
 
 // --- Main Layout ---
 
 export default function SettingsPage() {
+  const params = useParams(); // Get params using useParams()
+  const slug = typeof params.slug === 'string' ? params.slug : null; // Safely access slug
   const [activeTab, setActiveTab] = useState('api');
+  const [resolvedWorkspaceId, setResolvedWorkspaceId] = useState<string | null>(null);
+  const [isLoadingWorkspace, setIsLoadingWorkspace] = useState<boolean>(true);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWorkspaceId = async () => {
+      if (slug) { // Use the safely accessed slug
+        setIsLoadingWorkspace(true);
+        setWorkspaceError(null);
+        try {
+          const response = await axios.get<{ workspace_id: string }>(
+            `/api/workspaces/resolve-slug/${slug}` // Use the safely accessed slug
+          );
+          setResolvedWorkspaceId(response.data.workspace_id);
+        } catch (err: any) {
+          console.error('Error fetching workspace ID in SettingsPage:', err);
+          setWorkspaceError(err.response?.data?.error || 'Failed to load workspace ID');
+          setResolvedWorkspaceId(null);
+        } finally {
+          setIsLoadingWorkspace(false);
+        }
+      } else {
+        setResolvedWorkspaceId(null);
+        setIsLoadingWorkspace(false);
+        setWorkspaceError('No workspace slug provided in URL.');
+      }
+    };
+
+    fetchWorkspaceId();
+  }, [slug]); // Depend on the safely accessed slug
 
   const navItems = [
     { id: 'api', label: 'API Keys', icon: Key },
@@ -561,7 +617,15 @@ export default function SettingsPage() {
             {/* Content Area */}
             <main className="flex-1 min-w-0">
               <AnimatePresence mode="wait">
-                {activeTab === 'api' && <ApiKeySection key="api" />}
+                {activeTab === 'api' && (
+                  <WorkspaceProvider
+                    initialWorkspaceId={resolvedWorkspaceId}
+                    initialLoading={isLoadingWorkspace}
+                    initialError={workspaceError}
+                  >
+                    <ApiKeySection key="api" />
+                  </WorkspaceProvider>
+                )}
                 {activeTab === 'general' && <GeneralSection key="general" />}
                 {/* Add other sections as needed */}
               </AnimatePresence>

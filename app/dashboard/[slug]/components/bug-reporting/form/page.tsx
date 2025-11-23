@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Copy, Terminal, Sparkles, Box } from 'lucide-react';
+import { Check, Copy, Terminal, Sparkles, Box, AlertCircle, Loader2 } from 'lucide-react'; // Added AlertCircle, Loader2
+import axios from 'axios'; // Import axios
+import { useParams } from 'next/navigation'; // Import useParams
+import { WorkspaceProvider } from '@/components/workspace-context'; // Import WorkspaceProvider
 // Ensure these are imported correctly from your file
 import { VariantSimpleBugForm } from '@/components/bug-reporting';
 
@@ -54,6 +57,38 @@ const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps)
 };
 
 export default function BugReportingFormPage() {
+  const params = useParams();
+  const [resolvedWorkspaceId, setResolvedWorkspaceId] = useState<string | null>(null);
+  const [isLoadingWorkspace, setIsLoadingWorkspace] = useState<boolean>(true);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWorkspaceId = async () => {
+      if (params && params.slug) {
+        setIsLoadingWorkspace(true);
+        setWorkspaceError(null);
+        try {
+          const response = await axios.get<{ workspace_id: string }>(
+            `/api/workspaces/resolve-slug/${params.slug}`
+          );
+          setResolvedWorkspaceId(response.data.workspace_id);
+        } catch (err: any) {
+          console.error('Error fetching workspace ID in BugReportingFormPage:', err);
+          setWorkspaceError(err.response?.data?.error || 'Failed to load workspace ID');
+          setResolvedWorkspaceId(null);
+        } finally {
+          setIsLoadingWorkspace(false);
+        }
+      } else {
+        setResolvedWorkspaceId(null);
+        setIsLoadingWorkspace(false);
+        setWorkspaceError('No workspace slug provided in URL.');
+      }
+    };
+
+    fetchWorkspaceId();
+  }, [params.slug]);
+
   const installCmd = "npm install @/components/bug-reporting framer-motion lucide-react";
   const usageCode = `import { VariantSimpleBugForm } from '@/components/bug-reporting';
 
@@ -105,9 +140,27 @@ export default function Page() {
           
           {/* Left: The Preview Area */}
           <div className="lg:col-span-3">
-            <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50 h-[400px] w-full flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#0A0A0A] to-[#0A0A0A]">
-              <VariantSimpleBugForm />
-            </div>
+            {isLoadingWorkspace ? (
+              <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50 h-[400px] w-full flex items-center justify-center p-8">
+                <Loader2 size={32} className="animate-spin text-zinc-500" />
+              </div>
+            ) : workspaceError ? (
+              <div className="rounded-3xl border border-red-500/20 bg-red-500/5 overflow-hidden shadow-2xl shadow-black/50 h-[400px] w-full flex items-center justify-center p-8 text-red-400 text-center">
+                <AlertCircle size={32} className="mx-auto mb-4" />
+                <p>Error: {workspaceError}</p>
+                <p className="text-sm text-red-500/70">Cannot load bug reporting form without a valid workspace.</p>
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50 h-[400px] w-full flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#0A0A0A] to-[#0A0A0A]">
+                <WorkspaceProvider
+                  initialWorkspaceId={resolvedWorkspaceId}
+                  initialLoading={isLoadingWorkspace}
+                  initialError={workspaceError}
+                >
+                  <VariantSimpleBugForm />
+                </WorkspaceProvider>
+              </div>
+            )}
           </div>
 
           {/* Right: Implementation */}
