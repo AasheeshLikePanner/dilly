@@ -177,17 +177,7 @@ const SectionHeader = ({ title, description, action }) => (
 
 // --- Feature Components ---
 
-const ApiKeyItem = ({ apiKey, onCopy, onRevoke, onRegenerate, onShowApi }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    // Only copy if we actually have a visible key value (simulated)
-    navigator.clipboard.writeText("sk_live_simulated_key_hidden");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    if (onCopy) onCopy();
-  };
-
+const ApiKeyItem = ({ apiKey, onRevoke }) => {
   return (
     <div className="group bg-[#1A1A1A] border border-zinc-800 hover:border-zinc-700 rounded-xl p-5 transition-all duration-200">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -203,23 +193,14 @@ const ApiKeyItem = ({ apiKey, onCopy, onRevoke, onRegenerate, onShowApi }) => {
               </Badge>
             </div>
             <p className="text-xs text-zinc-500 mt-1 font-mono">
-              Created {new Date(apiKey.created_at).toLocaleDateString()} • {apiKey.hashed_password ? 'Password Protected' : 'Standard'}
+              Created {new Date(apiKey.created_at).toLocaleDateString()}
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
-            {apiKey.hashed_password ? (
-                 <Button variant="secondary" onClick={() => onShowApi(apiKey)} className="h-8 text-xs">
-                    <Eye size={14} /> Show API
-                 </Button>
-            ) : (
-                <Button variant="secondary" onClick={() => onRegenerate(apiKey)} className="h-8 text-xs">
-                    <RotateCcw size={14} /> Rotate
-                 </Button>
-            )}
-             <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-8 w-8 p-0">
-                <Trash2 size={14} />
+             <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-9 w-9 p-0">
+                <Trash2 size={16} className="text-white" />
              </Button>
         </div>
       </div>
@@ -246,14 +227,6 @@ const ApiKeySection = () => {
   const [newKeyPassword, setNewKeyPassword] = useState('');
   const [creating, setCreating] = useState(false);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null); // Stores raw key just once
-
-  // Unlock/Regenerate Modal State
-  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
-  const [keyToUnlock, setKeyToUnlock] = useState<ApiKey | null>(null);
-  const [unlockPassword, setUnlockPassword] = useState('');
-  const [unlocking, setUnlocking] = useState(false);
-  const [revealedKey, setRevealedKey] = useState<string | null>(null);
-  const [unlockAction, setUnlockAction] = useState<'show' | 'regenerate' | null>(null); // New state for action intent
 
   useEffect(() => {
     fetchApiKeys();
@@ -299,98 +272,17 @@ const ApiKeySection = () => {
     }
   };
 
-  const handleRevoke = async (keyId: string) => {
-    if (!confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) return;
+  const handleDelete = async (keyId: string) => {
+    if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) return;
 
     try {
       await axios.delete(`/api/api-keys/${keyId}`);
-      toast.success('API Key revoked successfully!');
+      toast.success('API Key deleted successfully!');
       fetchApiKeys(); // Refresh the list
     } catch (error: any) {
-      console.error('Error revoking API key:', error);
-      toast.error(`Failed to revoke API key: ${error.response?.data?.error || error.message}`);
+      console.error('Error deleting API key:', error);
+      toast.error(`Failed to delete API key: ${error.response?.data?.error || error.message}`);
     }
-  };
-
-  const performRegenerate = async (key: ApiKey, password?: string) => {
-    try {
-      const response = await axios.post<{ message: string; api_key: string }>(
-        `/api/api-keys/${key.id}/regenerate`,
-        { password }
-      );
-      toast.success(response.data.message);
-      setRevealedKey(response.data.api_key); // Display the new key
-      fetchApiKeys(); // Refresh the list
-      setIsUnlockModalOpen(false); // Close modal if open
-    } catch (error: any) {
-      console.error('Error regenerating API key:', error);
-      toast.error(`Failed to regenerate API key: ${error.response?.data?.error || error.message}`);
-    }
-  };
-
-  const handleRegenerateClick = (key: ApiKey) => {
-    setKeyToUnlock(key);
-    setUnlockPassword('');
-    setUnlocking(false);
-    setRevealedKey(null);
-    setUnlockAction('regenerate'); // Set action to regenerate
-    setIsUnlockModalOpen(true);
-  };
-
-  const handleShowApi = (key: ApiKey) => {
-    setKeyToUnlock(key);
-    setUnlockPassword('');
-    setUnlocking(false);
-    setRevealedKey(null);
-    setUnlockAction('show'); // Set action to show
-    setIsUnlockModalOpen(true);
-  };
-
-  const handleUnlockSubmit = async () => {
-    if (!keyToUnlock || !unlockPassword) {
-      toast.error('Password is required.');
-      return;
-    }
-
-    setUnlocking(true);
-    try {
-      // First, verify the password
-      await axios.post<{ message: string }>(
-        `/api/api-keys/${keyToUnlock.id}/unlock`,
-        { password: unlockPassword }
-      );
-      toast.success('Password verified successfully!');
-      
-      if (unlockAction === 'regenerate') {
-        await performRegenerate(keyToUnlock, unlockPassword);
-      } else if (unlockAction === 'show') {
-        // --- IMPORTANT: Backend support needed here ---
-        // The current backend does not provide an endpoint to "show" an existing key
-        // without regenerating it. For demonstration, we will simulate showing a key.
-        // In a real application, you would need a backend endpoint that returns
-        // the actual key after successful password verification.
-        const simulatedKey = `sk_live_SIMULATED_KEY_FOR_${keyToUnlock.id}`; // Replace with actual API call
-        setRevealedKey(simulatedKey);
-        // --- End IMPORTANT ---
-      }
-
-      setUnlockPassword('');
-      setUnlocking(false);
-      setUnlockAction(null); // Reset action
-    } catch (error: any) {
-      console.error('Error unlocking/performing action on API key:', error);
-      toast.error(`Failed to verify password or perform action: ${error.response?.data?.error || error.message}`);
-      setUnlocking(false);
-    }
-  };
-
-  const handleCloseUnlock = () => {
-    setIsUnlockModalOpen(false);
-    setRevealedKey(null);
-    setUnlockPassword('');
-    setKeyToUnlock(null);
-    setUnlocking(false);
-    setUnlockAction(null); // Reset action
   };
 
   const getMaskedKey = (id: string) => {
@@ -466,9 +358,7 @@ const ApiKeySection = () => {
             <ApiKeyItem 
               key={key.id} 
               apiKey={key} 
-              onRevoke={handleRevoke} 
-              onShowApi={handleShowApi} // New prop
-              onRegenerate={handleRegenerateClick}
+              onRevoke={handleDelete} 
             />
           ))
         )}
@@ -506,52 +396,6 @@ const ApiKeySection = () => {
              <Button type="submit" isLoading={creating} disabled={!newKeyName}>Create Key</Button>
            </div>
         </form>
-      </Modal>
-
-      {/* Unlock/View Modal */}
-      <Modal 
-        isOpen={isUnlockModalOpen} 
-        onClose={handleCloseUnlock} 
-        title={revealedKey ? "API Key Revealed" : `Unlock ${keyToUnlock?.name}`}
-      >
-        {revealedKey ? (
-             <div className="space-y-4">
-                <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg flex gap-3 items-start">
-                    <AlertCircle size={16} className="text-amber-500 mt-0.5 shrink-0" />
-                    <p className="text-xs text-amber-200/80">
-                        This key acts as a password. Do not share it publicly.
-                    </p>
-                </div>
-                <div className="relative">
-                    <code className="block w-full p-4 bg-[#0A0A0A] border border-zinc-800 rounded-lg font-mono text-sm text-zinc-200 break-all">
-                        {revealedKey}
-                    </code>
-                    <div className="absolute top-2 right-2">
-                         <Button variant="secondary" className="h-7 px-2 text-xs" onClick={() => {navigator.clipboard.writeText(revealedKey); toast.success("Copied!")}}> 
-                            <Copy size={14} /> Copy
-                         </Button>
-                    </div>
-                </div>
-                <Button onClick={handleCloseUnlock} className="w-full">Done</Button>
-             </div>
-        ) : (
-            <div className="space-y-4">
-                <p className="text-sm text-zinc-400">
-                    Enter the password for <strong>{keyToUnlock?.name}</strong> to proceed.
-                </p>
-                <Input 
-                    type="password" 
-                    placeholder="Enter password..." 
-                    value={unlockPassword}
-                    onChange={e => setUnlockPassword(e.target.value)}
-                    autoFocus
-                />
-                <div className="flex justify-end gap-3 pt-2">
-                    <Button variant="ghost" onClick={handleCloseUnlock}>Cancel</Button>
-                    <Button onClick={handleUnlockSubmit} isLoading={unlocking}>Unlock Key</Button>
-                </div>
-            </div>
-        )}
       </Modal>
     </motion.div>
   );

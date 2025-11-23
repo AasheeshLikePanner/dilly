@@ -13,17 +13,17 @@ export async function DELETE(request: Request, { params }: { params: { key_id: s
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Update is_active to false instead of deleting for auditing purposes
+  // Perform a hard delete
   const { error: dbError } = await supabase
     .from('api_keys')
-    .update({ is_active: false })
+    .delete()
     .eq('id', key_id)
-    .eq('user_id', user.id); // Ensure user can only revoke their own keys
+    .eq('user_id', user.id); // Ensure user can only delete their own keys
 
   if (dbError) {
-    console.error('Error revoking API key:', dbError);
+    console.error('Error deleting API key:', dbError);
     return NextResponse.json({ error: dbError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ message: 'API key revoked successfully' });
+  return NextResponse.json({ message: 'API key deleted successfully' });
 }
