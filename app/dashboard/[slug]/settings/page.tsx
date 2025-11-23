@@ -1,49 +1,74 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Key, 
-  User, 
-  Settings as Gear, 
-  Copy, 
+import {
+  Key,
+  User,
+  Settings as Gear,
+  Copy,
   Check,
-  AlertCircle, 
-  ChevronRight, 
+  AlertCircle,
+  ChevronRight,
   ShieldCheck,
   Bell,
   Globe,
   Lock,
-  LockOpen, 
-  X, 
-  Eye, 
-  Plus, 
-  RotateCcw, 
-  Trash2,
+  LockOpen,
+  X,
+  Eye,
+  Plus,
+  RotateCcw,
   Loader2
 } from 'lucide-react';
+import { Trash } from 'phosphor-react'; // Import Trash from phosphor-react
 import axios from 'axios';
 
 // --- Mock Backend & Utilities ---
 
 // Simple Toast System for the Demo
-const ToastContext = React.createContext(null);
+interface ToastContextType {
+  success: (message: string) => void;
+  error: (message: string) => void;
+}
+const ToastContext = React.createContext<ToastContextType | null>(null);
 
 const useToast = () => {
   const context = React.useContext(ToastContext);
   if (!context) throw new Error("useToast must be used within a ToastProvider");
-  return context;
+  return context as ToastContextType;
 };
 
-const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
+interface ToastProviderProps {
+  children: React.ReactNode;
+}
 
-  const addToast = (message, type = 'success') => {
+interface Toast {
+  id: string;
+  message: string;
+  type: 'success' | 'error';
+}
+
+interface ApiKey {
+  id: string;
+  name: string;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+  expires_at: string | null;
+  rate_limit_per_minute: number | null;
+  is_active: boolean;
+}
+
+const ToastProvider = ({ children }: ToastProviderProps) => {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const addToast = (message: string, type: 'success' | 'error' = 'success') => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => removeToast(id), 3000);
   };
 
-  const removeToast = (id) => {
+  const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
@@ -75,7 +100,13 @@ const ToastProvider = ({ children }) => {
 
 // --- Reusable UI Components ---
 
-const Button = ({ children, variant = 'primary', className = '', isLoading, disabled, ...props }) => {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  isLoading?: boolean;
+}
+
+const Button = ({ children, variant = 'primary', className = '', isLoading, disabled, ...props }: ButtonProps) => {
   const baseStyle = "h-9 px-4 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#141414] focus:ring-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
@@ -97,7 +128,19 @@ const Button = ({ children, variant = 'primary', className = '', isLoading, disa
   );
 };
 
-const Input = ({ label, placeholder, value, onChange, readOnly = false, type = "text", autoFocus, onKeyDown, className = "" }) => (
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readOnly?: boolean;
+  type?: string;
+  autoFocus?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  className?: string;
+}
+
+const Input = ({ label, placeholder, value, onChange, readOnly = false, type = "text", autoFocus, onKeyDown, className = "" }: InputProps) => (
   <div className="flex flex-col gap-1.5 w-full">
     {label && <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">{label}</label>}
     <div className="relative group">
@@ -118,7 +161,12 @@ const Input = ({ label, placeholder, value, onChange, readOnly = false, type = "
   </div>
 );
 
-const Badge = ({ children, color = 'green' }) => {
+interface BadgeProps {
+  children: React.ReactNode;
+  color?: 'green' | 'zinc';
+}
+
+const Badge = ({ children, color = 'green' }: BadgeProps) => {
   const colors = {
     green: "bg-green-500/10 text-green-500 border-green-500/20",
     zinc: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
@@ -130,7 +178,14 @@ const Badge = ({ children, color = 'green' }) => {
   );
 };
 
-const Modal = ({ isOpen, onClose, title, children }) => (
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}
+
+const Modal = ({ isOpen, onClose, title, children }: ModalProps) => (
   <AnimatePresence>
     {isOpen && (
       <>
@@ -165,7 +220,13 @@ const Modal = ({ isOpen, onClose, title, children }) => (
   </AnimatePresence>
 );
 
-const SectionHeader = ({ title, description, action }) => (
+interface SectionHeaderProps {
+  title: string;
+  description: string;
+  action?: React.ReactNode;
+}
+
+const SectionHeader = ({ title, description, action }: SectionHeaderProps) => (
   <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
     <div>
       <h2 className="text-2xl font-bold text-white tracking-tight mb-2">{title}</h2>
@@ -177,7 +238,12 @@ const SectionHeader = ({ title, description, action }) => (
 
 // --- Feature Components ---
 
-const ApiKeyItem = ({ apiKey, onRevoke }) => {
+interface ApiKeyItemProps {
+  apiKey: ApiKey;
+  onRevoke: (keyId: string) => void;
+}
+
+const ApiKeyItem = ({ apiKey, onRevoke }: ApiKeyItemProps) => {
   return (
     <div className="group bg-[#1A1A1A] border border-zinc-800 hover:border-zinc-700 rounded-xl p-5 transition-all duration-200">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -199,10 +265,10 @@ const ApiKeyItem = ({ apiKey, onRevoke }) => {
         </div>
         
         <div className="flex items-center gap-2">
-             <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-9 w-9 p-0">
-                <Trash2 size={16} className="text-white" />
-             </Button>
-        </div>
+            <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-9 w-9 p-0">
+                <Trash className='w-10' /> {/* Use Trash from phosphor-react, remove text-white */}
+            </Button>        
+            </div>
       </div>
 
       {/* Key Mask Visualization */}

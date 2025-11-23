@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Code, 
   PenTool, 
@@ -42,6 +42,13 @@ export default function App() { // Revert to default export
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const [isLaunching, setIsLaunching] = useState(false);
+
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [newWorkspaceDescription, setNewWorkspaceDescription] = useState('');
+  const [newWorkspaceLogo, setNewWorkspaceLogo] = useState<File | null>(null); // Add this line
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null); // Add this line
 
   // ... (Create Workspace Form State)
 

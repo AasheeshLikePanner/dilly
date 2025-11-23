@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
-export async function POST(request: Request, { params }: { params: { key_id: string } }) {
+export async function POST(request: Request, context: { params: Promise<{ key_id: string }> }) {
   const supabase = createSupabaseServerClient();
-  const resolvedParams = await params;
+  const resolvedParams = await context.params;
   const { key_id } = resolvedParams;
 
   const { data: { user } } = await supabase.auth.getUser();
