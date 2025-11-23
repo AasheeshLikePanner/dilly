@@ -7,7 +7,13 @@ import { Check, Copy, Terminal, Sparkles, Box } from 'lucide-react';
 import { VariantSimpleBugForm } from '@/components/bug-reporting';
 
 // --- Custom Code Block Component ---
-const CodeSnippet = ({ title, code, language = "typescript" }) => {
+interface CodeSnippetProps {
+  title: string;
+  code: string;
+  language?: string;
+}
+
+const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {

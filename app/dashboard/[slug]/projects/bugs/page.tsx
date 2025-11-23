@@ -14,8 +14,7 @@ import {
 import { IssuesTable } from "@/components/ui/issues-table";
 
 export default function BugsPage({ params }: { params: { slug: string } }) {
-  const resolvedParams = React.use(params);
-  const { slug } = resolvedParams;
+  const { slug } = params;
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

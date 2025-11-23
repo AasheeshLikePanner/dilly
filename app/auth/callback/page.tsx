@@ -3,29 +3,29 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { Spinner } from '@/components/ui/spinner';
+import { supabase } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js'; // Keep this for onAuthStateChange
 
 export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
-      // This page is hit after Supabase processes the Google OAuth redirect.
-      // Supabase's onAuthStateChange listener in AuthPage will pick up the session.
-      // However, we can explicitly check for a session here if needed.
-      const { data: { session } } = await supabase.auth.getSession();
-
+    // Listen for auth state changes to determine if the user is logged in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       if (session) {
         // User is logged in, redirect to workspace selection/creation
         router.push('/workspaces');
       } else {
-        // Something went wrong, redirect to login page with an error
+        // Something went wrong or session expired, redirect to login page
         router.push('/auth?error=authentication_failed');
       }
-    };
+    });
 
-    handleAuthCallback();
+    // Clean up the listener when the component unmounts
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [router]);
 
   return (

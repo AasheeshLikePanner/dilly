@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner'; // Assuming you have a Spinner component
 
@@ -13,7 +14,7 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       if (session) {
         // User is logged in, redirect to workspace selection/creation
         router.push('/workspaces');
@@ -33,7 +34,7 @@ export default function AuthPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`, // Supabase will redirect here after Google auth
+          redirectTo: `${window.location.origin}/api/auth/callback`, // Supabase will redirect here after Google auth
         },
       });
 

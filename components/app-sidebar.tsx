@@ -57,7 +57,7 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        setUserEmail(session.user.email);
+        setUserEmail(session.user.email ?? null);
         // Assuming user_metadata might contain a name, otherwise use email
         setUserName(session.user.user_metadata?.full_name || session.user.email);
       }

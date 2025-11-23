@@ -1,8 +1,7 @@
 // types/supabase.ts
 
-import { Database } from './database.types'; // Assuming you might generate types from Supabase CLI later
 
-// Define types for the public schema tables
+
 
 export type UserRole = 
   | 'founder'

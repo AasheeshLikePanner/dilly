@@ -17,12 +17,24 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Profile, Workspace } from '../../types/supabase';
+import { User } from '@supabase/supabase-js'; // Import User type
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const GOOGLE_API_KEY = ""; // Injected by environment
 
-export default function App() {
+import axios from '@/lib/axios'; // Import the custom Axios instance
+
+// ... (rest of the imports)
+
+import { useUser } from '@/components/user-context'; // Import useUser hook
+
+// ... (rest of the imports)
+
+export default function App() { // Revert to default export
   const router = useRouter();
+  const { user } = useUser(); // Consume user from context
+
   // --- STATE ---
   const [view, setView] = useState('list'); // 'list', 'create', 'dashboard'
   const [loading, setLoading] = useState(true);
@@ -30,70 +42,67 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
   const [isLaunching, setIsLaunching] = useState(false);
-  
-  // Create Workspace Form State
-  const [newWorkspaceName, setNewWorkspaceName] = useState('');
-  const [newWorkspaceDescription, setNewWorkspaceDescription] = useState('');
-  const [newWorkspaceLogo, setNewWorkspaceLogo] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // ... (Create Workspace Form State)
 
   // --- DATA FETCHING ---
   useEffect(() => {
     const initData = async () => {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Workspaces page: User object from context:', user);
 
-      if (user) {
-        // Fetch profile
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+      if (!user) {
+        // This should ideally not happen if layout is working, but as a fallback
+        router.push('/auth');
+        setLoading(false);
+        return;
+      }
+
+      // Fetch profile using API route
+      try {
+        const profileResponse = await axios.get<Profile>('/api/user-profile');
+        const profile = profileResponse.data;
 
         if (profile) {
           setUserProfile(profile);
         } else {
-          console.error('Error fetching profile:', profileError);
+          console.error('Error fetching profile: Profile data is empty');
+          router.push('/auth'); // Redirect to auth if profile is missing
+          setLoading(false);
+          return;
         }
+      } catch (error: any) {
+        console.error('Error fetching profile:', error.message);
+        router.push('/auth'); // Redirect to auth on API error
+        setLoading(false);
+        return;
+      }
 
-        // Fetch workspaces
-        const { data: workspacesData, error: workspacesError } = await supabase
-          .from('workspaces')
-          .select('*')
-          .eq('owner_id', user.id);
+      // Fetch workspaces using API route
+      try {
+        const workspacesResponse = await axios.get<Workspace[]>('/api/workspaces');
+        const workspacesData = workspacesResponse.data;
 
         if (workspacesData) {
           setWorkspaces(workspacesData);
         } else {
-          console.error('Error fetching workspaces:', workspacesError);
+          console.error('Error fetching workspaces: Workspaces data is empty');
         }
-      } else {
-        router.push('/auth');
+      } catch (error: any) {
+        console.error('Error fetching workspaces:', error.message);
       }
       setLoading(false);
     };
     initData();
-  }, []);
-
-  // Cleanup object URL
-  useEffect(() => {
-    return () => {
-      if (logoPreview) {
-        URL.revokeObjectURL(logoPreview);
-      }
-    };
-  }, [logoPreview]);
+  }, [user, router]); // Depend on user and router
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setNewWorkspaceLogo(file);
-      if (logoPreview) {
+      if (logoPreview) { // Revoke previous URL if exists
         URL.revokeObjectURL(logoPreview);
       }
+      setNewWorkspaceLogo(file);
       setLogoPreview(URL.createObjectURL(file));
     }
   };
@@ -124,11 +133,12 @@ export default function App() {
       formData.append('upload_preset', uploadPreset);
 
       try {
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: 'POST',
-          body: formData,
+        const response = await axios.post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
-        const data = await response.json();
+        const data = response.data;
         if (data.secure_url) {
           logoUrl = data.secure_url;
         } else {
@@ -180,6 +190,9 @@ export default function App() {
       setNewWorkspaceName('');
       setNewWorkspaceDescription('');
       setNewWorkspaceLogo(null);
+      if (logoPreview) { // Revoke URL on form reset
+        URL.revokeObjectURL(logoPreview);
+      }
       setLogoPreview(null);
       toast.success("Workspace created successfully!");
     } else {

@@ -1,6 +1,13 @@
 import { redirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
+interface WorkspaceMemberWithSlug {
+  workspace_id: string;
+  workspaces: {
+    slug: string | null;
+  } | null;
+}
+
 export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -29,7 +36,7 @@ export default async function Home() {
         slug
       )
     `)
-    .eq('user_id', userProfileId);
+    .eq('user_id', userProfileId) as unknown as { data: WorkspaceMemberWithSlug[] | null, error: any }; // Use 'any' for error for now
 
   if (memberError) {
     console.error('Error fetching workspace members:', memberError.message);
@@ -40,7 +47,7 @@ export default async function Home() {
     redirect('/workspaces/new');
   }
 
-  const firstWorkspaceSlug = memberData[0].workspaces?.slug;
+  const firstWorkspaceSlug = memberData?.[0]?.workspaces?.slug;
 
   if (firstWorkspaceSlug) {
     redirect(`/dashboard/${firstWorkspaceSlug}`);

@@ -6,7 +6,7 @@ export default function TextInputFeedback() {
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
-  const textareaRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Auto-grow logic with height limit
   useEffect(() => {

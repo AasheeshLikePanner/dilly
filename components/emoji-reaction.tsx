@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { X } from 'lucide-react';
 
 /**
 * ANIMATION VARIANTS
 * These make the emojis feel "alive" with specific personalities.
 */
-const emojiVariants = {
+const emojiVariants: { [key: string]: Variants } = {
  shake: {
    hover: { x: [0, -2, 2, -2, 2, 0], transition: { duration: 0.4 } },
    tap: { x: [0, -4, 4, -4, 4, 0], scale: 1.2 }
@@ -33,7 +33,15 @@ const emojiVariants = {
 * SHARED DATA
 * Swapped generic icons for expressive Emojis
 */
-const FEEDBACK_OPTIONS = [
+type FeedbackOption = {
+  id: number;
+  label: string;
+  emoji: string;
+  anim: keyof typeof emojiVariants; // This is the key change
+  color: string;
+};
+
+const FEEDBACK_OPTIONS: FeedbackOption[] = [
  { id: 1, label: 'Terrible', emoji: '😖', anim: 'shake', color: 'bg-red-500' },
  { id: 2, label: 'Bad',      emoji: '😞', anim: 'droop', color: 'bg-orange-500' },
  { id: 3, label: 'Okay',     emoji: '😐', anim: 'glance', color: 'bg-yellow-500' },
@@ -44,8 +52,8 @@ const FEEDBACK_OPTIONS = [
 // --- VARIANT 1: The "Glass" Dock ---
 // A floating dock design with heavy blur and magnification effects (Mac OS Dock style)
 export const VariantDock = () => {
- const [selected, setSelected] = useState(null);
- const [hovered, setHovered] = useState(null);
+ const [selected, setSelected] = useState<number | null>(null);
+ const [hovered, setHovered] = useState<number | null>(null);
 
  return (
    <div className="flex flex-col items-center justify-center gap-6">
@@ -112,19 +120,20 @@ export const VariantDock = () => {
 
      <div className="h-6 text-center">
         <AnimatePresence mode='wait'>
-           {selected ? (
-               <motion.div
-                   key={selected}
-                   initial={{ opacity: 0, y: 5 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -5 }}
-                   className="text-lg font-medium text-white"
-               >
-                   You felt <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 font-bold">{FEEDBACK_OPTIONS.find(o => o.id === selected).label}</span> about this.
-               </motion.div>
-           ) : (
-               <span className="text-zinc-500 text-sm">Select a reaction</span>
-           )}
+           {selected && (() => {
+               const selectedOption = FEEDBACK_OPTIONS.find(o => o.id === selected);
+               return selectedOption ? (
+                   <motion.div
+                       key={selected}
+                       initial={{ opacity: 0, y: 5 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       exit={{ opacity: 0, y: -5 }}
+                       className="text-lg font-medium text-white"
+                   >
+                       You felt <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 font-bold">{selectedOption.label}</span> about this.
+                   </motion.div>
+               ) : null;
+           })()}
         </AnimatePresence>
      </div>
    </div>
@@ -134,7 +143,7 @@ export const VariantDock = () => {
 // --- VARIANT 2: The "Soul" Card ---
 // High contrast, big typography, focusing on the selected emotion filling the card.
 export const VariantSoul = () => {
- const [selected, setSelected] = useState(null);
+ const [selected, setSelected] = useState<number | null>(null);
 
  return (
    <div className="flex flex-col items-center justify-center gap-4">
@@ -151,7 +160,7 @@ export const VariantSoul = () => {
                    initial={{ opacity: 0 }}
                    animate={{ opacity: 0.15 }}
                    exit={{ opacity: 0 }}
-                   className={`absolute inset-0 ${FEEDBACK_OPTIONS.find(o => o.id === selected).color} blur-3xl`}
+                   className={`absolute inset-0 ${FEEDBACK_OPTIONS.find(o => o.id === selected)?.color} blur-3xl`}
                />
            )}
        </AnimatePresence>
@@ -216,10 +225,10 @@ export const VariantSoul = () => {
 // Full interaction flow with the new emoji set
 export const VariantInteractive = () => {
  const [step, setStep] = useState('rate');
- const [rating, setRating] = useState(null);
+ const [rating, setRating] = useState<number | null>(null);
  const [comment, setComment] = useState('');
 
- const handleRate = (id) => {
+ const handleRate = (id: number) => {
    setRating(id);
    setTimeout(() => setStep('comment'), 400); // Slight delay to let animation play
  };
@@ -295,6 +304,7 @@ export const VariantInteractive = () => {
                 {/* Selected Context Indicator */}
                 {rating && (() => {
                    const opt = FEEDBACK_OPTIONS.find(o => o.id === rating);
+                   if (!opt) return null; // Handle undefined case
                    return (
                        <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                            <span className="text-lg">{opt.emoji}</span>

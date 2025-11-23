@@ -7,7 +7,7 @@ export const VariantSimpleBugForm = () => {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
 

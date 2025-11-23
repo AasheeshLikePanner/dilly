@@ -62,33 +62,46 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
 
         const userProfileId = profileData.id;
 
-        const { data: memberData, error: memberError } = await supabase
-          .from('workspace_members')
-          .select(`
-            workspace_id,
-            role,
-            workspaces (
-              id,
-              name,
-              slug,
-              logo_url
-            )
-          `)
-          .eq('user_id', userProfileId);
+interface WorkspaceMemberWithWorkspace {
+  role: 'owner' | 'admin' | 'member' | 'viewer'; // Explicitly define the union type
+  workspaces: Workspace | null;
+}
 
-        if (memberError) {
-          throw new Error(memberError.message);
-        }
+// ...
 
-        if (!memberData || memberData.length === 0) {
-          router.push('/workspaces/new');
-          return;
-        }
+    const { data: memberData, error: memberError } = await supabase
+      .from('workspace_members')
+      .select(`
+        role,
+        workspaces (
+          id,
+          created_at,
+          updated_at,
+          name,
+          slug,
+          owner_id,
+          description,
+          logo_url
+        )
+      `)
+      .eq('user_id', user.id) as { data: WorkspaceMemberWithWorkspace[] | null, error: any };
 
-        const userWorkspaces = memberData.map(member => ({
-          ...(member.workspaces as Workspace),
-          role: member.role,
-        }));
+    if (memberError) {
+      console.error('Error fetching workspace members:', memberError.message);
+      return;
+    }
+
+    if (!memberData || memberData.length === 0) {
+      setAllWorkspaces([]);
+      return;
+    }
+
+    const userWorkspaces = memberData
+      .filter(member => member.workspaces !== null) // Filter out members without an associated workspace
+      .map(member => ({
+        ...(member.workspaces as Workspace),
+        role: member.role,
+      }));
         setAllWorkspaces(userWorkspaces);
 
         let activeWorkspace;
@@ -135,7 +148,7 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
 
   const handleWorkspaceSwitch = (workspaceId: string) => {
     const selectedWorkspace = allWorkspaces.find(ws => ws.id === workspaceId);
-    if (selectedWorkspace && workspaceId !== currentWorkspaceId) {
+    if (selectedWorkspace && workspaceId !== currentWorkspaceId && selectedWorkspace.slug) {
       localStorage.setItem(LAST_ACTIVE_WORKSPACE_SLUG_KEY, selectedWorkspace.slug);
       router.push(`/dashboard/${selectedWorkspace.slug}?workspaceId=${workspaceId}`);
     }

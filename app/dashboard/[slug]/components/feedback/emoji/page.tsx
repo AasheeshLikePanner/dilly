@@ -8,7 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VariantDock, VariantSoul, VariantInteractive } from '@/components/emoji-reaction';
 
 // --- Custom Code Block Component ---
-const CodeSnippet = ({ title, code, language = "typescript" }) => {
+interface CodeSnippetProps {
+  title: string;
+  code: string;
+  language?: string;
+}
+
+const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {

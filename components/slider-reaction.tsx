@@ -143,7 +143,7 @@ export const VariantShapeShifter = () => {
 // A ruler where the light follows the selection
 export const VariantCinematic = () => {
     const [selected, setSelected] = useState(5);
-    const [hovered, setHovered] = useState(null);
+    const [hovered, setHovered] = useState<number | null>(null);
 
     const displayValue = hovered || selected;
 
@@ -255,7 +255,7 @@ export const VariantCrystal = () => {
     const [hoverLevel, setHoverLevel] = useState(0);
     const [submitted, setSubmitted] = useState(false);
 
-    const getColorForLevel = (l) => {
+    const getColorForLevel = (l: number) => {
         if (l === 0) return 'bg-zinc-800'; 
         if (l <= 4) return 'bg-red-500 shadow-[0_0_25px_rgba(239,68,68,0.4)]';
         if (l <= 7) return 'bg-yellow-500 shadow-[0_0_25px_rgba(234,179,8,0.4)]';
