@@ -240,10 +240,10 @@ const SectionHeader = ({ title, description, action }: SectionHeaderProps) => (
 
 interface ApiKeyItemProps {
   apiKey: ApiKey;
-  onRevoke: (keyId: string) => void;
+  onDelete: (keyId: string) => void;
 }
 
-const ApiKeyItem = ({ apiKey, onRevoke }: ApiKeyItemProps) => {
+const ApiKeyItem = ({ apiKey, onDelete }: ApiKeyItemProps) => {
   return (
     <div className="group bg-[#1A1A1A] border border-zinc-800 hover:border-zinc-700 rounded-xl p-5 transition-all duration-200">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -265,8 +265,8 @@ const ApiKeyItem = ({ apiKey, onRevoke }: ApiKeyItemProps) => {
         </div>
         
         <div className="flex items-center gap-2">
-             <Button variant="danger" onClick={() => onRevoke(apiKey.id)} className="h-12 w-12 px-3 py-3">
-                <Trash size={24} className="text-red-500" />
+             <Button variant="danger" onClick={() => onDelete(apiKey.id)} className="h-12 w-12 p-0 rounded-md flex items-center justify-center">
+                <Trash style={{ fontSize: '2rem', color: 'red' }} />
              </Button>        
             </div>
       </div>
@@ -293,6 +293,10 @@ const ApiKeySection = () => {
   const [newKeyPassword, setNewKeyPassword] = useState('');
   const [creating, setCreating] = useState(false);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null); // Stores raw key just once
+
+  // Delete Confirmation Modal State
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [keyToDelete, setKeyToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchApiKeys();
@@ -338,13 +342,20 @@ const ApiKeySection = () => {
     }
   };
 
-  const handleDelete = async (keyId: string) => {
-    if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) return;
+  const handleDelete = (keyId: string) => {
+    setKeyToDelete(keyId);
+    setIsDeleteConfirmModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!keyToDelete) return;
 
     try {
-      await axios.delete(`/api/api-keys/${keyId}`);
+      await axios.delete(`/api/api-keys/${keyToDelete}`);
       toast.success('API Key deleted successfully!');
       fetchApiKeys(); // Refresh the list
+      setIsDeleteConfirmModalOpen(false);
+      setKeyToDelete(null);
     } catch (error: any) {
       console.error('Error deleting API key:', error);
       toast.error(`Failed to delete API key: ${error.response?.data?.error || error.message}`);
@@ -424,7 +435,7 @@ const ApiKeySection = () => {
             <ApiKeyItem 
               key={key.id} 
               apiKey={key} 
-              onRevoke={handleDelete} 
+              onDelete={handleDelete} 
             />
           ))
         )}
@@ -462,6 +473,23 @@ const ApiKeySection = () => {
              <Button type="submit" isLoading={creating} disabled={!newKeyName}>Create Key</Button>
            </div>
         </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteConfirmModalOpen}
+        onClose={() => setIsDeleteConfirmModalOpen(false)}
+        title="Confirm Deletion"
+      >
+        <div className="space-y-4">
+          <p className="text-zinc-400">
+            Are you sure you want to delete this API key? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsDeleteConfirmModalOpen(false)}>Cancel</Button>
+            <Button variant="danger" onClick={confirmDelete}>Delete</Button>
+          </div>
+        </div>
       </Modal>
     </motion.div>
   );
