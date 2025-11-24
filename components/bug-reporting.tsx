@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bug, Send, Check, AlertCircle, Loader2 } from 'lucide-react'; // Added AlertCircle, Loader2
 import axios from 'axios'; // Import axios
 import { useWorkspace } from '@/components/workspace-context'; // Import useWorkspace
-import { useToast } from '@/app/dashboard/[slug]/settings/page'; // Assuming useToast is exported from here
+import  useToast  from '@/app/dashboard/[slug]/settings/page'; // Assuming useToast is exported from here
 
 export const VariantSimpleBugForm = () => {
   const { workspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = useWorkspace(); // Get workspace context

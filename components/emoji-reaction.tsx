@@ -37,16 +37,17 @@ type FeedbackOption = {
   id: number;
   label: string;
   emoji: string;
-  anim: keyof typeof emojiVariants; // This is the key change
+  anim: keyof typeof emojiVariants;
   color: string;
+  rating: number;
 };
 
 const FEEDBACK_OPTIONS: FeedbackOption[] = [
- { id: 1, label: 'Terrible', emoji: '😖', anim: 'shake', color: 'bg-red-500' },
- { id: 2, label: 'Bad',      emoji: '😞', anim: 'droop', color: 'bg-orange-500' },
- { id: 3, label: 'Okay',     emoji: '😐', anim: 'glance', color: 'bg-yellow-500' },
- { id: 4, label: 'Good',     emoji: '😄', anim: 'bounce', color: 'bg-blue-500' },
- { id: 5, label: 'Amazing',  emoji: '😍', anim: 'heartbeat', color: 'bg-rose-500' },
+  { id: 1, label: 'Terrible', emoji: '😖', anim: 'shake', color: 'bg-red-500', rating: 0 },
+  { id: 2, label: 'Bad',      emoji: '😞', anim: 'droop', color: 'bg-orange-500', rating: 3 },
+  { id: 3, label: 'Okay',     emoji: '😐', anim: 'glance', color: 'bg-yellow-500', rating: 5 },
+  { id: 4, label: 'Good',     emoji: '😄', anim: 'bounce', color: 'bg-blue-500', rating: 8 },
+  { id: 5, label: 'Amazing',  emoji: '😍', anim: 'heartbeat', color: 'bg-rose-500', rating: 10 },
 ];
 
 // --- VARIANT 1: The "Glass" Dock ---
