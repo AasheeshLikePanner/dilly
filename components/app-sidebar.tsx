@@ -86,7 +86,7 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
   return (
     <Sidebar collapsible="icon" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} {...props}>
       <SidebarHeader>
-        <SidebarHeaderContent initialWorkspaceId={workspaceId} onWorkspaceChange={setActiveWorkspaceSlug} />
+        <SidebarHeaderContent initialWorkspaceId={workspaceId} onWorkspaceChange={setActiveWorkspaceSlug} sidebarState={state} />
       </SidebarHeader>
       
       <SidebarContent>

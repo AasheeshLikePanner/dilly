@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  const feedbackId = params.id;
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id: feedbackId } = await context.params;
 
   // 1. Authenticate the user
   const supabaseUserClient = createSupabaseServerClient();
