@@ -2,6 +2,54 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
+export async function GET(request: Request) {
+  const supabase = createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const workspaceId = searchParams.get('workspace_id');
+  const status = searchParams.get('status');
+  const priority = searchParams.get('priority');
+  const type = searchParams.get('type');
+  const start_date = searchParams.get('start_date');
+  const end_date = searchParams.get('end_date');
+
+  if (!workspaceId) {
+    return NextResponse.json({ error: 'workspace_id is required' }, { status: 400 });
+  }
+
+  let query = supabase.from('bugs').select('*, profiles!bugs_assigned_to_fkey(email, full_name)').eq('workspace_id', workspaceId);
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+  if (priority) {
+    query = query.eq('priority', priority);
+  }
+  if (type) {
+    query = query.eq('type', type);
+  }
+  if (start_date) {
+    query = query.gte('created_at', start_date);
+  }
+  if (end_date) {
+    query = query.lte('created_at', end_date);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching bugs:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
 export async function POST(request: Request) {
   const supabase = createSupabaseServerClient();
 
