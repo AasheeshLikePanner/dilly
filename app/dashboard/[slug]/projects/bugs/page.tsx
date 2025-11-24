@@ -1,9 +1,6 @@
-"use client";
 
-import React from 'react';
-import { ClippedAreaChart } from "@/components/ui/clipped-area-chart";
-import { RoundedPieChart } from "@/components/ui/rounded-pie-chart";
-import { ValueLineBarChart } from "@/components/ui/value-line-bar-chart";
+'use client'
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
