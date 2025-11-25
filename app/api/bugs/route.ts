@@ -157,3 +157,66 @@ export async function POST(request: Request) {
 
   return NextResponse.json(newBug, { status: 201 });
 }
+
+export async function PUT(request: Request) {
+  const supabase = createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const { id, last_updated_at, ...updates } = body;
+
+  if (!id) {
+    return NextResponse.json({ error: 'Bug ID is required' }, { status: 400 });
+  }
+
+  // Validate fields if present
+  if (updates.priority && !['low', 'medium', 'high', 'critical'].includes(updates.priority)) {
+    return NextResponse.json({ error: 'Invalid priority' }, { status: 400 });
+  }
+  if (updates.status && !['open', 'triage', 'todo', 'in_progress', 'blocked', 'needs_info', 'testing', 'qa_failed', 'qa_passed', 'review', 'ready_for_deploy', 'deployed', 'done', 'closed', 'reopened', 'archived'].includes(updates.status)) {
+    return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+  }
+  if (updates.type && !['bug', 'feature', 'ui', 'performance', 'security', 'other'].includes(updates.type)) {
+    return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+  }
+
+  // Optimistic Locking Check
+  if (last_updated_at) {
+    const { data: currentBug, error: fetchError } = await supabase
+      .from('bugs')
+      .select('updated_at')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching bug for version check:', fetchError);
+      return NextResponse.json({ error: 'Failed to fetch bug for version check' }, { status: 500 });
+    }
+
+    if (currentBug && currentBug.updated_at !== last_updated_at) {
+      return NextResponse.json({ error: 'Conflict: The bug has been modified by another user. Please refresh and try again.' }, { status: 409 });
+    }
+  }
+
+  // Update the bug
+  const { data: updatedBug, error } = await supabase
+    .from('bugs')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select('*, profiles!bugs_assigned_to_fkey(email, full_name)')
+    .single();
+
+  if (error) {
+    console.error('Error updating bug:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(updatedBug);
+}

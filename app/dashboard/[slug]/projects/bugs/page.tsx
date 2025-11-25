@@ -141,12 +141,73 @@ const TypeIcon = ({ type }: { type: string }) => {
 
 // --- Drawer Component (Shows Everything in Schema) ---
 
-const BugDrawer = ({ bug, onClose }: { bug: Bug, onClose: () => void }) => {
+const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, onUpdate: () => void }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedBug, setEditedBug] = useState<Partial<Bug>>({});
+  const [members, setMembers] = useState<any[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
+
+  useEffect(() => {
+    if (isEditing && bug.workspace_id) {
+      fetchMembers();
+    }
+  }, [isEditing, bug.workspace_id]);
+
+  const fetchMembers = async () => {
+    setLoadingMembers(true);
+    try {
+      const response = await axios.get(`/api/workspaces/${bug.workspace_id}/members`);
+      setMembers(response.data);
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await axios.put('/api/bugs', {
+        id: bug.id,
+        last_updated_at: bug.updated_at,
+        ...editedBug
+      });
+      onUpdate();
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error("Failed to update bug:", error);
+      if (error.response && error.response.status === 409) {
+        alert("Conflict: The bug has been modified by another user. Please refresh and try again.");
+        // Optionally, we could automatically refresh here, but an alert is safer for now.
+        onUpdate(); // Refresh the list to get the latest version
+        onClose(); // Close the drawer to force re-opening with fresh data
+      } else {
+        alert("Failed to save changes. Please try again.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startEditing = () => {
+    setEditedBug({
+      title: bug.title,
+      description: bug.description,
+      status: bug.status,
+      priority: bug.priority,
+      type: bug.type,
+      assigned_to: bug.assigned_to
+    });
+    setIsEditing(true);
+  };
 
   return (
     <>
@@ -166,7 +227,18 @@ const BugDrawer = ({ bug, onClose }: { bug: Bug, onClose: () => void }) => {
               <Hash className="w-3 h-3 opacity-50" />
               {bug.id.slice(0, 8)}...
             </div>
-            <StatusBadge status={bug.status} />
+            {!isEditing && <StatusBadge status={bug.status} />}
+            {isEditing && (
+              <select
+                value={editedBug.status}
+                onChange={e => setEditedBug({ ...editedBug, status: e.target.value as any })}
+                className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 outline-none focus:border-zinc-700"
+              >
+                {['open', 'triage', 'todo', 'in_progress', 'blocked', 'needs_info', 'testing', 'qa_failed', 'qa_passed', 'review', 'ready_for_deploy', 'deployed', 'done', 'closed', 'reopened', 'archived'].map(s => (
+                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                ))}
+              </select>
+            )}
           </div>
           <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-white transition-colors">
             <X className="w-5 h-5" />
@@ -180,19 +252,61 @@ const BugDrawer = ({ bug, onClose }: { bug: Bug, onClose: () => void }) => {
             {/* 1. Title & Description */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <TypeIcon type={bug.type} />
-                <span className="text-zinc-600 text-xs">•</span>
-                <PriorityBadge priority={bug.priority} />
+                {!isEditing ? (
+                  <>
+                    <TypeIcon type={bug.type} />
+                    <span className="text-zinc-600 text-xs">•</span>
+                    <PriorityBadge priority={bug.priority} />
+                  </>
+                ) : (
+                  <div className="flex gap-2">
+                    <select
+                      value={editedBug.type}
+                      onChange={e => setEditedBug({ ...editedBug, type: e.target.value as any })}
+                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 outline-none focus:border-zinc-700"
+                    >
+                      {['bug', 'feature', 'ui', 'performance', 'security', 'other'].map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={editedBug.priority}
+                      onChange={e => setEditedBug({ ...editedBug, priority: e.target.value as any })}
+                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 outline-none focus:border-zinc-700"
+                    >
+                      {['low', 'medium', 'high', 'critical'].map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-              <h1 className="text-xl font-bold text-white mb-4 leading-relaxed">{bug.title}</h1>
+
+              {!isEditing ? (
+                <h1 className="text-xl font-bold text-white mb-4 leading-relaxed">{bug.title}</h1>
+              ) : (
+                <input
+                  value={editedBug.title || ''}
+                  onChange={e => setEditedBug({ ...editedBug, title: e.target.value })}
+                  className="w-full bg-zinc-900 border border-zinc-800 text-white text-xl font-bold rounded px-3 py-2 mb-4 outline-none focus:border-zinc-700"
+                />
+              )}
 
               <div className="p-5 rounded-xl bg-zinc-900/30 border border-zinc-800/50">
                 <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-2 flex items-center gap-2">
                   <Layout className="w-3 h-3" /> Description
                 </h3>
-                <p className="text-sm text-zinc-300 leading-7 whitespace-pre-wrap font-sans">
-                  {bug.description || <span className="italic opacity-50">No description provided.</span>}
-                </p>
+                {!isEditing ? (
+                  <p className="text-sm text-zinc-300 leading-7 whitespace-pre-wrap font-sans">
+                    {bug.description || <span className="italic opacity-50">No description provided.</span>}
+                  </p>
+                ) : (
+                  <textarea
+                    value={editedBug.description || ''}
+                    onChange={e => setEditedBug({ ...editedBug, description: e.target.value })}
+                    className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm rounded px-3 py-2 outline-none focus:border-zinc-700 min-h-[100px]"
+                  />
+                )}
               </div>
             </div>
 
@@ -211,13 +325,29 @@ const BugDrawer = ({ bug, onClose }: { bug: Bug, onClose: () => void }) => {
 
                 <div>
                   <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-2">Assigned To</h3>
-                  <div className="flex items-center gap-3">
-                    <Avatar name={bug.profiles?.full_name || null} email={bug.profiles?.email || null} />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-white">{bug.profiles?.full_name || 'Unassigned'}</span>
-                      <span className="text-[10px] text-zinc-500">{bug.profiles?.email}</span>
+                  {!isEditing ? (
+                    <div className="flex items-center gap-3">
+                      <Avatar name={bug.profiles?.full_name || null} email={bug.profiles?.email || null} />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white">{bug.profiles?.full_name || 'Unassigned'}</span>
+                        <span className="text-[10px] text-zinc-500">{bug.profiles?.email}</span>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <select
+                      value={editedBug.assigned_to || ''}
+                      onChange={e => setEditedBug({ ...editedBug, assigned_to: e.target.value || null })}
+                      className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm rounded px-2 py-1 outline-none focus:border-zinc-700"
+                      disabled={loadingMembers}
+                    >
+                      <option value="">Unassigned</option>
+                      {members.map(m => (
+                        <option key={m.user_id} value={m.user_id}>
+                          {m.profiles?.full_name || m.profiles?.email || 'Unknown User'}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -295,9 +425,30 @@ const BugDrawer = ({ bug, onClose }: { bug: Bug, onClose: () => void }) => {
           <button className="text-zinc-500 hover:text-red-400 text-sm font-medium flex items-center gap-2 transition-colors px-3 py-2 rounded hover:bg-red-500/10">
             <Trash2 className="w-4 h-4" /> Delete
           </button>
-          <button className="bg-white text-black px-5 py-2 rounded-lg text-sm font-bold hover:bg-zinc-200 transition-colors shadow-lg shadow-white/5">
-            Edit Bug
-          </button>
+          {!isEditing ? (
+            <button
+              onClick={startEditing}
+              className="bg-white text-black px-5 py-2 rounded-lg text-sm font-bold hover:bg-zinc-200 transition-colors shadow-lg shadow-white/5"
+            >
+              Edit Bug
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="text-zinc-400 px-4 py-2 rounded-lg text-sm font-medium hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </>
@@ -313,21 +464,22 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!workspaceId) return;
+  const fetchBugs = async () => {
+    if (!workspaceId) return;
 
-      setLoading(true);
-      try {
-        const response = await axios.get(`/api/bugs?workspace_id=${workspaceId}`);
-        setBugs(response.data);
-      } catch (error) {
-        console.error("Failed to fetch bugs:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/bugs?workspace_id=${workspaceId}`);
+      setBugs(response.data);
+    } catch (error) {
+      console.error("Failed to fetch bugs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBugs();
   }, [workspaceId]);
 
   const handleCopy = (id: string, e: React.MouseEvent) => {
@@ -341,6 +493,26 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
     e.stopPropagation();
     setSelectedBug(bug);
   };
+
+  const handleUpdate = () => {
+    fetchBugs();
+    // Also update the selected bug to reflect changes immediately if needed, 
+    // but fetching fresh data is safer. 
+    // We might need to close and reopen or update the selectedBug state with the new data.
+    // For now, let's just refetch the list. 
+    // To update the drawer content, we need to update selectedBug.
+    // We can fetch the single bug or just rely on the list update if we find it.
+  };
+
+  // Effect to update selectedBug when bugs list changes
+  useEffect(() => {
+    if (selectedBug) {
+      const updated = bugs.find(b => b.id === selectedBug.id);
+      if (updated) {
+        setSelectedBug(updated);
+      }
+    }
+  }, [bugs]);
 
   if (loading) {
     return (
@@ -484,7 +656,7 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
       </div>
 
       <AnimatePresence>
-        {selectedBug && <BugDrawer bug={selectedBug} onClose={() => setSelectedBug(null)} />}
+        {selectedBug && <BugDrawer bug={selectedBug} onClose={() => setSelectedBug(null)} onUpdate={handleUpdate} />}
       </AnimatePresence>
     </div>
   );
