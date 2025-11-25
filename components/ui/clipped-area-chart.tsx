@@ -38,9 +38,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ClippedAreaChart({ className }: { className?: string }) {
+export function ClippedAreaChart({ className, data }: { className?: string, data?: any[] }) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [axis, setAxis] = useState(0);
+
+  // Use provided data or fallback to mock data (or empty)
+  const displayData = data || chartData;
 
   // motion values
   const springX = useSpring(0, {
@@ -56,18 +59,20 @@ export function ClippedAreaChart({ className }: { className?: string }) {
     setAxis(latest);
   });
 
+  const total = displayData.reduce((acc, curr) => acc + (curr.mobile || 0), 0);
+
   return (
     <Card className={className}>
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
           <CardTitle>
-            ${springY.get().toFixed(0)}
+            {total}
             <Badge variant="secondary" className="ml-2">
               <TrendingDown className="h-4 w-4" />
-              <span>-5.2%</span>
+              <span>Last 30 Days</span>
             </Badge>
           </CardTitle>
-          <CardDescription>Total revenue for last year</CardDescription>
+          <CardDescription>Bugs created over time</CardDescription>
         </div>
         <Button variant="ghost" size="icon">
           <ArrowsOut className="h-4 w-4" />
@@ -82,7 +87,7 @@ export function ClippedAreaChart({ className }: { className?: string }) {
           <AreaChart
             className="overflow-visible"
             accessibilityLayer
-            data={chartData}
+            data={displayData}
             onMouseMove={(state) => {
               const x = state.activeCoordinate?.x;
               const dataValue = state.activePayload?.[0]?.value;
@@ -93,7 +98,7 @@ export function ClippedAreaChart({ className }: { className?: string }) {
             }}
             onMouseLeave={() => {
               springX.set(chartRef.current?.getBoundingClientRect().width || 0);
-              springY.jump(chartData[chartData.length - 1].mobile);
+              springY.jump(displayData[displayData.length - 1]?.mobile || 0);
             }}
             margin={{
               right: 0,
@@ -121,9 +126,8 @@ export function ClippedAreaChart({ className }: { className?: string }) {
               fill="url(#gradient-cliped-area-mobile)"
               fillOpacity={0.4}
               stroke="var(--color-mobile)"
-              clipPath={`inset(0 ${
-                Number(chartRef.current?.getBoundingClientRect().width) - axis
-              } 0 0)`}
+              clipPath={`inset(0 ${Number(chartRef.current?.getBoundingClientRect().width) - axis
+                } 0 0)`}
             />
             <line
               x1={axis}
@@ -141,6 +145,8 @@ export function ClippedAreaChart({ className }: { className?: string }) {
               width={50}
               height={18}
               fill="var(--color-mobile)"
+              stroke="none"
+              rx={4}
             />
             <text
               x={axis - 25}
@@ -149,7 +155,7 @@ export function ClippedAreaChart({ className }: { className?: string }) {
               textAnchor="middle"
               fill="var(--primary-foreground)"
             >
-              ${springY.get().toFixed(0)}
+              {springY.get().toFixed(0)}
             </text>
             {/* this is a ghost line behind graph */}
             <Area

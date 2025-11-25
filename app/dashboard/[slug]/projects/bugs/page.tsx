@@ -428,8 +428,9 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
           {!isEditing ? (
             <button
               onClick={startEditing}
-              className="bg-white text-black px-5 py-2 rounded-lg text-sm font-bold hover:bg-zinc-200 transition-colors shadow-lg shadow-white/5"
+              className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 text-zinc-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
             >
+              <Pencil className="w-4 h-4" />
               Edit Bug
             </button>
           ) : (
@@ -548,7 +549,7 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
       </div>
 
       {/* Main Table */}
-      <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-950 shadow-sm relative">
+      <div className="border border-zinc-800 rounded-xl overflow-hidden bg-card shadow-sm relative">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
@@ -671,6 +672,7 @@ export default function BugsPage() {
   const slug = typeof params?.slug === 'string' ? params.slug : '';
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [loadingWorkspace, setLoadingWorkspace] = useState(true);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     const fetchWorkspaceId = async () => {
@@ -690,6 +692,19 @@ export default function BugsPage() {
     fetchWorkspaceId();
   }, [slug]);
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!workspaceId) return;
+      try {
+        const response = await axios.get(`/api/bugs/stats?workspace_id=${workspaceId}`);
+        setStats(response.data);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      }
+    };
+    fetchStats();
+  }, [workspaceId]);
+
   if (loadingWorkspace) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -704,42 +719,42 @@ export default function BugsPage() {
         <Dialog>
           <DialogTrigger asChild>
             <div className="cursor-pointer h-full">
-              <ClippedAreaChart className="h-full" />
+              <ClippedAreaChart className="h-full" data={stats?.areaChartData} />
             </div>
           </DialogTrigger>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Playground Chats</DialogTitle>
+              <DialogTitle>Activity Over Time</DialogTitle>
             </DialogHeader>
-            <ClippedAreaChart />
+            <ClippedAreaChart data={stats?.areaChartData} />
           </DialogContent>
         </Dialog>
 
         <Dialog>
           <DialogTrigger asChild>
             <div className="cursor-pointer h-full">
-              <RoundedPieChart className="h-full" />
+              <RoundedPieChart className="h-full" data={stats?.pieChartData} />
             </div>
           </DialogTrigger>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Chats Involving File Uploads</DialogTitle>
+              <DialogTitle>Status Distribution</DialogTitle>
             </DialogHeader>
-            <RoundedPieChart />
+            <RoundedPieChart data={stats?.pieChartData} />
           </DialogContent>
         </Dialog>
 
         <Dialog>
           <DialogTrigger asChild>
             <div className="cursor-pointer h-full">
-              <ValueLineBarChart className="h-full" />
+              <ValueLineBarChart className="h-full" data={stats?.barChartData} />
             </div>
           </DialogTrigger>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Role-playing Conversations</DialogTitle>
+              <DialogTitle>Priority Distribution</DialogTitle>
             </DialogHeader>
-            <ValueLineBarChart />
+            <ValueLineBarChart data={stats?.barChartData} />
           </DialogContent>
         </Dialog>
       </div>

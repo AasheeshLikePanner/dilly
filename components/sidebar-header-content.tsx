@@ -82,17 +82,17 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
 
         const userProfileId = profileData.id;
 
-interface WorkspaceMemberWithWorkspace {
-  role: 'owner' | 'admin' | 'member' | 'viewer'; // Explicitly define the union type
-  workspaces: Workspace | null;
-}
+        interface WorkspaceMemberWithWorkspace {
+          role: 'owner' | 'admin' | 'member' | 'viewer'; // Explicitly define the union type
+          workspaces: Workspace | null;
+        }
 
-// ...
+        // ...
 
-    console.log('SidebarHeaderContent: Fetching workspace members...');
-    const { data: memberData, error: memberError } = await supabase
-      .from('workspace_members')
-      .select(`
+        console.log('SidebarHeaderContent: Fetching workspace members...');
+        const { data: memberData, error: memberError } = await supabase
+          .from('workspace_members')
+          .select(`
         role,
         workspaces (
           id,
@@ -105,26 +105,26 @@ interface WorkspaceMemberWithWorkspace {
           logo_url
         )
       `)
-      .eq('user_id', user.id) as { data: WorkspaceMemberWithWorkspace[] | null, error: any };
+          .eq('user_id', user.id) as { data: WorkspaceMemberWithWorkspace[] | null, error: any };
 
-    if (memberError) {
-      console.error('SidebarHeaderContent: Error fetching workspace members:', memberError.message);
-      return;
-    }
-    console.log(`SidebarHeaderContent: Found ${memberData?.length || 0} workspace memberships.`);
+        if (memberError) {
+          console.error('SidebarHeaderContent: Error fetching workspace members:', memberError.message);
+          return;
+        }
+        console.log(`SidebarHeaderContent: Found ${memberData?.length || 0} workspace memberships.`);
 
-    if (!memberData || memberData.length === 0) {
-      setAllWorkspaces([]);
-      console.log('SidebarHeaderContent: No workspace memberships found.');
-      return;
-    }
+        if (!memberData || memberData.length === 0) {
+          setAllWorkspaces([]);
+          console.log('SidebarHeaderContent: No workspace memberships found.');
+          return;
+        }
 
-    const userWorkspaces = memberData
-      .filter(member => member.workspaces !== null)
-      .map(member => ({
-        ...(member.workspaces as Workspace),
-        role: member.role,
-      }));
+        const userWorkspaces = memberData
+          .filter(member => member.workspaces !== null)
+          .map(member => ({
+            ...(member.workspaces as Workspace),
+            role: member.role,
+          }));
         setAllWorkspaces(userWorkspaces);
         console.log(`SidebarHeaderContent: Processed ${userWorkspaces.length} user workspaces.`);
 
@@ -142,7 +142,7 @@ interface WorkspaceMemberWithWorkspace {
           activeWorkspace = userWorkspaces.find(ws => ws.slug === lastActiveWorkspaceSlug);
           console.log(`SidebarHeaderContent: Active workspace from localStorage: ${activeWorkspace?.slug}`);
         }
-        
+
         if (!activeWorkspace && userWorkspaces.length > 0) {
           activeWorkspace = userWorkspaces[0];
           console.log(`SidebarHeaderContent: Defaulting to first workspace: ${activeWorkspace?.slug}`);
@@ -238,13 +238,19 @@ interface WorkspaceMemberWithWorkspace {
   }
 
   const logoSizeClass = sidebarState === "expanded" ? "size-10" : "size-8";
-  const buttonClass = sidebarState === "expanded" ? "w-full h-auto justify-start" : "size-10 justify-center";
+  const buttonClass = sidebarState === "expanded" ? "w-full h-auto justify-start" : "w-10 h-10 p-0 justify-center";
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className={cn("flex items-center gap-2 p-2 bg-card", buttonClass)}>
+          <Button
+            variant="ghost"
+            className={cn(
+              "flex items-center gap-2 p-2 bg-card hover:bg-zinc-800/50 border border-zinc-800 rounded-lg transition-all",
+              buttonClass
+            )}
+          >
             {workspace.logo_url ? (
               <img src={workspace.logo_url} alt={`${workspace.name} logo`} className={`${logoSizeClass} rounded-md`} />
             ) : (
@@ -253,10 +259,22 @@ interface WorkspaceMemberWithWorkspace {
               </div>
             )}
             {sidebarState === "expanded" && (
-              <div className="flex flex-col items-start">
-                <span className="font-semibold text-sm truncate">{workspace.name}</span>
-                <span className="text-xs text-muted-foreground truncate">{workspace.slug}</span>
-              </div>
+              <>
+                <div className="flex flex-col items-start flex-1">
+                  <span className="font-semibold text-sm truncate">{workspace.name}</span>
+                  <span className="text-xs text-muted-foreground truncate">{workspace.slug}</span>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  viewBox="0 0 256 256"
+                  className="text-zinc-500"
+                >
+                  <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
+                </svg>
+              </>
             )}
           </Button>
         </DropdownMenuTrigger>

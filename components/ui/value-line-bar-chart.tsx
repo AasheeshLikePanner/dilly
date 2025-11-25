@@ -52,24 +52,26 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ValueLineBarChart({ className }: { className?: string }) {
+export function ValueLineBarChart({ className, data }: { className?: string, data?: any[] }) {
+  const displayData = data || chartData;
   const [activeIndex, setActiveIndex] = React.useState<number | undefined>(
     undefined
   );
 
   const maxValueIndex = React.useMemo(() => {
+    if (!displayData || displayData.length === 0) return { index: 0, value: 0 };
     // if user is moving mouse over bar then set value to the bar value
     if (activeIndex !== undefined) {
-      return { index: activeIndex, value: chartData[activeIndex].desktop };
+      return { index: activeIndex, value: displayData[activeIndex].desktop };
     }
     // if no active index then set value to max value
-    return chartData.reduce(
+    return displayData.reduce(
       (max, data, index) => {
         return data.desktop > max.value ? { index, value: data.desktop } : max;
       },
       { index: 0, value: 0 }
     );
-  }, [activeIndex]);
+  }, [activeIndex, displayData]);
 
   const maxValueIndexSpring = useSpring(maxValueIndex.value, {
     stiffness: 100,
@@ -78,8 +80,12 @@ export function ValueLineBarChart({ className }: { className?: string }) {
 
   const [springyValue, setSpringyValue] = React.useState(maxValueIndex.value);
 
-  useMotionValueEvent(maxValueIndexSpring, "change", (latest) => {
-    setSpringyValue(Number(latest.toFixed(0)));
+  useMotionValueEvent(maxValueIndexSpring, "change", (latest: any) => {
+    if (typeof latest === 'number') {
+      setSpringyValue(Number(latest.toFixed(0)));
+    } else if (typeof latest === 'string') {
+      setSpringyValue(Number(parseFloat(latest).toFixed(0)));
+    }
   });
 
   React.useEffect(() => {
@@ -94,14 +100,14 @@ export function ValueLineBarChart({ className }: { className?: string }) {
             <span
               className={cn(jetBrainsMono.className, "text-2xl tracking-tighter")}
             >
-              ${maxValueIndex.value}
+              {maxValueIndex.value}
             </span>
             <Badge variant="secondary">
               <TrendingUp className="h-4 w-4" />
-              <span>5.2%</span>
+              <span>Priority</span>
             </Badge>
           </CardTitle>
-          <CardDescription>vs. last quarter</CardDescription>
+          <CardDescription>Bugs by Priority</CardDescription>
         </div>
         <Button variant="ghost" size="icon">
           <ArrowsOut className="h-4 w-4" />
@@ -112,7 +118,7 @@ export function ValueLineBarChart({ className }: { className?: string }) {
           <ChartContainer config={chartConfig}>
             <BarChart
               accessibilityLayer
-              data={chartData}
+              data={displayData}
               onMouseLeave={() => setActiveIndex(undefined)}
               margin={{
                 left: CHART_MARGIN,
@@ -126,7 +132,7 @@ export function ValueLineBarChart({ className }: { className?: string }) {
                 tickFormatter={(value) => value.slice(0, 3)}
               />
               <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4}>
-                {chartData.map((_, index) => (
+                {displayData.map((_, index) => (
                   <Cell
                     className="duration-200"
                     opacity={index === maxValueIndex.index ? 1 : 0.2}

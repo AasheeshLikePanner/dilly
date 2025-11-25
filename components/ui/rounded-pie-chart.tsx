@@ -1,6 +1,7 @@
 "use client";
 
 import { LabelList, Pie, PieChart } from "recharts";
+import React from "react";
 
 import {
   Card,
@@ -57,25 +58,54 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function RoundedPieChart({ className }: { className?: string }) {
+export function RoundedPieChart({ className, data }: { className?: string, data?: any[] }) {
+  const [showAll, setShowAll] = React.useState(false);
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+    const saved = localStorage.getItem('dilly_chart_show_all_statuses');
+    if (saved !== null) {
+      setShowAll(JSON.parse(saved));
+    }
+  }, []);
+
+  const toggleShowAll = () => {
+    const newState = !showAll;
+    setShowAll(newState);
+    localStorage.setItem('dilly_chart_show_all_statuses', JSON.stringify(newState));
+  };
+
+  const displayData = data || chartData;
+  const total = displayData.reduce((acc, curr) => acc + (curr.visitors || 0), 0);
+
+  const IMPORTANT_STATUSES = ['open', 'in_progress', 'review', 'testing', 'ready_for_deploy'];
+
+  const filteredData = showAll
+    ? displayData
+    : displayData.filter(d => IMPORTANT_STATUSES.includes(d.browser));
+
+  // If no important statuses found, show all to avoid empty chart
+  const finalData = (filteredData.length > 0 || showAll) ? filteredData : displayData;
+
   return (
     <Card className={cn("flex flex-col", className)}>
       <CardHeader className="flex flex-row items-start justify-between pb-0">
         <div className="items-center">
           <CardTitle>
-            Pie Chart
+            Status Distribution
             <Badge
               variant="outline"
               className="text-green-500 bg-green-500/10 border-none ml-2"
             >
               <TrendingUp className="h-4 w-4" />
-              <span>5.2%</span>
+              <span>{total} Total</span>
             </Badge>
           </CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardDescription>Bugs by Status</CardDescription>
         </div>
-        <Button variant="ghost" size="icon">
-          <ArrowsOut className="h-4 w-4" />
+        <Button variant="ghost" size="icon" onClick={toggleShowAll} title={showAll ? "Show Important Only" : "Show All"}>
+          {showAll ? <ArrowsOut className="h-4 w-4 text-indigo-500" /> : <ArrowsOut className="h-4 w-4" />}
         </Button>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
@@ -85,12 +115,13 @@ export function RoundedPieChart({ className }: { className?: string }) {
         >
           <PieChart>
             <ChartTooltip
-              content={<ChartTooltipContent nameKey="visitors" hideLabel />}
+              content={<ChartTooltipContent nameKey="browser" />}
             />
             <Pie
-              data={chartData}
+              data={finalData}
               innerRadius={30}
               dataKey="visitors"
+              nameKey="browser"
               radius={10}
               cornerRadius={8}
               paddingAngle={4}
@@ -107,6 +138,18 @@ export function RoundedPieChart({ className }: { className?: string }) {
           </PieChart>
         </ChartContainer>
       </CardContent>
+      <div className="p-4 pt-0 flex justify-center">
+        {isClient && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleShowAll}
+            className="text-xs h-7"
+          >
+            {showAll ? "Show Important Only" : "Show All Statuses"}
+          </Button>
+        )}
+      </div>
     </Card>
   );
 }
