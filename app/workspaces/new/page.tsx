@@ -87,8 +87,8 @@ export default function CreateWorkspacePage() {
         throw new Error(memberError.message || 'Failed to add user to workspace members.');
       }
 
-      // Redirect to dashboard with the new workspace ID
-      router.push(`/dashboard?workspaceId=${workspaceData.id}`);
+      // Redirect to new workspace
+      router.push(`/${newSlug}`);
 
     } catch (err: any) {
       console.error('Error creating workspace:', err.message);

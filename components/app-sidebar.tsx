@@ -4,6 +4,7 @@ import * as React from "react"
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
 import {
   Bug,
   CaretRight,
@@ -74,11 +75,11 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
   };
 
   // Use the activeWorkspaceSlug from SidebarHeaderContent for homeHref
-  const homeHref = activeWorkspaceSlug ? `/dashboard/${activeWorkspaceSlug}` : "/";
+  const homeHref = activeWorkspaceSlug ? `/${activeWorkspaceSlug}` : "/";
 
   const getHrefWithSlug = (baseHref: string) => {
     if (activeWorkspaceSlug && baseHref !== "/") {
-      return `/dashboard/${activeWorkspaceSlug}${baseHref}`;
+      return `${baseHref}/${activeWorkspaceSlug}`;
     }
     return baseHref;
   };
@@ -88,129 +89,129 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
       <SidebarHeader>
         <SidebarHeaderContent initialWorkspaceId={workspaceId} onWorkspaceChange={setActiveWorkspaceSlug} sidebarState={state} />
       </SidebarHeader>
-      
+
       <SidebarContent>
         {/* Group 1: Platform */}
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarMenu>
-            
-                        {/* Home */}
-                        <SidebarMenuItem>
-                          <SidebarMenuButton
-                            asChild
-                            isActive={pathname === "/" || pathname.startsWith("/dashboard")}
-                            tooltip="Home"
-                            className={state === "expanded" ? "bg-white text-black h-10" : ""} // Conditional styling
-                          >
-                            <a href={homeHref}>
-                              <House />
-                              <span>Home</span>
-                            </a>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-            
-                      </SidebarMenu>
-                    </SidebarGroup>
-            
-                    {/* Group 2: Product */}
-                    <SidebarGroup>
-                      <SidebarGroupLabel>Product</SidebarGroupLabel>
-                      <SidebarMenu>
-                        {/* Features */}
-                        <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/projects/features'))} tooltip="Features">
-                            <a href={getHrefWithSlug('/projects/features')}>
-                                <Lightbulb />
-                                <span>Features</span>
-                            </a>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        {/* Bugs */}
-                        <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/projects/bugs'))} tooltip="Bugs">
-                            <a href={getHrefWithSlug('/projects/bugs')}>
-                                <Bug />
-                                <span>Bugs</span>
-                            </a>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        {/* Product Feedback */}
-                        <SidebarMenuItem>
-                          <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/projects/feedback'))} tooltip="Product Feedback">
-                            <a href={getHrefWithSlug('/projects/feedback')}>
-                                <ChatCircleText />
-                                <span>Product Feedback</span>
-                            </a>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        {/* Roadmap */}
-                      </SidebarMenu>
-                    </SidebarGroup>
-            
-                    {/* Group 3: Community */}
-                    <SidebarGroup>
-                      <SidebarGroupLabel>Components</SidebarGroupLabel>
-                      <SidebarMenu>
-                        <SidebarMenuItem>
-                          {/* Non-clickable parent "Feedback" */}
-                          <SidebarMenuButton tooltip="Feedback">
-                            <Cube /> {/* Using a generic icon for the parent */}
-                            <span>Feedback</span>
-                          </SidebarMenuButton>
-                          <SidebarMenuSub>
-                            {/* Emoji Feedback */}
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
-                                <a href={getHrefWithSlug('/components/feedback/emoji')}>
-                                    <Smiley />
-                                    <span>Emoji Feedback</span>
-                                </a>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            {/* Slider Feedback */}
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
-                                <a href={getHrefWithSlug('/components/feedback/slider')}>
-                                    <SlidersHorizontal />
-                                    <span>Slider Feedback</span>
-                                </a>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                            {/* Form Feedback */}
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
-                                <a href={getHrefWithSlug('/components/feedback/form')}>
-                                    <NotePencil />
-                                    <span>Form Feedback</span>
-                                </a>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          </SidebarMenuSub>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                          {/* Non-clickable parent "Bug Reporting" */}
-                          <SidebarMenuButton tooltip="Bug Reporting">
-                            <Bug /> {/* Using Bug icon for the parent */}
-                            <span>Bug Reporting</span>
-                          </SidebarMenuButton>
-                          <SidebarMenuSub>
-                            {/* Simple Bug Form */}
-                            <SidebarMenuSubItem>
-                              <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>
-                                <a href={getHrefWithSlug('/components/bug-reporting/form')}>
-                                    <NotePencil /> {/* Reusing NotePencil for a form */}
-                                    <span>Simple Form</span>
-                                </a>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          </SidebarMenuSub>
-                        </SidebarMenuItem>
-                      </SidebarMenu>
-                    </SidebarGroup>
-            
 
-                  </SidebarContent>
+            {/* Home */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/" || pathname.startsWith("/dashboard")}
+                tooltip="Home"
+                className={state === "expanded" ? "bg-white text-black h-10" : ""} // Conditional styling
+              >
+                <Link href={homeHref}>
+                  <House />
+                  <span>Home</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Group 2: Product */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Product</SidebarGroupLabel>
+          <SidebarMenu>
+            {/* Features */}
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/features'))} tooltip="Features">
+                <Link href={getHrefWithSlug('/features')}>
+                  <Lightbulb />
+                  <span>Features</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* Bugs */}
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/bugs'))} tooltip="Bugs">
+                <Link href={getHrefWithSlug('/bugs')}>
+                  <Bug />
+                  <span>Bugs</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* Product Feedback */}
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/feedback'))} tooltip="Product Feedback">
+                <Link href={getHrefWithSlug('/feedback')}>
+                  <ChatCircleText />
+                  <span>Product Feedback</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* Roadmap */}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Group 3: Community */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Components</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              {/* Non-clickable parent "Feedback" */}
+              <SidebarMenuButton tooltip="Feedback">
+                <Cube /> {/* Using a generic icon for the parent */}
+                <span>Feedback</span>
+              </SidebarMenuButton>
+              <SidebarMenuSub>
+                {/* Emoji Feedback */}
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
+                    <Link href={getHrefWithSlug('/components/feedback/emoji')}>
+                      <Smiley />
+                      <span>Emoji Feedback</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                {/* Slider Feedback */}
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
+                    <Link href={getHrefWithSlug('/components/feedback/slider')}>
+                      <SlidersHorizontal />
+                      <span>Slider Feedback</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                {/* Form Feedback */}
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
+                    <Link href={getHrefWithSlug('/components/feedback/form')}>
+                      <NotePencil />
+                      <span>Form Feedback</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </SidebarMenuSub>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              {/* Non-clickable parent "Bug Reporting" */}
+              <SidebarMenuButton tooltip="Bug Reporting">
+                <Bug /> {/* Using Bug icon for the parent */}
+                <span>Bug Reporting</span>
+              </SidebarMenuButton>
+              <SidebarMenuSub>
+                {/* Simple Bug Form */}
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>
+                    <Link href={getHrefWithSlug('/components/bug-reporting/form')}>
+                      <NotePencil /> {/* Reusing NotePencil for a form */}
+                      <span>Simple Form</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </SidebarMenuSub>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+
+      </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -221,7 +222,7 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                     <UserCircle className="size-5" />
+                    <UserCircle className="size-5" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{userName || "User Account"}</span>
@@ -239,7 +240,7 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
-                       <UserCircle className="size-4" />
+                      <UserCircle className="size-4" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{userName || "John Doe"}</span>
@@ -260,18 +261,18 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/profile'))} tooltip="Profile">
-              <a href={getHrefWithSlug('/profile')}>
+              <Link href={getHrefWithSlug('/profile')}>
                 <UserCircle />
                 <span>Profile</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/settings'))} tooltip="Settings">
-              <a href={getHrefWithSlug('/settings')}>
+              <Link href={getHrefWithSlug('/settings')}>
                 <Gear />
                 <span>Settings</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

@@ -63,9 +63,9 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
       }
       console.log(`SidebarHeaderContent: User authenticated: ${user.id}`);
 
-      const dashboardMatch = pathname.match(/^\/dashboard\/([^/]+)/);
-      const slugFromPath = dashboardMatch ? dashboardMatch[1] : null;
-      console.log(`SidebarHeaderContent: Slug from path: ${slugFromPath}`);
+      // Extract slug from various URL patterns: /[slug], /feedback/[slug], /bugs/[slug], etc.
+      const segments = pathname.split('/').filter(Boolean);
+      let slugFromPath: string | null = null;
 
       try {
         console.log('SidebarHeaderContent: Fetching profile data...');
@@ -127,6 +127,10 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
           }));
         setAllWorkspaces(userWorkspaces);
         console.log(`SidebarHeaderContent: Processed ${userWorkspaces.length} user workspaces.`);
+
+        // Match slug from URL segments against user's workspaces
+        slugFromPath = userWorkspaces.find(ws => ws.slug && segments.includes(ws.slug))?.slug || null;
+        console.log(`SidebarHeaderContent: Slug from path: ${slugFromPath}`);
 
         let activeWorkspace;
         let lastActiveWorkspaceSlug = localStorage.getItem(LAST_ACTIVE_WORKSPACE_SLUG_KEY);
@@ -239,6 +243,13 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
 
   const logoSizeClass = sidebarState === "expanded" ? "size-10" : "size-8";
   const buttonClass = sidebarState === "expanded" ? "w-full h-auto justify-start" : "w-10 h-10 p-0 justify-center";
+
+  const handleWorkspaceSwitch = (workspaceId: string) => {
+    const newWorkspace = allWorkspaces.find(ws => ws.id === workspaceId);
+    if (newWorkspace) {
+      router.push(`/${newWorkspace.slug}`);
+    }
+  };
 
   return (
     <>

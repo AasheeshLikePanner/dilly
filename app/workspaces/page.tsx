@@ -1,17 +1,17 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Code, 
-  PenTool, 
-  BarChart3, 
-  Plus, 
-  ArrowRight, 
-  Loader2, 
-  Cpu, 
-  Sparkles, 
-  Terminal, 
-  Shield, 
+import {
+  Code,
+  PenTool,
+  BarChart3,
+  Plus,
+  ArrowRight,
+  Loader2,
+  Cpu,
+  Sparkles,
+  Terminal,
+  Shield,
   Zap,
   LogOut
 } from 'lucide-react';
@@ -221,7 +221,7 @@ export default function App() { // Revert to default export
     setTimeout(() => {
       const workspace = workspaces.find(w => w.id === selectedId);
       if (workspace?.slug) {
-        router.push(`/dashboard/${workspace.slug}`);
+        router.push(`/${workspace.slug}`);
       } else {
         alert(`Environment Synced. Entering ${workspace?.name}...`);
       }
@@ -240,7 +240,7 @@ export default function App() { // Revert to default export
     <div className="min-h-screen w-full bg-[#030303] text-[#ededed] font-sans selection:bg-white selection:text-black overflow-hidden relative flex flex-col">
       {/* GLOBAL BACKGROUND */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_0%,#1a1a1a_0%,transparent_60%),radial-gradient(circle_at_80%_90%,#0d0d0d_0%,transparent_50%)] z-0" />
-      
+
       {/* --- HEADER --- */}
       <header className="relative z-10 px-10 py-8 flex justify-between items-center animate-fade-in-down">
         <div className="flex items-center gap-3 font-semibold tracking-tight text-sm">
@@ -252,7 +252,7 @@ export default function App() { // Revert to default export
 
       {/* --- MAIN CONTENT AREA --- */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4">
-        
+
         {view === 'list' && (
           <div className="w-full max-w-2xl flex flex-col items-center text-center animate-fade-in-up">
             <h1 className="text-4xl md:text-5xl font-medium tracking-tighter mb-4 bg-gradient-to-b from-white via-white to-[#666] bg-clip-text text-transparent">
@@ -267,7 +267,7 @@ export default function App() { // Revert to default export
               {workspaces.map((ws) => {
                 const Icon = getIcon();
                 const isActive = selectedId === ws.id;
-                
+
                 return (
                   <div
                     key={ws.id}
@@ -277,8 +277,8 @@ export default function App() { // Revert to default export
                       flex flex-col items-center justify-center gap-4
                       overflow-hidden
                       transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]
-                      ${isActive 
-                        ? 'border-white shadow-[0_0_40px_rgba(255,255,255,0.2)] scale-105 -translate-y-2' 
+                      ${isActive
+                        ? 'border-white shadow-[0_0_40px_rgba(255,255,255,0.2)] scale-105 -translate-y-2'
                         : 'border-[#262626] hover:border-white/30 hover:-translate-y-2 hover:shadow-2xl'
                       }
                       ${!ws.logo_url && (isActive ? 'bg-[#ededed]' : 'bg-[#0f0f0f] hover:bg-[#1a1a1a]')}
@@ -292,8 +292,8 @@ export default function App() { // Revert to default export
                       </>
                     ) : (
                       <>
-                        <Icon 
-                          size={32} 
+                        <Icon
+                          size={32}
                           className={`
                             transition-all duration-500 ease-spring
                             ${isActive ? 'text-black scale-100' : 'text-[#ededed] group-hover:scale-110 group-hover:text-white'}
@@ -333,8 +333,8 @@ export default function App() { // Revert to default export
                 className={`
                   flex items-center gap-3 px-8 py-4 rounded-full bg-[#ededed] text-black font-semibold text-sm
                   transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]
-                  ${selectedId 
-                    ? 'translate-y-0 opacity-100 rotate-0' 
+                  ${selectedId
+                    ? 'translate-y-0 opacity-100 rotate-0'
                     : 'translate-y-20 opacity-0 rotate-3'
                   }
                   hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] hover:scale-105
@@ -362,7 +362,7 @@ export default function App() { // Revert to default export
             <div className="w-full bg-[#0f0f0f] border border-[#262626] rounded-3xl p-8 shadow-2xl">
               <div className="flex justify-between items-start mb-6">
                 <h2 className="text-2xl font-medium text-white">Create Workspace</h2>
-                <button 
+                <button
                   onClick={() => setView('list')}
                   className="text-[#666] hover:text-white transition-colors"
                 >
@@ -373,18 +373,18 @@ export default function App() { // Revert to default export
               <form onSubmit={(e) => { e.preventDefault(); createWorkspace(); }} className="space-y-6">
                 <div className="flex justify-center">
                   <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleLogoChange}
-                      className="hidden"
-                      accept="image/png, image/jpeg, image/gif"
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleLogoChange}
+                    className="hidden"
+                    accept="image/png, image/jpeg, image/gif"
                   />
                   <button type="button" onClick={() => fileInputRef.current?.click()} className="w-32 h-32 bg-[#0a0a0a] border-2 border-dashed border-[#333] rounded-lg flex items-center justify-center text-5xl text-[#444] hover:border-white/50 transition-all">
-                      {logoPreview ? (
-                          <img src={logoPreview} alt="Logo preview" className="w-full h-full rounded-lg object-cover" />
-                      ) : (
-                          newWorkspaceName ? newWorkspaceName.charAt(0).toUpperCase() : <Plus />
-                      )}
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo preview" className="w-full h-full rounded-lg object-cover" />
+                    ) : (
+                      newWorkspaceName ? newWorkspaceName.charAt(0).toUpperCase() : <Plus />
+                    )}
                   </button>
                 </div>
                 <div>

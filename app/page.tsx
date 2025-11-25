@@ -50,7 +50,7 @@ export default async function Home() {
   const firstWorkspaceSlug = memberData?.[0]?.workspaces?.slug;
 
   if (firstWorkspaceSlug) {
-    redirect(`/dashboard/${firstWorkspaceSlug}`);
+    redirect(`/${firstWorkspaceSlug}`);
   } else {
     redirect('/workspaces'); // Fallback if slug is somehow missing
   }

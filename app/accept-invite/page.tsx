@@ -52,9 +52,9 @@ export default function AcceptInvitePage() {
 
         // Redirect to the new workspace dashboard
         if (result.workspace_slug) {
-          router.push(`/dashboard/${result.workspace_slug}`);
+          router.push(`/${result.workspace_slug}`);
         } else {
-          router.push('/dashboard'); // Fallback to general dashboard
+          router.push('/workspaces'); // Fallback to workspaces list
         }
       } catch (err: any) {
         setMessage(`Error: ${err.message}`);
@@ -79,14 +79,14 @@ export default function AcceptInvitePage() {
           <>
             <h1 className="text-xl font-semibold text-green-500">Success!</h1>
             <p className="text-muted-foreground">{message}</p>
-            <Button onClick={() => router.push('/dashboard')} className="mt-4">Go to Dashboard</Button>
+            <Button onClick={() => router.push('/workspaces')} className="mt-4">Go to Workspaces</Button>
           </>
         )}
         {status === 'error' && (
           <>
             <h1 className="text-xl font-semibold text-red-500">Error!</h1>
             <p className="text-muted-foreground">{message}</p>
-            <Button onClick={() => router.push('/dashboard')} className="mt-4">Go to Dashboard</Button>
+            <Button onClick={() => router.push('/workspaces')} className="mt-4">Go to Workspaces</Button>
           </>
         )}
       </div>
