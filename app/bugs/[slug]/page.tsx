@@ -162,6 +162,7 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
   const [members, setMembers] = useState<any[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -408,9 +409,22 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
 
           {/* Raw Data */}
           <div>
-            <h3 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-2">
-              <FileJson className="w-3.5 h-3.5" /> Raw Data
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                <FileJson className="w-3.5 h-3.5" /> Raw Data
+              </h3>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(JSON.stringify(bug, null, 2));
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="text-[10px] text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 flex items-center gap-1 transition-colors"
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copied!' : 'Copy JSON'}
+              </button>
+            </div>
             <pre className="bg-zinc-50 dark:bg-zinc-900 p-3 rounded border border-zinc-200 dark:border-zinc-800 text-[10px] text-zinc-500 font-mono overflow-x-auto">
               {JSON.stringify(bug, null, 2)}
             </pre>
