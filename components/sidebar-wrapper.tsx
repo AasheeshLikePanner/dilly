@@ -32,7 +32,6 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
       />
       <SidebarInset>
         <header className="flex items-center justify-between">
-          {/* Other header content */}
         </header>
         {children}
       </SidebarInset>

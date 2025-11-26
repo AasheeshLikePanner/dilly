@@ -22,7 +22,6 @@ const inter = Inter({
 
 import { Suspense } from 'react';
 
-// ... other imports
 
 export default function RootLayout({
   children,

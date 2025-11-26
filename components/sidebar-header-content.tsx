@@ -50,25 +50,18 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
   const currentWorkspaceId = initialWorkspaceId || searchParams.get('workspaceId');
 
   useEffect(() => {
-    console.log('SidebarHeaderContent: useEffect - fetchWorkspaceData triggered.');
     const fetchWorkspaceData = async () => {
       setLoading(true);
       setError(null);
-      console.log('SidebarHeaderContent: Fetching user session...');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('SidebarHeaderContent: User not authenticated. Redirecting to /auth.');
         router.push('/auth');
         return;
       }
-      console.log(`SidebarHeaderContent: User authenticated: ${user.id}`);
-
-      // Extract slug from various URL patterns: /[slug], /feedback/[slug], /bugs/[slug], etc.
       const segments = pathname.split('/').filter(Boolean);
       let slugFromPath: string | null = null;
 
       try {
-        console.log('SidebarHeaderContent: Fetching profile data...');
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('id')

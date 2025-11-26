@@ -24,31 +24,9 @@ import { Trash } from 'phosphor-react'; // Import Trash from phosphor-react
 import axios from 'axios';
 import { WorkspaceProvider, useWorkspace } from '@/components/workspace-context'; // Import WorkspaceProvider and useWorkspace
 import { useParams } from 'next/navigation';
+import { useToast, ToastProvider } from '@/hooks/use-toast'; // Import from shared hook
 
 // --- Mock Backend & Utilities ---
-
-// Simple Toast System for the Demo
-interface ToastContextType {
-  success: (message: string) => void;
-  error: (message: string) => void;
-}
-const ToastContext = React.createContext<ToastContextType | null>(null);
-
-const useToast = () => {
-  const context = React.useContext(ToastContext);
-  if (!context) throw new Error("useToast must be used within a ToastProvider");
-  return context as ToastContextType;
-};
-
-interface ToastProviderProps {
-  children: React.ReactNode;
-}
-
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error';
-}
 
 interface ApiKey {
   id: string;
@@ -61,45 +39,6 @@ interface ApiKey {
   is_active: boolean;
 }
 
-const ToastProvider = ({ children }: ToastProviderProps) => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const addToast = (message: string, type: 'success' | 'error' = 'success') => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => removeToast(id), 3000);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  return (
-    <ToastContext.Provider value={{ success: (msg) => addToast(msg, 'success'), error: (msg) => addToast(msg, 'error') }}>
-      {children}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-[60] pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast.id}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className={`px-4 py-3 rounded-lg shadow-2xl border text-sm font-medium pointer-events-auto flex items-center gap-2
-                ${toast.type === 'success' 
-                  ? 'bg-[#1A1A1A] border-zinc-800 text-white' 
-                  : 'bg-red-500/10 border-red-500/20 text-red-400'}`}
-            >
-              {toast.type === 'success' ? <Check size={14} className="text-green-500" /> : <AlertCircle size={14} />}
-              {toast.message}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-    </ToastContext.Provider>
-  );
-};
-
 // --- Reusable UI Components ---
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -110,7 +49,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = ({ children, variant = 'primary', className = '', isLoading, disabled, ...props }: ButtonProps) => {
   const baseStyle = "h-9 px-4 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#141414] focus:ring-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed";
-  
+
   const variants = {
     primary: "bg-white text-black hover:bg-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.1)] border border-transparent",
     secondary: "bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#222] hover:text-white hover:border-zinc-700",
@@ -119,8 +58,8 @@ const Button = ({ children, variant = 'primary', className = '', isLoading, disa
   };
 
   return (
-    <button 
-      className={`${baseStyle} ${variants[variant]} ${className}`} 
+    <button
+      className={`${baseStyle} ${variants[variant]} ${className}`}
       disabled={isLoading || disabled}
       {...props}
     >
@@ -265,18 +204,18 @@ const ApiKeyItem = ({ apiKey, onDelete }: ApiKeyItemProps) => {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
-             <Button variant="danger" onClick={() => onDelete(apiKey.id)} className="h-12 w-12 p-0 rounded-md flex items-center justify-center">
-                <Trash style={{ fontSize: '2rem', color: 'red' }} />
-             </Button>        
-            </div>
+          <Button variant="danger" onClick={() => onDelete(apiKey.id)} className="h-12 w-12 p-0 rounded-md flex items-center justify-center">
+            <Trash style={{ fontSize: '2rem', color: 'red' }} />
+          </Button>
+        </div>
       </div>
 
       {/* Key Mask Visualization */}
       <div className="bg-[#0A0A0A] rounded-lg p-3 border border-zinc-800 flex items-center justify-between gap-3 group-hover:border-zinc-700 transition-colors">
         <code className="text-xs font-mono text-zinc-600 tracking-wide select-none blur-[2px]">
-          sk_live_{apiKey.id.substring(0,8)}••••••••••••••••••••••••
+          sk_live_{apiKey.id.substring(0, 8)}••••••••••••••••••••••••
         </code>
         <span className="text-[10px] text-zinc-700 uppercase font-bold tracking-wider">Hidden</span>
       </div>
@@ -424,20 +363,20 @@ const ApiKeySection = () => {
                   <div className="absolute top-0 left-0 w-1 h-full bg-green-500/50" />
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-2 w-full">
-                       <h4 className="text-green-400 font-semibold flex items-center gap-2">
-                         <Check size={16} /> New Key Generated
-                       </h4>
-                       <p className="text-green-500/60 text-sm">
-                         Please copy this key now. It will not be shown again.
-                       </p>
-                       <div className="flex items-center gap-2 mt-3 w-full">
-                          <code className="flex-1 bg-black/30 border border-green-500/20 rounded p-3 font-mono text-green-200 text-sm break-all select-all">
-                            {newlyCreatedKey}
-                          </code>
-                          <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(newlyCreatedKey); toast.success("Copied to clipboard"); }}>
-                            <Copy size={16} />
-                          </Button>
-                       </div>
+                      <h4 className="text-green-400 font-semibold flex items-center gap-2">
+                        <Check size={16} /> New Key Generated
+                      </h4>
+                      <p className="text-green-500/60 text-sm">
+                        Please copy this key now. It will not be shown again.
+                      </p>
+                      <div className="flex items-center gap-2 mt-3 w-full">
+                        <code className="flex-1 bg-black/30 border border-green-500/20 rounded p-3 font-mono text-green-200 text-sm break-all select-all">
+                          {newlyCreatedKey}
+                        </code>
+                        <Button variant="secondary" onClick={() => { navigator.clipboard.writeText(newlyCreatedKey); toast.success("Copied to clipboard"); }}>
+                          <Copy size={16} />
+                        </Button>
+                      </div>
                     </div>
                     <button onClick={() => setNewlyCreatedKey(null)} className="text-green-500/40 hover:text-green-400">
                       <X size={20} />
@@ -452,12 +391,12 @@ const ApiKeySection = () => {
           <div className="space-y-4">
             {loading ? (
               <div className="flex flex-col gap-4">
-                {[1,2].map(i => <div key={i} className="h-32 bg-[#1A1A1A] rounded-xl animate-pulse" />)}
+                {[1, 2].map(i => <div key={i} className="h-32 bg-[#1A1A1A] rounded-xl animate-pulse" />)}
               </div>
             ) : apiKeys.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
-                    <p className="text-zinc-500">No API keys found.</p>
-                </div>
+              <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
+                <p className="text-zinc-500">No API keys found.</p>
+              </div>
             ) : (
               apiKeys.map(key => (
                 <ApiKeyItem
@@ -478,30 +417,30 @@ const ApiKeySection = () => {
         title="Create New API Key"
       >
         <form onSubmit={handleCreateSubmit} className="space-y-5">
-           <Input
-             label="Key Name"
-             placeholder="e.g. Production V2"
-             value={newKeyName}
-             onChange={e => setNewKeyName(e.target.value)}
-             autoFocus
-             required
-           />
-           <div className="space-y-2">
-             <Input
-               label="Password Protection (Optional)"
-               placeholder="Enter a password to secure this key"
-               type="password"
-               value={newKeyPassword}
-               onChange={e => setNewKeyPassword(e.target.value)}
-             />
-             <p className="text-[10px] text-zinc-500">
-               If set, you will need this password to view or regenerate the key later.
-             </p>
-           </div>
-           <div className="flex justify-end gap-3 pt-2">
-             <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
-             <Button type="submit" isLoading={creating} disabled={!newKeyName || isLoading || !!error}>Create Key</Button>
-           </div>
+          <Input
+            label="Key Name"
+            placeholder="e.g. Production V2"
+            value={newKeyName}
+            onChange={e => setNewKeyName(e.target.value)}
+            autoFocus
+            required
+          />
+          <div className="space-y-2">
+            <Input
+              label="Password Protection (Optional)"
+              placeholder="Enter a password to secure this key"
+              type="password"
+              value={newKeyPassword}
+              onChange={e => setNewKeyPassword(e.target.value)}
+            />
+            <p className="text-[10px] text-zinc-500">
+              If set, you will need this password to view or regenerate the key later.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
+            <Button type="submit" isLoading={creating} disabled={!newKeyName || isLoading || !!error}>Create Key</Button>
+          </div>
         </form>
       </Modal>
 
@@ -521,11 +460,28 @@ const ApiKeySection = () => {
           </div>
         </div>
       </Modal>
-    </motion.div>  );
+    </motion.div>);
 };
 
 
-
+// --- General Section (Placeholder) ---
+const GeneralSection = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8 max-w-4xl"
+    >
+      <SectionHeader
+        title="General Settings"
+        description="Configure general workspace settings."
+      />
+      <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
+        <p className="text-zinc-500">General settings coming soon...</p>
+      </div>
+    </motion.div>
+  );
+};
 
 // --- Main Layout ---
 
@@ -574,14 +530,14 @@ export default function SettingsPage() {
     <ToastProvider>
       <div className="min-h-screen bg-[#0A0A0A] text-zinc-200 font-sans selection:bg-white/20">
         <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 lg:px-8">
-          
+
           <div className="mb-16">
             <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Settings</h1>
             <p className="text-zinc-500 text-lg">Manage your workspace configuration.</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-16">
-            
+
             {/* Navigation Sidebar */}
             <aside className="lg:w-60 flex-shrink-0">
               <nav className="flex flex-col space-y-1">
@@ -605,8 +561,8 @@ export default function SettingsPage() {
                         />
                       )}
                       <span className="relative z-10 flex items-center gap-3">
-                         <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                         {item.label}
+                        <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                        {item.label}
                       </span>
                     </button>
                   );

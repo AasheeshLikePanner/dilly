@@ -720,8 +720,7 @@ export default function BugsPage() {
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-white tracking-tight">Bugs & Issues</h1>
-          <p className="text-zinc-500 mt-1">Manage and track issues across your workspace.</p>
+          <h1 className="text-xl font-semibold text-zinc-900 dark:text-white tracking-tight">Bugs & Issues</h1>
         </div>
 
         {/* Charts Grid */}

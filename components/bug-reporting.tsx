@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bug, Send, Check, AlertCircle, Loader2 } from 'lucide-react'; // Added AlertCircle, Loader2
 import axios from 'axios'; // Import axios
 import { useWorkspace } from '@/components/workspace-context'; // Import useWorkspace
-import  useToast  from '@/app/dashboard/[slug]/settings/page'; // Assuming useToast is exported from here
+import { useToast } from '@/hooks/use-toast'; // Import useToast from hooks
 
 export const VariantSimpleBugForm = () => {
   const { workspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = useWorkspace(); // Get workspace context
@@ -59,7 +59,7 @@ export const VariantSimpleBugForm = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-6">
       <span className="text-xs font-bold tracking-[0.2em] text-zinc-500 uppercase">Variant 01: Simple Bug Report</span>
-      
+
       <motion.div
         layout
         className="relative w-full max-w-md bg-[#121214] border border-white/5 rounded-[28px] overflow-hidden z-10 ring-1 ring-white/5"
@@ -96,7 +96,7 @@ export const VariantSimpleBugForm = () => {
         {/* Success Overlay */}
         <AnimatePresence>
           {status === 'sent' && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -110,7 +110,7 @@ export const VariantSimpleBugForm = () => {
               >
                 <Check size={32} strokeWidth={3} />
               </motion.div>
-              <motion.h3 
+              <motion.h3
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
@@ -118,7 +118,7 @@ export const VariantSimpleBugForm = () => {
               >
                 Bug Report Sent
               </motion.h3>
-              <motion.p 
+              <motion.p
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -137,8 +137,8 @@ export const VariantSimpleBugForm = () => {
               <Bug size={18} />
             </div>
             <div>
-               <span className="block text-sm font-semibold text-white tracking-tight">Report a Bug</span>
-               <span className="block text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Help us improve</span>
+              <span className="block text-sm font-semibold text-white tracking-tight">Report a Bug</span>
+              <span className="block text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Help us improve</span>
             </div>
           </div>
 
