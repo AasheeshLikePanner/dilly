@@ -77,16 +77,24 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
   };
 
   const displayData = data || chartData;
-  const total = displayData.reduce((acc, curr) => acc + (curr.visitors || 0), 0);
+
+  // Handle both formats: {browser, visitors} and {name, value}
+  const normalizedData = displayData.map(item => ({
+    browser: item.name || item.browser,
+    visitors: item.value || item.visitors,
+    fill: item.fill
+  }));
+
+  const total = normalizedData.reduce((acc, curr) => acc + (curr.visitors || 0), 0);
 
   const IMPORTANT_STATUSES = ['open', 'in_progress', 'review', 'testing', 'ready_for_deploy'];
 
   const filteredData = showAll
-    ? displayData
-    : displayData.filter(d => IMPORTANT_STATUSES.includes(d.browser));
+    ? normalizedData
+    : normalizedData.filter(d => IMPORTANT_STATUSES.includes(d.browser));
 
   // If no important statuses found, show all to avoid empty chart
-  const finalData = (filteredData.length > 0 || showAll) ? filteredData : displayData;
+  const finalData = (filteredData.length > 0 || showAll) ? filteredData : normalizedData;
 
   return (
     <Card className={cn("flex flex-col", className)}>
@@ -111,7 +119,7 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="[&_.recharts-text]:fill-background mx-auto aspect-square max-h-[250px]"
+          className="[&_.recharts-text]:fill-background mx-auto aspect-square h-[200px]"
         >
           <PieChart>
             <ChartTooltip

@@ -53,7 +53,14 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ValueLineBarChart({ className, data }: { className?: string, data?: any[] }) {
-  const displayData = data || chartData;
+  const rawData = data || chartData;
+
+  // Handle both formats: {month, desktop} and {name, value}
+  const displayData = rawData.map(item => ({
+    month: item.name || item.month,
+    desktop: item.value || item.desktop
+  }));
+
   const [activeIndex, setActiveIndex] = React.useState<number | undefined>(
     undefined
   );
@@ -115,7 +122,7 @@ export function ValueLineBarChart({ className, data }: { className?: string, dat
       </CardHeader>
       <CardContent>
         <AnimatePresence mode="wait">
-          <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig} className="aspect-auto h-[200px] w-full">
             <BarChart
               accessibilityLayer
               data={displayData}
@@ -129,7 +136,7 @@ export function ValueLineBarChart({ className, data }: { className?: string, dat
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickFormatter={(value) => value}
               />
               <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4}>
                 {displayData.map((_, index) => (

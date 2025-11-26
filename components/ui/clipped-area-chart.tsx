@@ -81,7 +81,7 @@ export function ClippedAreaChart({ className, data }: { className?: string, data
       <CardContent>
         <ChartContainer
           ref={chartRef}
-          className="h-54 w-full"
+          className="aspect-auto h-[200px] w-full"
           config={chartConfig}
         >
           <AreaChart
@@ -118,7 +118,7 @@ export function ClippedAreaChart({ className, data }: { className?: string, data
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value}
             />
             <Area
               dataKey="mobile"

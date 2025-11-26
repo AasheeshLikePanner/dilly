@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 export async function GET(request: Request) {
   console.log('GET /api/feedback: Received request');
   const supabase = createSupabaseServerClient();
-  
+
   console.log('GET /api/feedback: Authenticating user...');
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -26,6 +26,8 @@ export async function GET(request: Request) {
   const source = searchParams.get('source');
   const start_date = searchParams.get('start_date');
   const end_date = searchParams.get('end_date');
+  const search = searchParams.get('search');
+  const created_by = searchParams.get('created_by');
 
   if (!workspaceId) {
     console.log('GET /api/feedback: workspace_id is required. Returning 400.');
@@ -52,6 +54,16 @@ export async function GET(request: Request) {
   }
   if (end_date) {
     query = query.lte('created_at', end_date);
+  }
+  if (created_by) {
+    query = query.eq('created_by', created_by);
+  }
+  if (search) {
+    // Search across multiple columns using OR syntax
+    // Note: Supabase/PostgREST 'or' syntax: column.operator.value,column.operator.value
+    // We want: comment.ilike.%search% OR context.ilike.%search% OR component_name.ilike.%search%
+    const searchPattern = `%${search}%`;
+    query = query.or(`comment.ilike.${searchPattern},context.ilike.${searchPattern},component_name.ilike.${searchPattern},component_variant.ilike.${searchPattern}`);
   }
 
   console.log('GET /api/feedback: Executing query...');
@@ -152,6 +164,9 @@ export async function POST(request: Request) {
     source: body.source,
     metadata: body.metadata,
     created_by: validApiKey.user_id,
+    component_name: body.component_name,
+    component_variant: body.component_variant,
+    context: body.context,
   };
   console.log('POST /api/feedback: Inserting data into Supabase:', feedbackData);
   const { data: newFeedback, error: dbError } = await supabase
