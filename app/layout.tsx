@@ -25,6 +25,8 @@ import { Suspense } from 'react';
 
 import { ThemeProvider } from "@/components/theme-provider"
 
+import { WorkspaceProvider } from "@/components/providers/workspace-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,7 +44,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Suspense fallback={<div>Loading sidebar...</div>}> {/* Add Suspense boundary */}
-            <SidebarWrapper>{children}</SidebarWrapper>
+            <WorkspaceProvider>
+              <SidebarWrapper>{children}</SidebarWrapper>
+            </WorkspaceProvider>
           </Suspense>
           <Toaster />
         </ThemeProvider>

@@ -488,35 +488,14 @@ function FeedbackTable({ workspaceId }: { workspaceId: string | null }) {
 }
 
 // --- Page Component ---
+import { useWorkspace } from "@/components/providers/workspace-provider";
+
 export default function FeedbackPage() {
-  const params = useParams();
-  const slug = typeof params?.slug === 'string' ? params.slug : '';
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  const [loadingWorkspace, setLoadingWorkspace] = useState(true);
+  const { workspaceId, loading: loadingWorkspace } = useWorkspace();
   const [stats, setStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [dateRange, setDateRange] = useState<'1d' | '7d' | '1m' | 'max'>('1m');
   const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string } | null>(null);
-  const [showStartCalendar, setShowStartCalendar] = useState(false);
-  const [showEndCalendar, setShowEndCalendar] = useState(false);
-
-  useEffect(() => {
-    const fetchWorkspaceId = async () => {
-      if (!slug) {
-        setLoadingWorkspace(false);
-        return;
-      }
-      try {
-        const response = await axios.get(`/api/workspaces/resolve-slug/${slug}`);
-        setWorkspaceId(response.data.workspace_id);
-      } catch (error) {
-        console.error("Failed to resolve workspace slug:", error);
-      } finally {
-        setLoadingWorkspace(false);
-      }
-    };
-    fetchWorkspaceId();
-  }, [slug]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -525,11 +504,9 @@ export default function FeedbackPage() {
       setLoadingStats(true);
       try {
         let url = `/api/feedback/stats?workspace_id=${workspaceId}&range=${dateRange}`;
-
         if (customDateRange) {
           url = `/api/feedback/stats?workspace_id=${workspaceId}&start_date=${customDateRange.start}&end_date=${customDateRange.end}`;
         }
-
         const response = await axios.get(url);
         setStats(response.data);
       } catch (error) {
@@ -544,7 +521,7 @@ export default function FeedbackPage() {
   if (loadingWorkspace) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
-        <Loader2 className="w-6 h-6 animate-spin text-zinc-300" />
+        <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
       </div>
     );
   }
