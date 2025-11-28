@@ -23,20 +23,29 @@ const inter = Inter({
 import { Suspense } from 'react';
 
 
+import { ThemeProvider } from "@/components/theme-provider"
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark h-full">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-transparent h-full`}
       >
-        <Suspense fallback={<div>Loading sidebar...</div>}> {/* Add Suspense boundary */}
-          <SidebarWrapper>{children}</SidebarWrapper>
-        </Suspense>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={<div>Loading sidebar...</div>}> {/* Add Suspense boundary */}
+            <SidebarWrapper>{children}</SidebarWrapper>
+          </Suspense>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

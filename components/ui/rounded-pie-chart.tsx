@@ -139,7 +139,7 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
                 stroke="none"
                 fontSize={12}
                 fontWeight={500}
-                fill="currentColor"
+                className="fill-zinc-900 dark:fill-zinc-100"
                 formatter={(value: number) => value.toString()}
               />
             </Pie>

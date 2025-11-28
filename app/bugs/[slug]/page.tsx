@@ -52,6 +52,7 @@ import { ValueLineBarChart } from "@/components/ui/value-line-bar-chart";
 import axios from 'axios';
 import { cn } from "@/lib/utils";
 import { useParams } from 'next/navigation';
+import { useDebounce } from "@/hooks/use-debounce";
 
 // --- Schema Definition ---
 
@@ -468,11 +469,20 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
 
 // --- Main Table ---
 
-export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
+export function IssuesTable({
+  workspaceId,
+  dateRange,
+  customDateRange
+}: {
+  workspaceId: string | null,
+  dateRange: '1d' | '7d' | '1m' | 'max',
+  customDateRange: { start: string; end: string } | null
+}) {
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBug, setSelectedBug] = useState<Bug | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetchBugs = async () => {
@@ -480,7 +490,39 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
 
     setLoading(true);
     try {
-      const response = await axios.get(`/api/bugs?workspace_id=${workspaceId}`);
+      const params = new URLSearchParams();
+      params.append('workspace_id', workspaceId);
+      if (debouncedSearch) params.append('search', debouncedSearch);
+
+      // Add date filters
+      if (customDateRange) {
+        params.append('start_date', customDateRange.start);
+        params.append('end_date', customDateRange.end);
+      } else {
+        // Calculate start date based on range
+        const now = new Date();
+        let startDate = new Date();
+
+        switch (dateRange) {
+          case '1d':
+            startDate.setDate(now.getDate() - 1);
+            break;
+          case '7d':
+            startDate.setDate(now.getDate() - 7);
+            break;
+          case '1m':
+            startDate.setMonth(now.getMonth() - 1);
+            break;
+          case 'max':
+            startDate = new Date(0);
+            break;
+        }
+
+        params.append('start_date', startDate.toISOString());
+        params.append('end_date', now.toISOString());
+      }
+
+      const response = await axios.get(`/api/bugs?${params.toString()}`);
       setBugs(response.data);
     } catch (error) {
       console.error("Failed to fetch bugs:", error);
@@ -491,7 +533,7 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
 
   useEffect(() => {
     fetchBugs();
-  }, [workspaceId]);
+  }, [workspaceId, debouncedSearch, dateRange, customDateRange]);
 
   const handleCopy = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -518,13 +560,7 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
     }
   }, [bugs]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
-      </div>
-    );
-  }
+
 
   return (
     <div className="space-y-6">
@@ -566,95 +602,107 @@ export function IssuesTable({ workspaceId }: { workspaceId: string | null }) {
                 <th className="py-4 px-4 w-[60px] text-right"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
-              {bugs.map((bug) => (
-                <tr
-                  key={bug.id}
-                  onClick={() => setSelectedBug(bug)}
-                  className="group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-colors"
-                >
-                  {/* ID */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-zinc-400">{bug.id.slice(0, 6)}</span>
-                      <button
-                        onClick={(e) => handleCopy(bug.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded text-zinc-400 transition-all"
-                      >
-                        {copiedId === bug.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                      </button>
+            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900 relative">
+              {/* Loading Overlay */}
+              {loading && (
+                <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-[2px] z-10 transition-all duration-300" />
+              )}
+
+              {bugs.length === 0 && !loading ? (
+                <tr>
+                  <td colSpan={7} className="py-20 text-center">
+                    <div className="flex flex-col items-center justify-center text-zinc-400">
+                      <Inbox className="w-10 h-10 mb-4 opacity-20" />
+                      <p className="text-sm">No active issues found.</p>
                     </div>
-                  </td>
-
-                  {/* Reporter */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300 font-medium">
-                        <User className="w-3 h-3 text-zinc-400" />
-                        {bug.created_by || 'Unknown'}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                        <Clock className="w-3 h-3 opacity-50" />
-                        {new Date(bug.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Title */}
-                  <td className="py-4 px-4 align-top">
-                    <div className="flex flex-col gap-2">
-                      <span className="font-medium text-sm text-zinc-900 dark:text-zinc-200 leading-snug">{bug.title}</span>
-                      <div className="flex items-center gap-2">
-                        <TypeIcon type={bug.type} />
-                        <PriorityBadge priority={bug.priority} />
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Description */}
-                  <td className="py-4 px-4 align-top">
-                    <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
-                      {bug.description || <span className="italic opacity-50">No description provided.</span>}
-                    </p>
-                  </td>
-
-                  {/* Status */}
-                  <td className="py-4 px-4 align-top">
-                    <StatusBadge status={bug.status} />
-                  </td>
-
-                  {/* Assignee */}
-                  <td className="py-4 px-4 align-top">
-                    {bug.profiles ? (
-                      <div className="flex items-center gap-2">
-                        <Avatar name={bug.profiles.full_name} email={bug.profiles.email} />
-                        <span className="text-xs text-zinc-600 dark:text-zinc-400 font-medium truncate max-w-[100px]">{bug.profiles.full_name}</span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-zinc-400 italic">Unassigned</span>
-                    )}
-                  </td>
-
-                  {/* Edit Action */}
-                  <td className="py-4 px-4 align-top text-right">
-                    <button
-                      onClick={(e) => handleEdit(bug, e)}
-                      className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded transition-colors"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                bugs.map((bug) => (
+                  <tr
+                    key={bug.id}
+                    onClick={() => setSelectedBug(bug)}
+                    className={cn(
+                      "group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-all duration-300",
+                      loading && "animate-magic-pulse pointer-events-none"
+                    )}
+                  >
+                    {/* ID */}
+                    <td className="py-4 px-4 align-top">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] text-zinc-400">{bug.id.slice(0, 6)}</span>
+                        <button
+                          onClick={(e) => handleCopy(bug.id, e)}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded text-zinc-400 transition-all"
+                        >
+                          {copiedId === bug.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* Reporter */}
+                    <td className="py-4 px-4 align-top">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5 text-sm text-zinc-700 dark:text-zinc-300 font-medium">
+                          <User className="w-3 h-3 text-zinc-400" />
+                          {bug.created_by || 'Unknown'}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                          <Clock className="w-3 h-3 opacity-50" />
+                          {new Date(bug.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Title */}
+                    <td className="py-4 px-4 align-top">
+                      <div className="flex flex-col gap-2">
+                        <span className="font-medium text-sm text-zinc-900 dark:text-zinc-200 leading-snug">{bug.title}</span>
+                        <div className="flex items-center gap-2">
+                          <TypeIcon type={bug.type} />
+                          <PriorityBadge priority={bug.priority} />
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Description */}
+                    <td className="py-4 px-4 align-top">
+                      <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                        {bug.description || <span className="italic opacity-50">No description provided.</span>}
+                      </p>
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-4 px-4 align-top">
+                      <StatusBadge status={bug.status} />
+                    </td>
+
+                    {/* Assignee */}
+                    <td className="py-4 px-4 align-top">
+                      {bug.profiles ? (
+                        <div className="flex items-center gap-2">
+                          <Avatar name={bug.profiles.full_name} email={bug.profiles.email} />
+                          <span className="text-xs text-zinc-600 dark:text-zinc-400 font-medium truncate max-w-[100px]">{bug.profiles.full_name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-zinc-400 italic">Unassigned</span>
+                      )}
+                    </td>
+
+                    {/* Edit Action */}
+                    <td className="py-4 px-4 align-top text-right">
+                      <button
+                        onClick={(e) => handleEdit(bug, e)}
+                        className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-
-          {bugs.length === 0 && (
-            <div className="py-20 flex flex-col items-center justify-center text-zinc-400">
-              <Inbox className="w-10 h-10 mb-4 opacity-20" />
-              <p className="text-sm">No active issues found.</p>
-            </div>
-          )}
         </div>
       </div>
 
@@ -674,6 +722,8 @@ export default function BugsPage() {
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [loadingWorkspace, setLoadingWorkspace] = useState(true);
   const [stats, setStats] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<'1d' | '7d' | '1m' | 'max'>('1m');
+  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string } | null>(null);
 
   useEffect(() => {
     const fetchWorkspaceId = async () => {
@@ -697,14 +747,18 @@ export default function BugsPage() {
     const fetchStats = async () => {
       if (!workspaceId) return;
       try {
-        const response = await axios.get(`/api/bugs/stats?workspace_id=${workspaceId}`);
+        let url = `/api/bugs/stats?workspace_id=${workspaceId}&range=${dateRange}`;
+        if (customDateRange) {
+          url = `/api/bugs/stats?workspace_id=${workspaceId}&start_date=${customDateRange.start}&end_date=${customDateRange.end}`;
+        }
+        const response = await axios.get(url);
         setStats(response.data);
       } catch (error) {
         console.error("Failed to fetch stats:", error);
       }
     };
     fetchStats();
-  }, [workspaceId]);
+  }, [workspaceId, dateRange, customDateRange]);
 
   if (loadingWorkspace) {
     return (
@@ -719,8 +773,57 @@ export default function BugsPage() {
       <div className="max-w-[1600px] mx-auto space-y-12">
 
         {/* Header */}
-        <div>
+        <div className="flex items-baseline justify-between">
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-white tracking-tight">Bugs & Issues</h1>
+
+          {/* Date Range Selector */}
+          <div className="flex items-center gap-4">
+            <div className="flex gap-2">
+              {(['1d', '7d', '1m', 'max'] as const).map((range) => (
+                <button
+                  key={range}
+                  onClick={() => { setDateRange(range); setCustomDateRange(null); }}
+                  className={cn(
+                    "px-2 py-1 text-[11px] font-medium transition-all border-b-2",
+                    dateRange === range && !customDateRange
+                      ? "border-zinc-900 dark:border-white text-zinc-900 dark:text-white"
+                      : "border-transparent text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                  )}
+                >
+                  {range === '1d' ? '24h' : range === '7d' ? '7d' : range === '1m' ? '30d' : 'All'}
+                </button>
+              ))}
+            </div>
+
+            <div className="w-px h-3 bg-zinc-200 dark:bg-zinc-800" />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  "flex items-center gap-2 text-[11px] font-medium transition-colors",
+                  customDateRange ? "text-zinc-900 dark:text-white" : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                )}>
+                  <CalendarIcon className="w-3 h-3" />
+                  {customDateRange ? `${customDateRange.start} - ${customDateRange.end}` : 'Custom'}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={customDateRange ? { from: new Date(customDateRange.start), to: new Date(customDateRange.end) } : undefined}
+                  onSelect={(range) => {
+                    if (range?.from && range?.to) {
+                      setCustomDateRange({
+                        start: range.from.toISOString().split('T')[0],
+                        end: range.to.toISOString().split('T')[0]
+                      });
+                    }
+                  }}
+                  initialFocus
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Charts Grid */}
@@ -751,7 +854,11 @@ export default function BugsPage() {
         </div>
 
         {/* Table Section */}
-        <IssuesTable workspaceId={workspaceId} />
+        <IssuesTable
+          workspaceId={workspaceId}
+          dateRange={dateRange}
+          customDateRange={customDateRange}
+        />
       </div>
     </div>
   );

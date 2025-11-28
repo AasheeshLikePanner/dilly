@@ -20,7 +20,9 @@ import {
   Smiley, // New icon for Emoji Feedback
   SlidersHorizontal, // New icon for Slider Feedback
   NotePencil, // New icon for Form Feedback
-  Cube // New icon for Feedback parent
+  Cube, // New icon for Feedback parent
+  Sun,
+  Moon
 } from "phosphor-react"
 
 import {
@@ -46,10 +48,14 @@ import SidebarHeaderContent from "@/components/sidebar-header-content"
 import { DropdownMenuContent, DropdownMenuLabel } from "@radix-ui/react-dropdown-menu"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 
+import { useTheme } from "next-themes"
+import { cn } from "@/lib/utils"
+
 export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }: React.ComponentProps<typeof Sidebar> & { workspaceId?: string, onMouseEnter?: () => void, onMouseLeave?: () => void }) {
   const pathname = usePathname();
   const router = useRouter(); // Use useRouter hook
   const { state } = useSidebar(); // Use useSidebar hook
+  const { theme, setTheme } = useTheme()
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [activeWorkspaceSlug, setActiveWorkspaceSlug] = useState<string | null>(null);
@@ -240,7 +246,33 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                     Settings
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-zinc-800" />
+                <div className="flex items-center justify-between px-2 py-1.5 text-sm">
+                  <span className="text-zinc-400">Theme</span>
+                  <div className="flex items-center gap-1 bg-zinc-800 rounded-full p-0.5 border border-zinc-700">
+                    <button
+                      onClick={() => setTheme("light")}
+                      className={cn(
+                        "p-1 rounded-full transition-all",
+                        theme === "light" ? "bg-zinc-600 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
+                      )}
+                    >
+                      <Sun className="size-3.5" weight="fill" />
+                    </button>
+                    <button
+                      onClick={() => setTheme("dark")}
+                      className={cn(
+                        "p-1 rounded-full transition-all",
+                        theme === "dark" ? "bg-zinc-600 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
+                      )}
+                    >
+                      <Moon className="size-3.5" weight="fill" />
+                    </button>
+                  </div>
+                </div>
+                <DropdownMenuSeparator className="bg-zinc-800" />
                 <DropdownMenuItem className="cursor-pointer focus:bg-zinc-800 focus:text-white">
+                  <SignOut className="mr-2 size-4" />
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>

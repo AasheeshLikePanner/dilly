@@ -40,6 +40,11 @@ export async function GET(request: Request) {
     query = query.lte('created_at', end_date);
   }
 
+  const search = searchParams.get('search');
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+  }
+
   const { data, error } = await query;
 
   if (error) {
