@@ -45,6 +45,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectSeparator,
+} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { ClippedAreaChart } from "@/components/ui/clipped-area-chart";
 import { RoundedPieChart } from "@/components/ui/rounded-pie-chart";
@@ -484,6 +492,25 @@ export function IssuesTable({
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [assigneeFilter, setAssigneeFilter] = useState<string>('all'); // 'all', 'me', 'unassigned', or member user_id
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [members, setMembers] = useState<any[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+
+  const fetchMembers = async () => {
+    if (!workspaceId || members.length > 0) return;
+
+    setLoadingMembers(true);
+    try {
+      const response = await axios.get(`/api/workspaces/${workspaceId}/members`);
+      setMembers(response.data);
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+
 
   const fetchBugs = async () => {
     if (!workspaceId) return;
@@ -493,6 +520,8 @@ export function IssuesTable({
       const params = new URLSearchParams();
       params.append('workspace_id', workspaceId);
       if (debouncedSearch) params.append('search', debouncedSearch);
+      if (assigneeFilter !== 'all') params.append('assignee', assigneeFilter);
+      if (statusFilter !== 'all') params.append('status', statusFilter);
 
       // Add date filters
       if (customDateRange) {
@@ -533,7 +562,7 @@ export function IssuesTable({
 
   useEffect(() => {
     fetchBugs();
-  }, [workspaceId, debouncedSearch, dateRange, customDateRange]);
+  }, [workspaceId, debouncedSearch, dateRange, customDateRange, assigneeFilter, statusFilter]);
 
   const handleCopy = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -597,8 +626,81 @@ export function IssuesTable({
                 <th className="py-4 px-4 w-[160px] font-medium">Reporter</th>
                 <th className="py-4 px-4 w-[250px] font-medium">Title</th>
                 <th className="py-4 px-4 w-[300px] font-medium">Description</th>
-                <th className="py-4 px-4 w-[120px] font-medium">Status</th>
-                <th className="py-4 px-4 w-[120px] font-medium">Assignee</th>
+                <th className="py-4 px-4 w-[120px] font-medium">
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(value) => setStatusFilter(value)}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      className={cn(
+                        "h-auto py-0 px-0 border-0 shadow-none bg-transparent text-[10px] font-medium uppercase tracking-wider hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors",
+                        statusFilter !== 'all' && "text-zinc-900 dark:text-white"
+                      )}
+                    >
+                      <span>Status</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-50 dark:bg-zinc-900 max-h-[300px]">
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectSeparator />
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="triage">Triage</SelectItem>
+                      <SelectItem value="todo">To Do</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="blocked">Blocked</SelectItem>
+                      <SelectItem value="needs_info">Needs Info</SelectItem>
+                      <SelectItem value="review">Review</SelectItem>
+                      <SelectItem value="testing">Testing</SelectItem>
+                      <SelectItem value="qa_passed">QA Passed</SelectItem>
+                      <SelectItem value="qa_failed">QA Failed</SelectItem>
+                      <SelectItem value="ready_for_deploy">Ready for Deploy</SelectItem>
+                      <SelectItem value="deployed">Deployed</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
+                      <SelectItem value="reopened">Reopened</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </th>
+                <th className="py-4 px-4 w-[120px] font-medium">
+                  <Select
+                    value={assigneeFilter}
+                    onValueChange={(value) => setAssigneeFilter(value)}
+                    onOpenChange={(open) => {
+                      if (open) fetchMembers();
+                    }}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      className={cn(
+                        "h-auto py-0 px-0 border-0 shadow-none bg-transparent text-[10px] font-medium uppercase tracking-wider hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors",
+                        assigneeFilter !== 'all' && "text-zinc-900 dark:text-white"
+                      )}
+                    >
+                      <span>Assignee</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-50 dark:bg-zinc-900">
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="me">Assigned to me</SelectItem>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {members.length > 0 && (
+                        <>
+                          <SelectSeparator />
+                          {members.map((member) => (
+                            <SelectItem key={member.user_id} value={member.user_id}>
+                              <div className="flex items-center gap-2">
+                                <Avatar name={member.profiles?.full_name || null} email={member.profiles?.email || null} />
+                                <span className="text-xs">
+                                  {member.profiles?.full_name || member.profiles?.email || 'Unknown User'}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </th>
                 <th className="py-4 px-4 w-[60px] text-right"></th>
               </tr>
             </thead>
@@ -677,6 +779,7 @@ export function IssuesTable({
                       <StatusBadge status={bug.status} />
                     </td>
 
+
                     {/* Assignee */}
                     <td className="py-4 px-4 align-top">
                       {bug.profiles ? (
@@ -688,6 +791,7 @@ export function IssuesTable({
                         <span className="text-xs text-zinc-400 italic">Unassigned</span>
                       )}
                     </td>
+
 
                     {/* Edit Action */}
                     <td className="py-4 px-4 align-top text-right">

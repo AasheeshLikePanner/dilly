@@ -17,6 +17,7 @@ export async function GET(request: Request) {
   const type = searchParams.get('type');
   const start_date = searchParams.get('start_date');
   const end_date = searchParams.get('end_date');
+  const assignee = searchParams.get('assignee');
 
   if (!workspaceId) {
     return NextResponse.json({ error: 'workspace_id is required' }, { status: 400 });
@@ -39,6 +40,18 @@ export async function GET(request: Request) {
   if (end_date) {
     query = query.lte('created_at', end_date);
   }
+
+  // Filter by assignee
+  if (assignee === 'me') {
+    query = query.eq('assigned_to', user.id);
+  } else if (assignee === 'unassigned') {
+    query = query.is('assigned_to', null);
+  } else if (assignee && assignee !== 'all') {
+    // Filter by specific member ID
+    query = query.eq('assigned_to', assignee);
+  }
+  // If assignee is 'all' or not provided, no filtering is applied
+
 
   const search = searchParams.get('search');
   if (search) {
