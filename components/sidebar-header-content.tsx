@@ -251,33 +251,27 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
           <Button
             variant="ghost"
             className={cn(
-              "flex items-center gap-2 p-2 bg-card hover:bg-zinc-800/50 border border-zinc-800 rounded-lg transition-all",
+              "flex items-center gap-2 p-0 hover:bg-transparent transition-all group-data-[collapsible=icon]:!p-0",
               buttonClass
             )}
           >
             {workspace.logo_url ? (
-              <img src={workspace.logo_url} alt={`${workspace.name} logo`} className={`${logoSizeClass} rounded-md`} />
+              <img src={workspace.logo_url} alt={`${workspace.name} logo`} className={`${logoSizeClass} rounded-md object-cover`} />
             ) : (
-              <div className={`${logoSizeClass} rounded-md bg-primary flex items-center justify-center text-primary-foreground font-semibold text-xl`}>
+              <div className={`${logoSizeClass} rounded-md bg-zinc-900 text-white flex items-center justify-center font-medium text-lg border border-zinc-800`}>
                 {workspace.name.charAt(0).toUpperCase()}
               </div>
             )}
             {sidebarState === "expanded" && (
               <>
-                <div className="flex flex-col items-start flex-1">
-                  <span className="font-semibold text-sm truncate">{workspace.name}</span>
-                  <span className="text-xs text-muted-foreground truncate">{workspace.slug}</span>
+                <div className="flex flex-col items-start flex-1 text-left min-w-0 ml-2">
+                  <span className="font-semibold text-sm text-zinc-100 truncate w-full tracking-tight">{workspace.name}</span>
+                  <span className="text-[10px] text-zinc-500 truncate w-full font-medium">Free Plan</span>
                 </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 256 256"
-                  className="text-zinc-500"
-                >
-                  <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path>
-                </svg>
+                <div className="flex flex-col gap-0.5 shrink-0 ml-1">
+                  <div className="w-1 h-1 rounded-full bg-zinc-600"></div>
+                  <div className="w-1 h-1 rounded-full bg-zinc-600"></div>
+                </div>
               </>
             )}
           </Button>

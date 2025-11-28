@@ -93,16 +93,12 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
       <SidebarContent>
         {/* Group 1: Platform */}
         <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarMenu>
-
-            {/* Home */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
                 isActive={pathname === "/" || pathname.startsWith("/dashboard")}
                 tooltip="Home"
-                className={state === "expanded" ? "bg-white text-black h-10" : ""} // Conditional styling
               >
                 <Link href={homeHref}>
                   <House />
@@ -110,15 +106,15 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-
           </SidebarMenu>
         </SidebarGroup>
 
         {/* Group 2: Product */}
         <SidebarGroup>
-          <SidebarGroupLabel>Product</SidebarGroupLabel>
+          <div className="px-2 py-1.5">
+            <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider px-2 group-data-[collapsible=icon]:hidden">Product</span>
+          </div>
           <SidebarMenu>
-            {/* Features */}
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/features'))} tooltip="Features">
                 <Link href={getHrefWithSlug('/features')}>
@@ -127,7 +123,6 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {/* Bugs */}
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/bugs'))} tooltip="Bugs">
                 <Link href={getHrefWithSlug('/bugs')}>
@@ -136,53 +131,46 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {/* Product Feedback */}
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/feedback'))} tooltip="Product Feedback">
                 <Link href={getHrefWithSlug('/feedback')}>
                   <ChatCircleText />
-                  <span>Product Feedback</span>
+                  <span>Feedback</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {/* Roadmap */}
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Group 3: Community */}
+        {/* Group 3: Components */}
         <SidebarGroup>
-          <SidebarGroupLabel>Components</SidebarGroupLabel>
+          <div className="px-2 py-1.5">
+            <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider px-2 group-data-[collapsible=icon]:hidden">Components</span>
+          </div>
           <SidebarMenu>
             <SidebarMenuItem>
-              {/* Non-clickable parent "Feedback" */}
-              <SidebarMenuButton tooltip="Feedback">
-                <Cube /> {/* Using a generic icon for the parent */}
-                <span>Feedback</span>
+              <SidebarMenuButton tooltip="Feedback Components">
+                <Cube />
+                <span>Components</span>
               </SidebarMenuButton>
               <SidebarMenuSub>
-                {/* Emoji Feedback */}
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
                     <Link href={getHrefWithSlug('/components/feedback/emoji')}>
-                      <Smiley />
                       <span>Emoji Feedback</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
-                {/* Slider Feedback */}
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
                     <Link href={getHrefWithSlug('/components/feedback/slider')}>
-                      <SlidersHorizontal />
                       <span>Slider Feedback</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
-                {/* Form Feedback */}
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
                     <Link href={getHrefWithSlug('/components/feedback/form')}>
-                      <NotePencil />
                       <span>Form Feedback</span>
                     </Link>
                   </SidebarMenuSubButton>
@@ -190,17 +178,14 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
               </SidebarMenuSub>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              {/* Non-clickable parent "Bug Reporting" */}
               <SidebarMenuButton tooltip="Bug Reporting">
-                <Bug /> {/* Using Bug icon for the parent */}
+                <Bug />
                 <span>Bug Reporting</span>
               </SidebarMenuButton>
               <SidebarMenuSub>
-                {/* Simple Bug Form */}
                 <SidebarMenuSubItem>
                   <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>
                     <Link href={getHrefWithSlug('/components/bug-reporting/form')}>
-                      <NotePencil /> {/* Reusing NotePencil for a form */}
                       <span>Simple Form</span>
                     </Link>
                   </SidebarMenuSubButton>
@@ -219,70 +204,47 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="data-[state=open]:bg-zinc-800/50 data-[state=open]:text-white hover:bg-zinc-800/50 hover:text-white transition-all"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-zinc-800 text-white border border-zinc-700">
                     <UserCircle className="size-5" />
                   </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{userName || "User Account"}</span>
-                    <span className="truncate text-xs text-muted-foreground">{userEmail || "user@example.com"}</span>
+                  <div className="grid flex-1 text-left text-sm leading-tight ml-1">
+                    <span className="truncate font-medium text-zinc-200">{userName || "User Account"}</span>
+                    <span className="truncate text-xs text-zinc-500">{userEmail || "user@example.com"}</span>
                   </div>
-                  <Gear className="ml-auto size-4" />
+                  <Gear className="ml-auto size-4 text-zinc-500" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-sidebar border-sidebar-border text-sidebar-foreground"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-[#161616] border-zinc-800 text-zinc-200"
                 side="bottom"
                 align="end"
                 sideOffset={4}
               >
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-zinc-800 text-white">
                       <UserCircle className="size-4" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{userName || "John Doe"}</span>
-                      <span className="truncate text-xs text-muted-foreground">{userEmail || "john@example.com"}</span>
+                      <span className="truncate text-xs text-zinc-500">{userEmail || "john@example.com"}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-sidebar-border" />
-                <DropdownMenuItem className="cursor-pointer focus:bg-sidebar-accent">
-                  <Gear className="mr-2 size-4" />
-                  Settings
+                <DropdownMenuSeparator className="bg-zinc-800" />
+                <DropdownMenuItem className="cursor-pointer focus:bg-zinc-800 focus:text-white" asChild>
+                  <Link href={getHrefWithSlug('/settings')}>
+                    <Gear className="mr-2 size-4" />
+                    Settings
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer focus:bg-sidebar-accent">
+                <DropdownMenuItem className="cursor-pointer focus:bg-zinc-800 focus:text-white">
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/profile'))} tooltip="Profile">
-              <Link href={getHrefWithSlug('/profile')}>
-                <UserCircle />
-                <span>Profile</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/settings'))} tooltip="Settings">
-              <Link href={getHrefWithSlug('/settings')}>
-                <Gear />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={async () => { await supabase.auth.signOut(); router.push('/auth'); }} tooltip="Log out">
-              <SignOut />
-              <span>Log out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarTrigger />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

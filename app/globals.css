@@ -44,116 +44,118 @@
 }
 
 :root {
-    --radius: 0.625rem;
-    /* --- 1. Backgrounds --- */
-    --background: #000000;
-    --bg-body: #000000;
+  --radius: 0.625rem;
+  /* --- 1. Backgrounds --- */
+  --background: #101010;
+  --bg-body: #101010;
 
-    /* --- 2. Cards & Surfaces --- */
-    --card: #151516;
-    --bg-card: #151516;
-    --bg-card-hover: #1c1c1e;
+  /* --- 2. Cards & Surfaces --- */
+  --card: #151516;
+  --bg-card: #151516;
+  --bg-card-hover: #1c1c1e;
 
-    /* --- 3. Borders --- */
-    --border: #2c2c2e;
-    --border-subtle: #2c2c2e;
-    --border-highlight: #3a3a3c;
+  /* --- 3. Borders --- */
+  --border: #2c2c2e;
+  --border-subtle: #2c2c2e;
+  --border-highlight: #3a3a3c;
 
-    /* --- 4. Typography --- */
-    --foreground: #ffffff;
-    --text-primary: #ffffff;
-    --secondary-foreground: #8e8e93;
-    --text-secondary: #8e8e93;
-    --muted-foreground: #48484a;
-    --text-tertiary: #48484a;
+  /* --- 4. Typography --- */
+  --foreground: #ffffff;
+  --text-primary: #ffffff;
+  --secondary-foreground: #8e8e93;
+  --text-secondary: #8e8e93;
+  --muted-foreground: #48484a;
+  --text-tertiary: #48484a;
 
-    /* --- 5. Status Accents (Muted for Dark Mode) --- */
-    --status-red: #ff453a;
-    --status-green: #32d74b;
-    --status-orange: #ff9f0a;
-    --status-blue: #0a84ff;
+  /* --- 5. Status Accents (Muted for Dark Mode) --- */
+  --status-red: #ff453a;
+  --status-green: #32d74b;
+  --status-orange: #ff9f0a;
+  --status-blue: #0a84ff;
 
-    /* from previous config */
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --muted: oklch(0.269 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  /* from previous config */
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --muted: oklch(0.269 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  /* --- Sidebar Colors (Dark Mode) --- */
+  --sidebar: #161616;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2c2c2e;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #8e8e93;
 }
 
 .dark {
-    /* --- 1. Backgrounds --- */
-    --background: #000000;
-    --bg-body: #000000;
+  /* --- 1. Backgrounds --- */
+  --background: #101010;
+  --bg-body: #101010;
 
-    /* --- 2. Cards & Surfaces --- */
-    --card: #151516;
-    --bg-card: #151516;
-    --bg-card-hover: #1c1c1e;
+  /* --- 2. Cards & Surfaces --- */
+  --card: #151516;
+  --bg-card: #151516;
+  --bg-card-hover: #1c1c1e;
 
-    /* --- 3. Borders --- */
-    --border: #2c2c2e;
-    --border-subtle: #2c2c2e;
-    --border-highlight: #3a3a3c;
+  /* --- 3. Borders --- */
+  --border: #2c2c2e;
+  --border-subtle: #2c2c2e;
+  --border-highlight: #3a3a3c;
 
-    /* --- 4. Typography --- */
-    --foreground: #ffffff;
-    --text-primary: #ffffff;
-    --secondary-foreground: #8e8e93;
-    --text-secondary: #8e8e93;
-    --muted-foreground: #48484a;
-    --text-tertiary: #48484a;
+  /* --- 4. Typography --- */
+  --foreground: #ffffff;
+  --text-primary: #ffffff;
+  --secondary-foreground: #8e8e93;
+  --text-secondary: #8e8e93;
+  --muted-foreground: #48484a;
+  --text-tertiary: #48484a;
 
-    /* --- 5. Status Accents (Muted for Dark Mode) --- */
-    --status-red: #ff453a;
-    --status-green: #32d74b;
-    --status-orange: #ff9f0a;
-    --status-blue: #0a84ff;
+  /* --- 5. Status Accents (Muted for Dark Mode) --- */
+  --status-red: #ff453a;
+  --status-green: #32d74b;
+  --status-orange: #ff9f0a;
+  --status-blue: #0a84ff;
 
-    /* from previous config */
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --muted: oklch(0.269 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  /* from previous config */
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --muted: oklch(0.269 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  /* --- Sidebar Colors (Dark Mode) --- */
+  --sidebar: #161616;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2c2c2e;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #8e8e93;
 }
 
 /* --- 6. Special Gradients --- */
@@ -161,34 +163,33 @@
 /* The "Spotlight" Background Gradient
    This creates the subtle glow at the top of the page */
 .background-spotlight {
-    background: radial-gradient(
-        circle at 50% 0%,
-        #222222 0%,
-        #000000 60%
-    );
+  background: radial-gradient(circle at 50% 0%,
+      #222222 0%,
+      #101010 60%);
 }
 
 /* The "Metallic" Text Gradient
    Used on the Logo/Brand name */
 .text-metallic {
-    background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* The "Glass" Effect
    Used on the Navigation Bar */
 .glass-panel {
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid var(--border-subtle);
+  background: rgba(16, 16, 16, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

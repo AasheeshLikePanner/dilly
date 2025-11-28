@@ -6,8 +6,8 @@ import { ArrowRight } from 'lucide-react';
 // --- Animations ---
 const fadeUp = {
   hidden: { opacity: 0, y: 15 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
   }
@@ -32,25 +32,24 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300 font-sans selection:bg-white/20 selection:text-white !scroll-smooth">
-      
+    <div className="min-h-screen bg-background text-zinc-300 font-sans selection:bg-white/20 selection:text-white !scroll-smooth">
+
       {/* --- Ambient Background Glow --- */}
       <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-zinc-900/20 rounded-full blur-[120px] opacity-40 mix-blend-screen" />
       </div>
 
       {/* --- Minimalist Sticky Header --- */}
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
-          scrolled ? 'py-4 bg-black/80 backdrop-blur-xl' : 'py-8 bg-transparent'
-        }`}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled ? 'py-4 bg-black/80 backdrop-blur-xl' : 'py-8 bg-transparent'
+          }`}
       >
         <div className="w-full md:w-[550px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
             <div className="w-2.5 h-2.5 bg-white rounded-sm" />
             <span className="font-medium text-[10px] tracking-widest text-white uppercase">FeedbackFlow</span>
           </div>
-          
+
           <button className="text-[10px] font-medium text-white/60 hover:text-white transition-colors uppercase tracking-wide">
             Get Started
           </button>
@@ -59,8 +58,8 @@ export default function LandingPage() {
 
       {/* --- Main Content (Blog Layout) --- */}
       <main className="relative z-10 w-full md:w-[550px] mx-auto px-6 pt-60 pb-32">
-        
-        <motion.article 
+
+        <motion.article
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
@@ -126,14 +125,14 @@ export default function LandingPage() {
       </main>
 
       {/* --- Fixed Corner Element (The Glitchy Cat) --- */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ 
-          opacity: 1, 
+        animate={{
+          opacity: 1,
           scale: 1,
           y: ["0%", "-3%", "0%"], // Floating
         }}
-        transition={{ 
+        transition={{
           opacity: { delay: 1, duration: 0.8 },
           scale: { delay: 1, duration: 0.8 },
           y: {
@@ -148,9 +147,9 @@ export default function LandingPage() {
         <div className="relative group">
           {/* Noise/Glitch Filter Overlay */}
           <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-20 mix-blend-overlay pointer-events-none z-10" />
-          
-          <motion.img 
-            src="https://png.pngtree.com/png-clipart/20240420/original/pngtree-cute-sleeping-chubby-cat-cartoon-element-png-image_14912786.png" 
+
+          <motion.img
+            src="https://png.pngtree.com/png-clipart/20240420/original/pngtree-cute-sleeping-chubby-cat-cartoon-element-png-image_14912786.png"
             alt="Resting cat"
             // Jitter/Glitch Animation
             animate={{
@@ -170,9 +169,9 @@ export default function LandingPage() {
             className="w-24 md:w-28 opacity-80"
           />
           <div className="absolute -bottom-2 right-4 translate-y-full opacity-60">
-             <p className="text-[9px] text-zinc-500 font-mono tracking-tight text-right w-32">
-               System Status: Asleep
-             </p>
+            <p className="text-[9px] text-zinc-500 font-mono tracking-tight text-right w-32">
+              System Status: Asleep
+            </p>
           </div>
         </div>
       </motion.div>

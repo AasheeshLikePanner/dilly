@@ -528,7 +528,7 @@ export default function SettingsPage() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-[#0A0A0A] text-zinc-200 font-sans selection:bg-white/20">
+      <div className="min-h-screen bg-background text-zinc-200 font-sans selection:bg-white/20">
         <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 lg:px-8">
 
           <div className="mb-16">

@@ -708,14 +708,14 @@ export default function BugsPage() {
 
   if (loadingWorkspace) {
     return (
-      <div className="flex justify-center items-center h-screen bg-white dark:bg-black">
+      <div className="flex justify-center items-center h-screen bg-background">
         <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black p-8">
+    <div className="min-h-screen bg-background p-8">
       <div className="max-w-[1600px] mx-auto space-y-12">
 
         {/* Header */}
