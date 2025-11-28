@@ -22,7 +22,8 @@ import {
   NotePencil, // New icon for Form Feedback
   Cube, // New icon for Feedback parent
   Sun,
-  Moon
+  Moon,
+  Lock // Import Lock icon for locked items
 } from "phosphor-react"
 
 import {
@@ -122,14 +123,6 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
           </div>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/features'))} tooltip="Features">
-                <Link href={getHrefWithSlug('/features')}>
-                  <Lightbulb />
-                  <span>Features</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={isActive(getHrefWithSlug('/bugs'))} tooltip="Bugs">
                 <Link href={getHrefWithSlug('/bugs')}>
                   <Bug />
@@ -143,6 +136,24 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                   <ChatCircleText />
                   <span>Feedback</span>
                 </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton aria-disabled="true" className="pointer-events-none opacity-50" tooltip="Coming Soon">
+                <Lightbulb />
+                <span className="flex items-center gap-2">
+                  <span>Features</span>
+                  <Lock className="size-3 text-zinc-500" weight="fill" />
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton aria-disabled="true" className="pointer-events-none opacity-50" tooltip="Roadmap (Coming Soon)">
+                <MapTrifold />
+                <span className="flex items-center gap-2">
+                  <span>Roadmap</span>
+                  <Lock className="size-3 text-zinc-500" weight="fill" />
+                </span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
