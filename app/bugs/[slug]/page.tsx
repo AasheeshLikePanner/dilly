@@ -623,7 +623,7 @@ export function IssuesTable({
                     key={bug.id}
                     onClick={() => setSelectedBug(bug)}
                     className={cn(
-                      "group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-all duration-300",
+                      "group relative hover:bg-white dark:hover:bg-white/5 hover:shadow-lg hover:-translate-y-[2px] hover:z-10 cursor-pointer transition-all duration-300 ease-out border-b border-transparent hover:border-zinc-100 dark:hover:border-zinc-800 rounded-lg",
                       loading && "animate-magic-pulse pointer-events-none"
                     )}
                   >
