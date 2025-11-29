@@ -25,6 +25,7 @@ import axios from 'axios';
 import { WorkspaceProvider, useWorkspace } from '@/components/workspace-context'; // Import WorkspaceProvider and useWorkspace
 import { useParams } from 'next/navigation';
 import { useToast, ToastProvider } from '@/hooks/use-toast'; // Import from shared hook
+import { OriginsSettingsContent } from './origins/page';
 
 // --- Mock Backend & Utilities ---
 
@@ -522,6 +523,7 @@ export default function SettingsPage() {
 
   const navItems = [
     { id: 'api', label: 'API Keys', icon: Key },
+    { id: 'origins', label: 'Origins', icon: Globe },
     { id: 'general', label: 'General', icon: Gear },
     { id: 'profile', label: 'Profile', icon: User },
   ];
@@ -581,6 +583,13 @@ export default function SettingsPage() {
                   >
                     <ApiKeySection key="api" />
                   </WorkspaceProvider>
+                )}
+
+
+                {activeTab === 'origins' && (
+                  <div key="origins">
+                    <OriginsSettingsContent />
+                  </div>
                 )}
                 {activeTab === 'general' && <GeneralSection key="general" />}
                 {/* Add other sections as needed */}

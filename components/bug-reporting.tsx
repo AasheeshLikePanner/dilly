@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bug, Send, Check, AlertCircle, Loader2 } from 'lucide-react'; // Added AlertCircle, Loader2
-import axios from 'axios'; // Import axios
-import { useWorkspace } from '@/components/workspace-context'; // Import useWorkspace
-import { useToast } from '@/hooks/use-toast'; // Import useToast from hooks
+import { Bug, Send, Check, AlertCircle, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { useWorkspace } from '@/components/workspace-context';
+import { useToast } from '@/hooks/use-toast';
 
-export const VariantSimpleBugForm = () => {
-  const { workspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = useWorkspace(); // Get workspace context
-  const toast = useToast(); // Get toast context
+interface BugReportingProps {
+  apiKey?: string; // For external widget usage
+  workspaceId?: string; // For external widget usage (optional, can be derived from API key)
+}
+
+export const VariantSimpleBugForm = ({ apiKey, workspaceId: externalWorkspaceId }: BugReportingProps = {}) => {
+  // Only use workspace context if apiKey is not provided (internal usage)
+  const workspaceContext = !apiKey ? useWorkspace() : { workspaceId: null, isLoading: false, error: null };
+  const { workspaceId: contextWorkspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = workspaceContext;
+  const toast = useToast();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -19,26 +26,39 @@ export const VariantSimpleBugForm = () => {
       toast.error('Title and description are required.');
       return;
     }
-    if (isWorkspaceLoading) {
-      toast.error('Workspace is still loading. Please wait.');
-      return;
-    }
-    if (workspaceError || !workspaceId) {
-      toast.error('Workspace ID is not available. Cannot submit bug.');
-      return;
+
+    // For internal usage (no API key)
+    if (!apiKey) {
+      if (isWorkspaceLoading) {
+        toast.error('Workspace is still loading. Please wait.');
+        return;
+      }
+      if (workspaceError || !contextWorkspaceId) {
+        toast.error('Workspace ID is not available. Cannot submit bug.');
+        return;
+      }
     }
 
     setStatus('sending');
     try {
-      // Assuming default values for type, priority, status for this simple form
+      const finalWorkspaceId = externalWorkspaceId || contextWorkspaceId;
+
+      // Prepare request config
+      const config = apiKey ? {
+        headers: {
+          'x-api-key': apiKey,
+        }
+      } : {};
+
       await axios.post('/api/bugs', {
-        workspace_id: workspaceId,
+        workspace_id: finalWorkspaceId,
         title: title.trim(),
         description: description.trim(),
         type: 'bug', // Default type
         priority: 'medium', // Default priority
         status: 'open', // Default status
-      });
+      }, config);
+
       setStatus('sent');
       toast.success('Bug report submitted successfully!');
       setTimeout(() => {
@@ -50,11 +70,11 @@ export const VariantSimpleBugForm = () => {
       console.error('Error submitting bug:', err);
       setStatus('error');
       toast.error(`Failed to submit bug: ${err.response?.data?.error || err.message}`);
-      setTimeout(() => setStatus('idle'), 3000); // Reset status after a delay
+      setTimeout(() => setStatus('idle'), 3000);
     }
   };
 
-  const isDisabled = !title.trim() || !description.trim() || status === 'sending' || isWorkspaceLoading || !!workspaceError;
+  const isDisabled = !title.trim() || !description.trim() || status === 'sending' || (!apiKey && (isWorkspaceLoading || !!workspaceError));
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">

@@ -122,7 +122,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error during API key validation' }, { status: 500 });
   }
 
-  // 4. Extract bug details from request body
+  // 4. Validate Origin
+  const origin = request.headers.get('origin') || request.headers.get('referer');
+
+  if (!origin) {
+    return NextResponse.json({ error: 'Origin header is required' }, { status: 403 });
+  }
+
+  // Extract bug details from request body
   const {
     workspace_id: payload_workspace_id, // Rename to avoid conflict
     title,
@@ -149,6 +156,34 @@ export async function POST(request: Request) {
   // Basic validation for required fields
   if (!final_workspace_id || !title || !type || !priority || !status) {
     return NextResponse.json({ error: 'Missing required bug fields (workspace_id, title, type, priority, status)' }, { status: 400 });
+  }
+
+  // Fetch workspace's allowed origins
+  const { data: workspace, error: workspaceError } = await supabase
+    .from('workspaces')
+    .select('allowed_origins')
+    .eq('id', final_workspace_id)
+    .single();
+
+  if (workspaceError) {
+    console.error('Error fetching workspace:', workspaceError);
+    return NextResponse.json({ error: 'Failed to validate workspace' }, { status: 500 });
+  }
+
+  const allowedOrigins = workspace.allowed_origins || [];
+
+  // Only validate if allowed_origins is configured (opt-in security)
+  if (allowedOrigins.length > 0) {
+    // Normalize origin (remove trailing slash)
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const normalizedAllowedOrigins = allowedOrigins.map((o: string) => o.replace(/\/$/, ''));
+
+    if (!normalizedAllowedOrigins.includes(normalizedOrigin)) {
+      console.log(`Origin ${normalizedOrigin} not in allowed list:`, normalizedAllowedOrigins);
+      return NextResponse.json({
+        error: 'Origin not allowed. Please add this domain to your workspace\'s allowed origins in settings.'
+      }, { status: 403 });
+    }
   }
 
   // 5. Insert into public.bugs table

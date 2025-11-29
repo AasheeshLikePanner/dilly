@@ -132,7 +132,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error during API key validation' }, { status: 500 });
   }
 
-  // 4. Extract feedback details from request body
+  // 4. Validate Origin
+  console.log('POST /api/feedback: Validating origin...');
+  const origin = request.headers.get('origin') || request.headers.get('referer');
+
+  if (!origin) {
+    return NextResponse.json({ error: 'Origin header is required' }, { status: 403 });
+  }
+
+  // Extract feedback details from request body
   const body = await request.json();
   console.log('POST /api/feedback: Parsed request body:', body);
 
@@ -153,6 +161,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing required feedback fields (workspace_id, type)' }, { status: 400 });
   }
   console.log(`POST /api/feedback: Using final workspace_id: ${final_workspace_id}`);
+
+  // Fetch workspace's allowed origins
+  const { data: workspace, error: workspaceError } = await supabase
+    .from('workspaces')
+    .select('allowed_origins')
+    .eq('id', final_workspace_id)
+    .single();
+
+  if (workspaceError) {
+    console.error('POST /api/feedback: Error fetching workspace:', workspaceError);
+    return NextResponse.json({ error: 'Failed to validate workspace' }, { status: 500 });
+  }
+
+  const allowedOrigins = workspace.allowed_origins || [];
+
+  // Only validate if allowed_origins is configured (opt-in security)
+  if (allowedOrigins.length > 0) {
+    // Normalize origin (remove trailing slash)
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const normalizedAllowedOrigins = allowedOrigins.map((o: string) => o.replace(/\/$/, ''));
+
+    if (!normalizedAllowedOrigins.includes(normalizedOrigin)) {
+      console.log(`POST /api/feedback: Origin ${normalizedOrigin} not in allowed list:`, normalizedAllowedOrigins);
+      return NextResponse.json({
+        error: 'Origin not allowed. Please add this domain to your workspace\'s allowed origins in settings.'
+      }, { status: 403 });
+    }
+    console.log('POST /api/feedback: Origin validated successfully.');
+  } else {
+    console.log('POST /api/feedback: No allowed origins configured, skipping validation.');
+  }
 
   // 5. Insert into public.feedback table
   const feedbackData = {
