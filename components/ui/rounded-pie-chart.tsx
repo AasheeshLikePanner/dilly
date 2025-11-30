@@ -146,18 +146,6 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <div className="p-4 pt-0 flex justify-center">
-        {isClient && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleShowAll}
-            className="text-xs h-7"
-          >
-            {showAll ? "Show Important Only" : "Show All Statuses"}
-          </Button>
-        )}
-      </div>
     </Card>
   );
 }

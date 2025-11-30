@@ -59,7 +59,7 @@ import { RoundedPieChart } from "@/components/ui/rounded-pie-chart";
 import { ValueLineBarChart } from "@/components/ui/value-line-bar-chart";
 import axios from 'axios';
 import { cn } from "@/lib/utils";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useDebounce } from "@/hooks/use-debounce";
 
 // --- Schema Definition ---
@@ -497,6 +497,11 @@ export function IssuesTable({
   const [members, setMembers] = useState<any[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
 
+  // URL params support
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const bugIdFromUrl = searchParams.get('bug');
+
   const fetchMembers = async () => {
     if (!workspaceId || members.length > 0) return;
 
@@ -564,6 +569,54 @@ export function IssuesTable({
     fetchBugs();
   }, [workspaceId, debouncedSearch, dateRange, customDateRange, assigneeFilter, statusFilter]);
 
+  // --- Robust URL-Driven Drawer Logic ---
+  useEffect(() => {
+    const syncDrawerWithUrl = async () => {
+      // Case 1: No bug in URL -> Close drawer
+      if (!bugIdFromUrl) {
+        setSelectedBug(null);
+        return;
+      }
+
+      // Case 2: Bug already selected and matches URL -> Do nothing
+      if (selectedBug?.id === bugIdFromUrl) {
+        return;
+      }
+
+      // Case 3: Bug in URL, need to find it
+      // First, check if it's already in the loaded table data
+      const bugInTable = bugs.find(b => b.id === bugIdFromUrl);
+      if (bugInTable) {
+        setSelectedBug(bugInTable);
+        return;
+      }
+
+      // Case 4: Bug not in table (refresh, deep link, or filtered out) -> Fetch it specifically
+      if (workspaceId) {
+        try {
+          // We use the same API but filter by ID to get the specific bug
+          const response = await axios.get(`/api/bugs?workspace_id=${workspaceId}&id=${bugIdFromUrl}`);
+          // API returns an array, check if we found it
+          if (response.data && response.data.length > 0) {
+            const foundBug = response.data.find((b: Bug) => b.id === bugIdFromUrl);
+            if (foundBug) {
+              setSelectedBug(foundBug);
+            } else {
+              // Bug ID invalid or not found in this workspace
+              console.warn("Bug not found:", bugIdFromUrl);
+              setSelectedBug(null);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch specific bug for drawer:", error);
+        }
+      }
+    };
+
+    syncDrawerWithUrl();
+  }, [bugIdFromUrl, bugs, workspaceId, selectedBug]);
+
+
   const handleCopy = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(id);
@@ -571,13 +624,30 @@ export function IssuesTable({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  // Only updates URL, useEffect handles the rest
   const handleEdit = (bug: Bug, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedBug(bug);
+    const params = new URLSearchParams(window.location.search);
+    params.set('bug', bug.id);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Only updates URL, useEffect handles the rest
+  const handleCloseBugDrawer = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('bug');
+    const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    router.push(newUrl, { scroll: false });
   };
 
   const handleUpdate = () => {
     fetchBugs();
+    // If the currently selected bug was updated, we might want to re-fetch it or let the table update handle it.
+    // The useEffect for bugs dependency will catch table updates, but for the specific selectedBug, 
+    // we might want to ensure it reflects changes immediately.
+    // For now, fetchBugs() updates the list, and if the selected bug is in the list, 
+    // the useEffect *might* not auto-update selectedBug deep properties unless we explicitly do so.
+    // But let's keep it simple: refresh the list.
   };
 
   useEffect(() => {
@@ -723,7 +793,7 @@ export function IssuesTable({
                 bugs.map((bug) => (
                   <tr
                     key={bug.id}
-                    onClick={() => setSelectedBug(bug)}
+                    onClick={(e) => handleEdit(bug, e)}
                     className={cn(
                       "group relative hover:bg-white dark:hover:bg-white/5 hover:shadow-lg hover:-translate-y-[2px] hover:z-10 cursor-pointer transition-all duration-300 ease-out border-b border-transparent hover:border-zinc-100 dark:hover:border-zinc-800 rounded-lg",
                       loading && "animate-magic-pulse pointer-events-none"
@@ -811,7 +881,7 @@ export function IssuesTable({
       </div>
 
       <AnimatePresence>
-        {selectedBug && <BugDrawer bug={selectedBug} onClose={() => setSelectedBug(null)} onUpdate={handleUpdate} />}
+        {selectedBug && <BugDrawer bug={selectedBug} onClose={handleCloseBugDrawer} onUpdate={handleUpdate} />}
       </AnimatePresence>
     </div>
   );
@@ -821,6 +891,31 @@ export function IssuesTable({
 
 
 import { useWorkspace } from "@/components/providers/workspace-provider";
+import { Suspense } from "react";
+
+function IssuesTableWrapper({
+  workspaceId,
+  dateRange,
+  customDateRange
+}: {
+  workspaceId: string | null,
+  dateRange: '1d' | '7d' | '1m' | 'max',
+  customDateRange: { start: string; end: string } | null
+}) {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
+      </div>
+    }>
+      <IssuesTable
+        workspaceId={workspaceId}
+        dateRange={dateRange}
+        customDateRange={customDateRange}
+      />
+    </Suspense>
+  );
+}
 
 export default function BugsPage() {
   const { workspaceId, loading: loadingWorkspace } = useWorkspace();
@@ -847,7 +942,7 @@ export default function BugsPage() {
 
   if (loadingWorkspace) {
     return (
-      <div className="flex justify-center items-center h-screen bg-background">
+      <div className="flex justify-center items-center h-screen">
         <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
       </div>
     );
@@ -939,7 +1034,7 @@ export default function BugsPage() {
         </div>
 
         {/* Table Section */}
-        <IssuesTable
+        <IssuesTableWrapper
           workspaceId={workspaceId}
           dateRange={dateRange}
           customDateRange={customDateRange}

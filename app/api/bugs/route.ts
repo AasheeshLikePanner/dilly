@@ -18,6 +18,7 @@ export async function GET(request: Request) {
   const start_date = searchParams.get('start_date');
   const end_date = searchParams.get('end_date');
   const assignee = searchParams.get('assignee');
+  const id = searchParams.get('id');
 
   if (!workspaceId) {
     return NextResponse.json({ error: 'workspace_id is required' }, { status: 400 });
@@ -39,6 +40,9 @@ export async function GET(request: Request) {
   }
   if (end_date) {
     query = query.lte('created_at', end_date);
+  }
+  if (id) {
+    query = query.eq('id', id);
   }
 
   // Filter by assignee
@@ -221,7 +225,6 @@ export async function PUT(request: Request) {
 
   const body = await request.json();
   const { id, last_updated_at, ...updates } = body;
-
   if (!id) {
     return NextResponse.json({ error: 'Bug ID is required' }, { status: 400 });
   }
@@ -236,7 +239,33 @@ export async function PUT(request: Request) {
   if (updates.type && !['bug', 'feature', 'ui', 'performance', 'security', 'other'].includes(updates.type)) {
     return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
   }
+  const { data: oldBug, error: fetchOldError } = await supabase
+    .from("bugs")
+    .select("*")
+    .eq("id", id)
+    .single();
 
+  const isAssignedChanges = updates.assigned_to && updates.assigned_to !== user.id && updates.assigned_to !== oldBug.assigned_to;
+
+  if (isAssignedChanges) {
+    const { error } = await supabase.from('notifications')
+      .insert({
+        user_id: updates.assigned_to,
+        actor_id: user.id,
+        bug_id: id,
+        event_type: 'assigned',
+        workspace_id: oldBug.workspace_id,
+      })
+    if (error) {
+      console.error('Error creating notification:', error);
+      return NextResponse.json({ error: 'Failed to create notification' }, { status: 500 });
+    }
+  }
+
+  if (fetchOldError || !oldBug) {
+    console.error("Error fetching current bug:", fetchOldError);
+    return NextResponse.json({ error: "Failed to fetch current bug" }, { status: 500 });
+  }
   // Optimistic Locking Check
   if (last_updated_at) {
     const { data: currentBug, error: fetchError } = await supabase
@@ -254,6 +283,21 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Conflict: The bug has been modified by another user. Please refresh and try again.' }, { status: 409 });
     }
   }
+  const allowedFields = ["title", "description", "priority", "status", "type", "assigned_to", "tags", "media"];
+  const changes: Record<string, any> = {};
+
+  for (const field of allowedFields) {
+    if (field in updates && JSON.stringify(oldBug[field]) !== JSON.stringify(updates[field])) {
+      changes[field] = {
+        old: oldBug[field],
+        new: updates[field],
+      };
+    }
+  }
+
+  if (Object.keys(changes).length === 0) {
+    return NextResponse.json(oldBug);
+  }
 
   // Update the bug
   const { data: updatedBug, error } = await supabase
@@ -265,10 +309,24 @@ export async function PUT(request: Request) {
     .eq('id', id)
     .select('*, profiles!bugs_assigned_to_fkey(email, full_name)')
     .single();
-
   if (error) {
     console.error('Error updating bug:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const { data: updateBugEvent, error: updateBugEventError } = await supabase
+    .from('bug_events')
+    .insert(
+      {
+        bug_id: updatedBug.id,
+        actor_id: user.id,
+        event_type: "fields_updated",
+        metadata: { ...changes },
+      }
+    )
+  if (updateBugEventError) {
+    console.error('Error updating bug event:', updateBugEventError);
+    return NextResponse.json({ error: updateBugEventError.message }, { status: 500 });
   }
 
   return NextResponse.json(updatedBug);
