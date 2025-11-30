@@ -336,11 +336,15 @@ export default function DashboardPage() {
                 </h3>
                 <div className="border-l border-border/40 ml-2 space-y-6 pt-2 pb-2">
                   {stats?.recentActivity.map((activity, i) => (
-                    <div key={i} className="ml-6 relative">
-                      <div className="absolute -left-[29px] top-1.5 w-1.5 h-1.5 rounded-full bg-border"></div>
+                    <div
+                      key={i}
+                      onClick={() => handleBugClick(activity.id)}
+                      className="ml-6 relative cursor-pointer group"
+                    >
+                      <div className="absolute -left-[29px] top-1.5 w-1.5 h-1.5 rounded-full bg-border group-hover:bg-foreground transition-colors"></div>
                       <div className="flex flex-col gap-1">
                         <p className="text-xs text-foreground">
-                          <span className="font-medium">{activity.title}</span>
+                          <span className="font-medium group-hover:underline decoration-border underline-offset-4 decoration-1 transition-all">{activity.title}</span>
                         </p>
                         <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                           <span>{new Date(activity.updated_at).toLocaleDateString()}</span>
