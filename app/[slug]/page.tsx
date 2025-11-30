@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   Bell,
-  CheckCircle2,
-  Clock,
-  Filter,
   Layout,
   Plus,
   Search,
@@ -16,13 +13,7 @@ import {
   Shield,
   FileText,
   Sliders,
-  ArrowUp,
-  ArrowRight,
-  ArrowDown,
   Activity,
-  GitPullRequest,
-  Check,
-  AlertCircle
 } from "lucide-react";
 import axios from "axios";
 import { useWorkspace } from "@/components/providers/workspace-provider";
@@ -395,7 +386,11 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2">
                   {stats?.unAssignedBugs.slice(0, 4).map((bug, i) => (
-                    <div key={i} className="group flex items-start gap-3 p-2 hover:bg-muted/30 rounded transition-colors cursor-pointer">
+                    <div
+                      key={i}
+                      onClick={() => handleBugClick(bug.id)}
+                      className="group flex items-start gap-3 p-2 hover:bg-muted/30 rounded transition-colors cursor-pointer"
+                    >
                       <div className="mt-1.5 w-1 h-1 rounded-full bg-orange-500 shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs text-foreground truncate group-hover:underline decoration-muted-foreground/50 underline-offset-2">{bug.title}</p>
