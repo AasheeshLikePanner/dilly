@@ -296,9 +296,9 @@ export default function DashboardPage() {
                           <tr
                             key={task.id}
                             onClick={() => handleBugClick(task.id)}
-                            className="group border-b border-border/40 hover:bg-muted/30 transition-colors cursor-pointer"
+                            className="group border-b border-border/40 hover:bg-muted/30 transition-all cursor-pointer"
                           >
-                            <td className="py-3 pr-4 font-mono text-[10px] text-muted-foreground w-20">{task.id.slice(0, 6)}</td>
+                            <td className="py-3 pr-4 font-mono text-[10px] text-muted-foreground group-hover:text-foreground transition-colors w-20">{task.id.slice(0, 6)}</td>
                             <td className="py-3 px-4 w-8">
                               <TypeIcon type={task.type} />
                             </td>
@@ -389,12 +389,12 @@ export default function DashboardPage() {
                     <div
                       key={i}
                       onClick={() => handleBugClick(bug.id)}
-                      className="group flex items-start gap-3 p-2 hover:bg-muted/30 rounded transition-colors cursor-pointer"
+                      className="group flex items-start gap-3 p-2 hover:bg-muted/30 rounded transition-all cursor-pointer border border-transparent hover:border-border/40"
                     >
-                      <div className="mt-1.5 w-1 h-1 rounded-full bg-orange-500 shrink-0" />
+                      <div className="mt-1.5 w-1 h-1 rounded-full bg-orange-500 group-hover:bg-orange-400 group-hover:shadow-[0_0_8px_rgba(249,115,22,0.4)] transition-all shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs text-foreground truncate group-hover:underline decoration-muted-foreground/50 underline-offset-2">{bug.title}</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(bug.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs text-foreground truncate group-hover:underline decoration-muted-foreground/50 underline-offset-2 transition-all">{bug.title}</p>
+                        <p className="text-[10px] text-muted-foreground group-hover:text-foreground/70 transition-colors mt-0.5">{new Date(bug.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
                   ))}
