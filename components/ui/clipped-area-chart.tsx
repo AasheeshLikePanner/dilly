@@ -86,7 +86,7 @@ export function ClippedAreaChart({ className, data }: { className?: string, data
             onMouseMove={(state) => {
               const x = state.activeCoordinate?.x;
               const dataValue = state.activePayload?.[0]?.value;
-              if (x && dataValue !== undefined) {
+              if (x && dataValue !== undefined && dataValue !== null) {
                 springX.set(x);
                 springY.set(dataValue);
               }

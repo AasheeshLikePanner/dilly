@@ -117,7 +117,7 @@ export async function GET(request: Request) {
                 month: point.label,
                 mobile: data
                     ? Math.round((data.total / data.count) * 10) / 10
-                    : Math.round(overallAvg * 10) / 10 // Use overall average for days with no data
+                    : 0 // Return 0 for days with no data to show drop to zero
             };
         });
 
@@ -163,6 +163,31 @@ export async function GET(request: Request) {
             .filter(f => f.rating !== null)
             .reduce((acc, f) => acc + (f.rating || 0), 0) / feedbackData.filter(f => f.rating !== null).length || 0;
 
+        // 4. Calculate Trends
+        // Determine previous period
+        let prevStartDate = new Date(filterStartDate);
+        let prevEndDate = new Date(filterStartDate);
+        const duration = filterEndDate.getTime() - filterStartDate.getTime();
+        prevStartDate = new Date(prevStartDate.getTime() - duration);
+        // prevEndDate is already set to filterStartDate (roughly)
+
+        // Fetch previous period data
+        const { data: prevFeedbackData } = await supabase
+            .from('feedback')
+            .select('rating')
+            .eq('workspace_id', workspaceId)
+            .gte('created_at', prevStartDate.toISOString())
+            .lt('created_at', filterStartDate.toISOString());
+
+        const prevTotal = prevFeedbackData?.length || 0;
+        const prevAvgRating = prevFeedbackData && prevFeedbackData.length > 0
+            ? prevFeedbackData.filter(f => f.rating !== null).reduce((acc, f) => acc + (f.rating || 0), 0) / prevFeedbackData.filter(f => f.rating !== null).length || 0
+            : 0;
+
+        // Calculate percentage changes
+        const totalTrend = prevTotal === 0 ? (totalFeedback > 0 ? 100 : 0) : Math.round(((totalFeedback - prevTotal) / prevTotal) * 100);
+        const ratingTrend = prevAvgRating === 0 ? (avgRating > 0 ? 100 : 0) : Math.round(((avgRating - prevAvgRating) / prevAvgRating) * 100);
+
         const stats = {
             areaChartData,
             pieChartData,
@@ -171,7 +196,11 @@ export async function GET(request: Request) {
                 total: totalFeedback,
                 avgRating: Math.round(avgRating * 10) / 10,
                 withRating: feedbackData.filter(f => f.rating !== null).length,
-                withComment: feedbackData.filter(f => f.comment).length
+                withComment: feedbackData.filter(f => f.comment).length,
+                trends: {
+                    total: totalTrend,
+                    rating: ratingTrend
+                }
             }
         };
 

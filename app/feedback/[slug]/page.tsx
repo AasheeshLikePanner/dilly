@@ -44,6 +44,7 @@ import {
 import { ClippedAreaChart } from "@/components/ui/clipped-area-chart";
 import { RoundedPieChart } from "@/components/ui/rounded-pie-chart";
 import { ValueLineBarChart } from "@/components/ui/value-line-bar-chart";
+import { FeedbackStatsCards } from "@/components/ui/feedback-stats-cards";
 import { Calendar } from "@/components/ui/calendar";
 import axios from 'axios';
 import { useParams } from 'next/navigation';
@@ -600,10 +601,10 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Distribution</h3>
-                <RoundedPieChart
-                  className="border-none shadow-none bg-transparent p-0"
-                  data={stats?.pieChartData}
+                <h3 className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Overview Stats</h3>
+                <FeedbackStatsCards
+                  className="h-full"
+                  data={stats?.summary}
                 />
               </div>
 
