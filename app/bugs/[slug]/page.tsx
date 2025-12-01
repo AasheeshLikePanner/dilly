@@ -55,7 +55,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { ClippedAreaChart } from "@/components/ui/clipped-area-chart";
-import { RoundedPieChart } from "@/components/ui/rounded-pie-chart";
+import { BugStatsCards } from "@/components/ui/bug-stats-cards";
 import { ValueLineBarChart } from "@/components/ui/value-line-bar-chart";
 import axios from 'axios';
 import { cn } from "@/lib/utils";
@@ -501,6 +501,27 @@ export function IssuesTable({
   const router = useRouter();
   const searchParams = useSearchParams();
   const bugIdFromUrl = searchParams.get('bug');
+  const assigneeFromUrl = searchParams.get('assignee');
+  const statusFromUrl = searchParams.get('status');
+  const searchFromUrl = searchParams.get('search');
+
+  // Initialize filters from URL params on mount (only once)
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!initialized) {
+      if (assigneeFromUrl) {
+        setAssigneeFilter(assigneeFromUrl);
+      }
+      if (statusFromUrl) {
+        setStatusFilter(statusFromUrl);
+      }
+      if (searchFromUrl) {
+        setSearchTerm(searchFromUrl);
+      }
+      setInitialized(true);
+    }
+  }, []);
 
   const fetchMembers = async () => {
     if (!workspaceId || members.length > 0) return;
@@ -566,8 +587,43 @@ export function IssuesTable({
   };
 
   useEffect(() => {
+    if (!initialized) return; // Don't fetch until initialized
     fetchBugs();
-  }, [workspaceId, debouncedSearch, dateRange, customDateRange, assigneeFilter, statusFilter]);
+  }, [workspaceId, debouncedSearch, dateRange, customDateRange, assigneeFilter, statusFilter, initialized]);
+
+  // Update URL params when filters change
+  useEffect(() => {
+    if (!initialized) return; // Don't update URL until initialized
+
+    const params = new URLSearchParams(window.location.search);
+
+    // Preserve bug param if it exists
+    if (bugIdFromUrl) {
+      params.set('bug', bugIdFromUrl);
+    }
+
+    // Update filter params
+    if (debouncedSearch) {
+      params.set('search', debouncedSearch);
+    } else {
+      params.delete('search');
+    }
+
+    if (assigneeFilter !== 'all') {
+      params.set('assignee', assigneeFilter);
+    } else {
+      params.delete('assignee');
+    }
+
+    if (statusFilter !== 'all') {
+      params.set('status', statusFilter);
+    } else {
+      params.delete('status');
+    }
+
+    const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    router.push(newUrl, { scroll: false });
+  }, [debouncedSearch, assigneeFilter, statusFilter, initialized, bugIdFromUrl]);
 
   // --- Robust URL-Driven Drawer Logic ---
   useEffect(() => {
@@ -1017,9 +1073,8 @@ export default function BugsPage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Status</h3>
-            <RoundedPieChart
-              className="border-none shadow-none bg-transparent p-0"
+            <h3 className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Status Overview</h3>
+            <BugStatsCards
               data={stats?.pieChartData}
             />
           </div>

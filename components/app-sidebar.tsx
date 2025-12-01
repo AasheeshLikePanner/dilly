@@ -10,6 +10,7 @@ import {
   CaretRight,
   ChartPieSlice,
   ChatCircleText,
+  Check,
   Gear,
   House,
   Lightbulb,
@@ -221,68 +222,56 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-zinc-800/50 data-[state=open]:text-white hover:bg-zinc-800/50 hover:text-white transition-all"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-zinc-800 text-white border border-zinc-700">
-                    <UserCircle className="size-5" />
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-zinc-900 text-white border border-zinc-800">
+                    <UserCircle className="size-4" />
                   </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight ml-1">
-                    <span className="truncate font-medium text-zinc-200">{userName || "User Account"}</span>
-                    <span className="truncate text-xs text-zinc-500">{userEmail || "user@example.com"}</span>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{userName || "User Account"}</span>
+                    <span className="truncate text-xs">{userEmail || "user@example.com"}</span>
                   </div>
-                  <Gear className="ml-auto size-4 text-zinc-500" />
+                  <Gear className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-[#161616] border-zinc-800 text-zinc-200"
-                side="bottom"
-                align="end"
-                sideOffset={4}
-              >
+              <DropdownMenuContent className="w-56 bg-background" side="bottom" align="end" sideOffset={4}>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-zinc-800 text-white">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground border border-sidebar-border">
                       <UserCircle className="size-4" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{userName || "John Doe"}</span>
-                      <span className="truncate text-xs text-zinc-500">{userEmail || "john@example.com"}</span>
+                      <span className="truncate font-semibold">{userName || "User"}</span>
+                      <span className="truncate text-xs">{userEmail || "user@example.com"}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-zinc-800" />
-                <DropdownMenuItem className="cursor-pointer focus:bg-zinc-800 focus:text-white" asChild>
-                  <Link href={getHrefWithSlug('/settings')}>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={getHrefWithSlug('/settings')} className="flex items-center">
                     <Gear className="mr-2 size-4" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-zinc-800" />
-                <div className="flex items-center justify-between px-2 py-1.5 text-sm">
-                  <span className="text-zinc-400">Theme</span>
-                  <div className="flex items-center gap-1 bg-zinc-800 rounded-full p-0.5 border border-zinc-700">
-                    <button
-                      onClick={() => setTheme("light")}
-                      className={cn(
-                        "p-1 rounded-full transition-all",
-                        theme === "light" ? "bg-zinc-600 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
-                      )}
-                    >
-                      <Sun className="size-3.5" weight="fill" />
-                    </button>
-                    <button
-                      onClick={() => setTheme("dark")}
-                      className={cn(
-                        "p-1 rounded-full transition-all",
-                        theme === "dark" ? "bg-zinc-600 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
-                      )}
-                    >
-                      <Moon className="size-3.5" weight="fill" />
-                    </button>
-                  </div>
-                </div>
-                <DropdownMenuSeparator className="bg-zinc-800" />
-                <DropdownMenuItem className="cursor-pointer focus:bg-zinc-800 focus:text-white">
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setTheme("light")} className="flex items-center">
+                  <Sun className="mr-2 size-4" />
+                  Light Mode
+                  {theme === "light" && <Check className="ml-auto h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")} className="flex items-center">
+                  <Moon className="mr-2 size-4" />
+                  Dark Mode
+                  {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    router.push('/auth');
+                  }}
+                  className="flex items-center"
+                >
                   <SignOut className="mr-2 size-4" />
                   Log out
                 </DropdownMenuItem>

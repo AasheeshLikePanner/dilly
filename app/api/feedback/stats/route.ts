@@ -66,14 +66,30 @@ export async function GET(request: Request) {
         }
 
         // 1. Rating Trend Over Time (Area Chart)
-        // Generate last 7 days of data
-        const last7Days = [];
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            // Format as "Nov 25" instead of just month
-            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            last7Days.push(dateStr);
+        const chartDataPoints = [];
+        const dayInMs = 24 * 60 * 60 * 1000;
+
+        // Determine start and end for the chart loop
+        // If it's 'max' (beginning of time), we might want to cap the chart points or just show from the first feedback
+        let chartStartDate = new Date(filterStartDate);
+        const chartEndDate = new Date(filterEndDate);
+
+        // If start date is epoch (max), find the actual first feedback date or default to 30 days ago if no data
+        if (dateRange === 'max' && feedbackData.length > 0) {
+            const firstFeedback = feedbackData[0]; // Ordered by created_at asc
+            chartStartDate = new Date(firstFeedback.created_at);
+        } else if (dateRange === 'max') {
+            chartStartDate = new Date();
+            chartStartDate.setDate(chartStartDate.getDate() - 30);
+        }
+
+        // Generate array of dates between start and end
+        for (let d = new Date(chartStartDate); d <= chartEndDate; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            chartDataPoints.push({
+                dateObj: new Date(d),
+                label: dateStr
+            });
         }
 
         const ratingTrendMap = new Map<string, { total: number; count: number }>();
@@ -95,10 +111,10 @@ export async function GET(request: Request) {
             ? allRatings.reduce((a, b) => a + b, 0) / allRatings.length
             : 0;
 
-        const areaChartData = last7Days.map(date => {
-            const data = ratingTrendMap.get(date);
+        const areaChartData = chartDataPoints.map(point => {
+            const data = ratingTrendMap.get(point.label);
             return {
-                month: date, // This will be "Nov 25", "Nov 26", etc.
+                month: point.label,
                 mobile: data
                     ? Math.round((data.total / data.count) * 10) / 10
                     : Math.round(overallAvg * 10) / 10 // Use overall average for days with no data

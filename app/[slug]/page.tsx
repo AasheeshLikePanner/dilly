@@ -399,7 +399,10 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
-                <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors w-full text-left pl-4">
+                <button
+                  onClick={() => router.push(`/bugs/${slug}?assignee=unassigned`)}
+                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors w-full text-left pl-4"
+                >
                   View all triage items →
                 </button>
               </div>

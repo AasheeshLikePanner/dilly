@@ -16,8 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { JetBrains_Mono } from "next/font/google";
 import { useMotionValueEvent, useSpring } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowsOut } from "phosphor-react";
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -68,7 +66,7 @@ export function ValueLineBarChart({ className, data }: { className?: string, dat
   const maxValueIndex = React.useMemo(() => {
     if (!displayData || displayData.length === 0) return { index: 0, value: 0 };
     // if user is moving mouse over bar then set value to the bar value
-    if (activeIndex !== undefined) {
+    if (activeIndex !== undefined && activeIndex < displayData.length && displayData[activeIndex]) {
       return { index: activeIndex, value: displayData[activeIndex].desktop };
     }
     // if no active index then set value to max value
@@ -81,8 +79,9 @@ export function ValueLineBarChart({ className, data }: { className?: string, dat
   }, [activeIndex, displayData]);
 
   const maxValueIndexSpring = useSpring(maxValueIndex.value, {
-    stiffness: 100,
-    damping: 20,
+    stiffness: 400,
+    damping: 60,
+    mass: 0.5,
   });
 
   const [springyValue, setSpringyValue] = React.useState(maxValueIndex.value);
@@ -116,9 +115,6 @@ export function ValueLineBarChart({ className, data }: { className?: string, dat
           </CardTitle>
           <CardDescription>Bugs by Priority</CardDescription>
         </div>
-        <Button variant="ghost" size="icon">
-          <ArrowsOut className="h-4 w-4" />
-        </Button>
       </CardHeader>
       <CardContent>
         <AnimatePresence mode="wait">

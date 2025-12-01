@@ -18,8 +18,6 @@ import {
 } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ArrowsOut } from "phosphor-react";
 import { cn } from "@/lib/utils";
 
 export const description = "A pie chart with a label list";
@@ -59,22 +57,11 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function RoundedPieChart({ className, data }: { className?: string, data?: any[] }) {
-  const [showAll, setShowAll] = React.useState(false);
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
     setIsClient(true);
-    const saved = localStorage.getItem('dilly_chart_show_all_statuses');
-    if (saved !== null) {
-      setShowAll(JSON.parse(saved));
-    }
   }, []);
-
-  const toggleShowAll = () => {
-    const newState = !showAll;
-    setShowAll(newState);
-    localStorage.setItem('dilly_chart_show_all_statuses', JSON.stringify(newState));
-  };
 
   const displayData = data || chartData;
 
@@ -86,15 +73,6 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
   }));
 
   const total = normalizedData.reduce((acc, curr) => acc + (curr.visitors || 0), 0);
-
-  const IMPORTANT_STATUSES = ['open', 'in_progress', 'review', 'testing', 'ready_for_deploy'];
-
-  const filteredData = showAll
-    ? normalizedData
-    : normalizedData.filter(d => IMPORTANT_STATUSES.includes(d.browser));
-
-  // If no important statuses found, show all to avoid empty chart
-  const finalData = (filteredData.length > 0 || showAll) ? filteredData : normalizedData;
 
   return (
     <Card className={cn("flex flex-col", className)}>
@@ -112,9 +90,6 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
           </CardTitle>
           <CardDescription>Bugs by Status</CardDescription>
         </div>
-        <Button variant="ghost" size="icon" onClick={toggleShowAll} title={showAll ? "Show Important Only" : "Show All"}>
-          {showAll ? <ArrowsOut className="h-4 w-4 text-indigo-500" /> : <ArrowsOut className="h-4 w-4" />}
-        </Button>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -126,7 +101,7 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
               content={<ChartTooltipContent nameKey="browser" />}
             />
             <Pie
-              data={finalData}
+              data={normalizedData}
               innerRadius={30}
               dataKey="visitors"
               nameKey="browser"
@@ -135,12 +110,12 @@ export function RoundedPieChart({ className, data }: { className?: string, data?
               paddingAngle={4}
             >
               <LabelList
-                dataKey="visitors"
+                dataKey="browser"
                 stroke="none"
                 fontSize={12}
                 fontWeight={500}
                 className="fill-zinc-900 dark:fill-zinc-100"
-                formatter={(value: number) => value.toString()}
+                formatter={(value: string) => value.replace(/_/g, ' ')}
               />
             </Pie>
           </PieChart>

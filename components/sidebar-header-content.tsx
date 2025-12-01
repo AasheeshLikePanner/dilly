@@ -276,7 +276,7 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
+        <DropdownMenuContent className="w-56 bg-background">
           {allWorkspaces.map((ws) => (
             <DropdownMenuItem
               key={ws.id}

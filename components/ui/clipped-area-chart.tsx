@@ -13,8 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingDown } from "lucide-react";
 import { useRef, useState } from "react";
 import { useSpring, useMotionValueEvent } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { ArrowsOut } from "phosphor-react";
 
 const chartData = [
   { month: "January", mobile: 245 },
@@ -74,9 +72,6 @@ export function ClippedAreaChart({ className, data }: { className?: string, data
           </CardTitle>
           <CardDescription>Bugs created over time</CardDescription>
         </div>
-        <Button variant="ghost" size="icon">
-          <ArrowsOut className="h-4 w-4" />
-        </Button>
       </CardHeader>
       <CardContent>
         <ChartContainer
