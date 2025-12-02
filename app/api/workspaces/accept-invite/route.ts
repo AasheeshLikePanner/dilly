@@ -64,14 +64,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'You are already a member of this workspace. Invitation accepted.', workspace_slug: workspaceData?.slug });
   }
 
-  // 5. Add to workspace_members
-  console.log('➕ Adding user to workspace_members:', {
-    user_id: user.id,
-    workspace_id: invite.workspace_id,
-    role: invite.role,
-    status: 'active'
-  });
-
+  // Add to workspace_members
   const { data: newMember, error: addMemberError } = await supabase
     .from('workspace_members')
     .insert({
@@ -84,11 +77,9 @@ export async function POST(request: Request) {
     .single();
 
   if (addMemberError) {
-    console.error('❌ Error adding user to workspace members:', addMemberError);
+    console.error('Error adding user to workspace members:', addMemberError);
     return NextResponse.json({ error: 'Failed to add you to the workspace.' }, { status: 500 });
   }
-
-  console.log('✅ Successfully added member:', newMember);
 
   // 6. Update Invite Status
   const { error: updateInviteError } = await supabase
