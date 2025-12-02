@@ -47,7 +47,7 @@ export default function LandingPage() {
         <div className="w-full md:w-[550px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
             <div className="w-2.5 h-2.5 bg-white rounded-sm" />
-            <span className="font-medium text-[10px] tracking-widest text-white uppercase">FeedbackFlow</span>
+            <span className="font-medium text-[10px] tracking-widest text-white uppercase">zynta</span>
           </div>
 
           <button className="text-[10px] font-medium text-white/60 hover:text-white transition-colors uppercase tracking-wide">
@@ -83,7 +83,7 @@ export default function LandingPage() {
           {/* Narrative Paragraphs - Made Smaller */}
           <motion.div variants={fadeUp} className="space-y-6 text-sm md:text-[15px] leading-[1.8] text-zinc-400 font-normal">
             <p>
-              <strong className="text-white font-medium">Software has become too loud.</strong> Somewhere along the way, we decided that bug reporting tools needed to be complex enterprise suites. We disagreed. We built FeedbackFlow to be quiet.
+              <strong className="text-white font-medium">Software has become too loud.</strong> Somewhere along the way, we decided that bug reporting tools needed to be complex enterprise suites. We disagreed. We built zynta to be quiet.
             </p>
 
             <p>
@@ -91,7 +91,7 @@ export default function LandingPage() {
             </p>
 
             <p>
-              <strong className="text-white font-medium">We are open source.</strong> We believe tools like this should be accessible to everyone. You can host FeedbackFlow entirely for free just plug in your API keys and environment variables, and you're live.
+              <strong className="text-white font-medium">We are open source.</strong> We believe tools like this should be accessible to everyone. You can host zynta entirely for free just plug in your API keys and environment variables, and you're live.
             </p>
 
             <p>
@@ -115,7 +115,7 @@ export default function LandingPage() {
 
         {/* --- Minimal Footer --- */}
         <motion.footer variants={fadeUp} className="mt-24 pt-8 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-600 tracking-wider uppercase">
-          <span>© 2025 FeedbackFlow</span>
+          <span>© 2025 zynta</span>
           <div className="flex gap-6">
             <a href="#" className="hover:text-zinc-400 transition-colors">Twitter</a>
             <a href="#" className="hover:text-zinc-400 transition-colors">Github</a>

@@ -11,15 +11,25 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: workspacesData, error: workspacesError } = await supabase
-    .from('workspaces')
-    .select('*')
-    .eq('owner_id', user.id);
+  // Fetch all workspaces where user is a member
+  const { data: memberData, error: memberError } = await supabase
+    .from('workspace_members')
+    .select(`
+      workspace_id,
+      workspaces (*)
+    `)
+    .eq('user_id', user.id)
+    .eq('status', 'active');
 
-  if (workspacesError) {
-    console.error('Error fetching workspaces:', workspacesError);
-    return NextResponse.json({ error: workspacesError.message }, { status: 500 });
+  if (memberError) {
+    console.error('Error fetching workspace memberships:', memberError);
+    return NextResponse.json({ error: memberError.message }, { status: 500 });
   }
 
-  return NextResponse.json(workspacesData);
+  // Extract workspaces from the member data
+  const workspaces = memberData
+    ?.filter(m => m.workspaces !== null)
+    .map(m => m.workspaces) || [];
+
+  return NextResponse.json(workspaces);
 }

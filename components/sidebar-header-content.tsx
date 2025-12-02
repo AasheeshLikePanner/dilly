@@ -186,16 +186,20 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
       return;
     }
 
-    setIsSendingInvite(true); // Set loading state
+    if (!inviteEmail || !inviteEmail.trim()) {
+      alert('Please enter an email address.');
+      return;
+    }
+
+    setIsSendingInvite(true);
     try {
-      const testEmail = 'ashishrathour1102@gmail.com'; // Hardcode for testing
       const response = await fetch('/api/workspaces/invite', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          invitee_email: testEmail, // Use hardcoded email
+          invitee_email: inviteEmail.trim(),
           workspace_id: workspace.id,
           invited_by_user_id: user.id,
         }),
@@ -206,8 +210,8 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
         throw new Error(errorData.error || 'Failed to send invite.');
       }
 
-      alert(`Invitation sent successfully to ${testEmail}!`);
-      setInviteEmail(''); // Clear input after sending
+      alert(`Invitation sent successfully to ${inviteEmail}!`);
+      setInviteEmail('');
       setShowInviteDialog(false);
     } catch (err: any) {
       alert(`Error sending invitation: ${err.message}`);
@@ -235,7 +239,7 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
   }
 
   const logoSizeClass = sidebarState === "expanded" ? "size-10" : "size-8";
-  const buttonClass = sidebarState === "expanded" ? "w-full h-auto justify-start" : "w-10 h-10 p-0 justify-center";
+  const buttonClass = sidebarState === "expanded" ? "w-full h-auto justify-start" : "size-8 p-0 justify-center";
 
   const handleWorkspaceSwitch = (workspaceId: string) => {
     const newWorkspace = allWorkspaces.find(ws => ws.id === workspaceId);
@@ -251,7 +255,7 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
           <Button
             variant="ghost"
             className={cn(
-              "flex items-center gap-2 p-0 hover:bg-transparent transition-all group-data-[collapsible=icon]:!p-0",
+              "flex items-center gap-2 p-0 hover:bg-transparent transition-all group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:!gap-0",
               buttonClass
             )}
           >

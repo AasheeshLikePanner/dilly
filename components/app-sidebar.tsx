@@ -7,20 +7,14 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Bug,
-  CaretRight,
-  ChartPieSlice,
   ChatCircleText,
   Check,
   Gear,
   House,
   Lightbulb,
-  Lifebuoy,
   MapTrifold,
   UserCircle,
-  SignOut, // Import SignOut icon
-  Smiley, // New icon for Emoji Feedback
-  SlidersHorizontal, // New icon for Slider Feedback
-  NotePencil, // New icon for Form Feedback
+  SignOut, 
   Cube, // New icon for Feedback parent
   Sun,
   Moon,

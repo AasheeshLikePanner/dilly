@@ -1,7 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import {Resend} from 'resend'; // Assuming Resend is installed and configured
+import { Resend } from 'resend'; // Assuming Resend is installed and configured
 
 const resend = new Resend(process.env.RESEND_API_KEY); // Initialize Resend
 
@@ -47,14 +47,18 @@ export async function POST(request: Request) {
   // 4. Check for existing invite/member
   const { data: existingInvite } = await supabase
     .from('workspace_invites')
-    .select('id')
+    .select('id, token, expires_at')
     .eq('workspace_id', workspace_id)
     .eq('invitee_email', invitee_email)
     .eq('status', 'pending')
     .maybeSingle();
 
   if (existingInvite) {
-    return NextResponse.json({ error: 'An invitation to this email for this workspace is already pending.' }, { status: 409 });
+    // Delete the old pending invite so we can create a fresh one
+    await supabase
+      .from('workspace_invites')
+      .delete()
+      .eq('id', existingInvite.id);
   }
 
   // Resolve invitee_email to user_id if user exists
@@ -72,14 +76,15 @@ export async function POST(request: Request) {
   if (inviteeProfile) {
     const { data: existingMember } = await supabase
       .from('workspace_members')
-      .select('id')
+      .select('id, status')
       .eq('workspace_id', workspace_id)
       .eq('user_id', inviteeProfile.id)
       .maybeSingle();
 
-    if (existingMember) {
+    if (existingMember && existingMember.status === 'active') {
       return NextResponse.json({ error: 'This user is already a member of this workspace.' }, { status: 409 });
     }
+    // If status is not active (e.g. inactive, suspended), allow re-invitation.
   }
 
   // 5. Insert into workspace_invites
