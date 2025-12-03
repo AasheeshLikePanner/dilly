@@ -1,11 +1,13 @@
 'use client'
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
-import { Badge, Eye, Pencil, Trash } from "lucide-react";
+import { Eye, Pencil, Trash } from "lucide-react";
+import { Badge } from "./badge";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { DialogHeader } from "./dialog";
+import { toast } from "sonner";
 
 type Feedback = {
   id: string;
@@ -82,8 +84,9 @@ export function FeedbackTable({ workspaceSlug }: { workspaceSlug: string }) {
         throw new Error('Failed to delete feedback');
       }
       setFeedback(feedback.filter(item => item.id !== id));
+      toast.success('Feedback deleted successfully');
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   };
 

@@ -17,7 +17,8 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
     pathname === '/workspaces/new' ||
     pathname === '/' ||
     pathname === '/404' ||
-    pathname === '/_not-found';
+    pathname === '/_not-found' ||
+    pathname?.startsWith('/track');
 
   if (hideSidebar) {
     return <>{children}</>;

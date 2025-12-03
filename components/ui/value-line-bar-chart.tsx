@@ -79,18 +79,17 @@ export function ValueLineBarChart({ className, data }: { className?: string, dat
   }, [activeIndex, displayData]);
 
   const maxValueIndexSpring = useSpring(maxValueIndex.value, {
-    stiffness: 400,
-    damping: 60,
-    mass: 0.5,
+    stiffness: 200,
+    damping: 30,
+    mass: 0.8,
   });
 
   const [springyValue, setSpringyValue] = React.useState(maxValueIndex.value);
 
   useMotionValueEvent(maxValueIndexSpring, "change", (latest: any) => {
-    if (typeof latest === 'number') {
-      setSpringyValue(Number(latest.toFixed(0)));
-    } else if (typeof latest === 'string') {
-      setSpringyValue(Number(parseFloat(latest).toFixed(0)));
+    const numValue = typeof latest === 'number' ? latest : parseFloat(latest);
+    if (!isNaN(numValue)) {
+      setSpringyValue(numValue);
     }
   });
 

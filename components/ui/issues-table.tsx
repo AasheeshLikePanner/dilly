@@ -146,7 +146,7 @@ export function IssuesTable({ workspaceSlug }: { workspaceSlug: string }) {
     setEditedData({});
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | string[]) => {
     setEditedData({ ...editedData, [field]: value });
   };
 

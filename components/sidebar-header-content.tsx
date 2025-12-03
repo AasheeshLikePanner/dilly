@@ -26,6 +26,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const LAST_ACTIVE_WORKSPACE_SLUG_KEY = 'last_active_workspace_slug';
 
@@ -176,18 +177,18 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
 
   const handleSendInvite = async () => {
     if (!workspace?.id) {
-      alert('Please ensure a workspace is selected.');
+      toast.error('Please ensure a workspace is selected.');
       return;
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      alert('You must be logged in to send invites.');
+      toast.error('You must be logged in to send invites.');
       return;
     }
 
     if (!inviteEmail || !inviteEmail.trim()) {
-      alert('Please enter an email address.');
+      toast.error('Please enter an email address.');
       return;
     }
 
@@ -210,11 +211,11 @@ export default function SidebarHeaderContent({ initialWorkspaceId, onWorkspaceCh
         throw new Error(errorData.error || 'Failed to send invite.');
       }
 
-      alert(`Invitation sent successfully to ${inviteEmail}!`);
+      toast.success(`Invitation sent successfully to ${inviteEmail}!`);
       setInviteEmail('');
       setShowInviteDialog(false);
     } catch (err: any) {
-      alert(`Error sending invitation: ${err.message}`);
+      toast.error(`Error sending invitation: ${err.message}`);
     } finally {
       setIsSendingInvite(false); // Reset loading state
     }

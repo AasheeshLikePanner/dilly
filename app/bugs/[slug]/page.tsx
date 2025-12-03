@@ -31,6 +31,7 @@ import {
   ChevronDown,
   Download
 } from "lucide-react";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
@@ -171,6 +172,8 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
   const [members, setMembers] = useState<any[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -210,14 +213,29 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
     } catch (error: any) {
       console.error("Failed to update bug:", error);
       if (error.response && error.response.status === 409) {
-        alert("Conflict: The bug has been modified by another user. Please refresh and try again.");
+        toast.error("Conflict: The bug has been modified by another user. Please refresh and try again.");
         onUpdate();
         onClose();
       } else {
-        alert("Failed to save changes. Please try again.");
+        toast.error("Failed to save changes. Please try again.");
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await axios.delete(`/api/bugs?id=${bug.id}`);
+      onUpdate();
+      onClose();
+    } catch (error) {
+      console.error("Failed to delete bug:", error);
+      toast.error("Failed to delete bug. Please try again.");
+    } finally {
+      setDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -237,11 +255,12 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
     <>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
         onClick={onClose} className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-40"
       />
       <motion.div
-        initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%", transition: { duration: 0.3, ease: "easeInOut" } }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
         className="fixed right-0 top-0 bottom-0 w-full max-w-2xl bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-800 z-50 shadow-xl flex flex-col"
       >
         {/* Header */}
@@ -441,9 +460,41 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
         </div>
 
         <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-          <button className="text-zinc-500 hover:text-red-600 text-sm font-medium flex items-center gap-2 transition-colors px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-950/30">
-            <Trash2 className="w-4 h-4" /> Delete
-          </button>
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogTrigger asChild>
+              <button
+                className="text-zinc-500 hover:text-red-600 text-sm font-medium flex items-center gap-2 transition-colors px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-950/30"
+              >
+                <Trash2 className="w-4 h-4" /> Delete
+              </button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Bug</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Are you sure you want to delete this bug? This action cannot be undone.
+                </p>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDeleteDialog(false)}
+                  className="px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {deleting ? 'Deleting...' : 'Delete Bug'}
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
           {!isEditing ? (
             <button
               onClick={startEditing}
@@ -937,7 +988,7 @@ export function IssuesTable({
       </div>
 
       <AnimatePresence>
-        {selectedBug && <BugDrawer bug={selectedBug} onClose={handleCloseBugDrawer} onUpdate={handleUpdate} />}
+        {selectedBug && <BugDrawer key="bug-drawer" bug={selectedBug} onClose={handleCloseBugDrawer} onUpdate={handleUpdate} />}
       </AnimatePresence>
     </div>
   );

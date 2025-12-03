@@ -1,6 +1,8 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import { validateApiKey } from '@/lib/cache/api-keys';
+import { getWorkspaceById } from '@/lib/cache/workspace';
 
 export async function GET(request: Request) {
   const supabase = createSupabaseServerClient();
@@ -89,41 +91,11 @@ export async function POST(request: Request) {
   const publicId = parts[2];
   const secret = parts[3];
 
-  // 3. Validate API Key
-  let validApiKey = null;
-  try {
-    const { data: key, error: dbError } = await supabase
-      .from('api_keys')
-      .select('id, user_id, is_active, expires_at, secret_hash, workspace_id')
-      .eq('public_id', publicId)
-      .eq('is_active', true) // Only consider active keys
-      .maybeSingle();
+  // 3. Validate API Key using cache
+  const validApiKey = await validateApiKey(publicId, secret);
 
-    if (dbError) {
-      console.error('Error fetching API key for validation:', dbError);
-      return NextResponse.json({ error: 'Internal server error during API key validation' }, { status: 500 });
-    }
-
-    if (!key) {
-      return NextResponse.json({ error: 'Invalid API Key' }, { status: 403 });
-    }
-
-    // Check expiration
-    if (key.expires_at && new Date(key.expires_at) < new Date()) {
-      return NextResponse.json({ error: 'API Key has expired' }, { status: 403 });
-    }
-
-    // Compare the secret part
-    const isMatch = await bcrypt.compare(secret, key.secret_hash);
-    if (!isMatch) {
-      return NextResponse.json({ error: 'Invalid API Key' }, { status: 403 });
-    }
-
-    validApiKey = key;
-
-  } catch (error) {
-    console.error('API Key validation failed:', error);
-    return NextResponse.json({ error: 'Internal server error during API key validation' }, { status: 500 });
+  if (!validApiKey) {
+    return NextResponse.json({ error: 'Invalid API Key' }, { status: 403 });
   }
 
   // 4. Validate Origin
@@ -162,16 +134,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing required bug fields (workspace_id, title, type, priority, status)' }, { status: 400 });
   }
 
-  // Fetch workspace's allowed origins
-  const { data: workspace, error: workspaceError } = await supabase
-    .from('workspaces')
-    .select('allowed_origins')
-    .eq('id', final_workspace_id)
-    .single();
+  // Fetch workspace's allowed origins using cache
+  const workspace = await getWorkspaceById(final_workspace_id);
 
-  if (workspaceError) {
-    console.error('Error fetching workspace:', workspaceError);
-    return NextResponse.json({ error: 'Failed to validate workspace' }, { status: 500 });
+  if (!workspace) {
+    return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
   }
 
   const allowedOrigins = workspace.allowed_origins || [];
@@ -330,4 +297,32 @@ export async function PUT(request: Request) {
   }
 
   return NextResponse.json(updatedBug);
+}
+
+export async function DELETE(request: Request) {
+  const supabase = createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return NextResponse.json({ error: 'Bug ID is required' }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from('bugs')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting bug:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

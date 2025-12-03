@@ -7,6 +7,7 @@ import { DetailDrawer } from '@/components/shared/detail-drawer';
 import { UserAvatar } from '@/components/shared/user-avatar';
 import { BugStatusBadge, BugPriorityBadge } from '@/components/bugs/bug-badges';
 import { BugTypeIcon } from '@/components/bugs/bug-type-icon';
+import { toast } from 'sonner';
 
 /**
  * BugDrawer Component
@@ -93,11 +94,11 @@ export function BugDrawer({ bug, onClose, onUpdate }: BugDrawerProps) {
         } catch (error: any) {
             console.error('Failed to update bug:', error);
             if (error.response && error.response.status === 409) {
-                alert('Conflict: The bug has been modified by another user. Please refresh and try again.');
+                toast.error('Conflict: The bug has been modified by another user. Please refresh and try again.');
                 onUpdate();
                 onClose();
             } else {
-                alert('Failed to save changes. Please try again.');
+                toast.error('Failed to save changes. Please try again.');
             }
         } finally {
             setSaving(false);

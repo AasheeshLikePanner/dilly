@@ -74,7 +74,7 @@ export async function GET(request: Request) {
     }
 
     const statusCounts: Record<string, number> = {};
-    statusData.forEach(bug => {
+    statusData.forEach((bug: any) => {
         statusCounts[bug.status] = (statusCounts[bug.status] || 0) + 1;
     });
 
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
         high: 0,
         critical: 0
     };
-    priorityData.forEach(bug => {
+    priorityData.forEach((bug: any) => {
         if (priorityCounts[bug.priority] !== undefined) {
             priorityCounts[bug.priority]++;
         }
@@ -153,7 +153,7 @@ export async function GET(request: Request) {
             activityCounts[key] = 0;
         }
 
-        activityData.forEach(bug => {
+        activityData.forEach((bug: any) => {
             const d = new Date(bug.created_at);
             d.setMinutes(0, 0, 0);
             const key = d.toISOString();
@@ -171,7 +171,7 @@ export async function GET(request: Request) {
         // Let's use a simpler approach: Key = "HH:00"
         const hourlyCounts: Record<string, number> = {};
         const now = new Date();
-        const hours = [];
+        const hours: Array<{ label: string; timestamp: number }> = [];
 
         for (let i = 23; i >= 0; i--) {
             const d = new Date(now);
@@ -181,7 +181,7 @@ export async function GET(request: Request) {
             hourlyCounts[label] = 0;
         }
 
-        activityData.forEach(bug => {
+        activityData.forEach((bug: any) => {
             const bugTime = new Date(bug.created_at).getTime();
             // Find the hour bucket this bug belongs to
             const bucket = hours.find(h => Math.abs(h.timestamp - bugTime) < 3600000); // Within an hour roughly
@@ -197,7 +197,7 @@ export async function GET(request: Request) {
         // Actually, let's do it the robust way:
         // 1. Create 24 buckets with specific timestamps
         // 2. Sort bugs into buckets
-        const buckets = [];
+        const buckets: Array<{ time: number; label: string; count: number }> = [];
         for (let i = 23; i >= 0; i--) {
             const d = new Date();
             d.setHours(d.getHours() - i);
@@ -209,7 +209,7 @@ export async function GET(request: Request) {
             });
         }
 
-        activityData.forEach(bug => {
+        activityData.forEach((bug: any) => {
             const bugTime = new Date(bug.created_at).getTime();
             // Find the closest bucket (within 30 mins before or after, or just same hour)
             // Since we round down buckets, bugTime should be >= bucketTime and < bucketTime + 1h
@@ -236,7 +236,7 @@ export async function GET(request: Request) {
             activityCounts[key] = 0;
         }
 
-        activityData.forEach(bug => {
+        activityData.forEach((bug: any) => {
             const key = new Date(bug.created_at).toISOString().split('T')[0];
             if (activityCounts[key] !== undefined) {
                 activityCounts[key]++;
