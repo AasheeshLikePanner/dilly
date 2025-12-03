@@ -6,11 +6,13 @@ import { useWorkspace } from '@/components/workspace-context';
 import { useToast } from '@/hooks/use-toast';
 
 interface BugReportingProps {
-  apiKey?: string; // For external widget usage
-  workspaceId?: string; // For external widget usage (optional, can be derived from API key)
+  apiKey?: string;
+  showcaseMode?: boolean;
+  onSuccess?: (data: any) => void;
+  onError?: (error: Error) => void;
 }
 
-export const VariantSimpleBugForm = ({ apiKey, workspaceId: externalWorkspaceId }: BugReportingProps = {}) => {
+export const VariantSimpleBugForm = ({ apiKey, showcaseMode = false, onSuccess, onError }: BugReportingProps = {}) => {
   // Only use workspace context if apiKey is not provided (internal usage)
   const workspaceContext = !apiKey ? useWorkspace() : { workspaceId: null, isLoading: false, error: null };
   const { workspaceId: contextWorkspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = workspaceContext;
@@ -40,26 +42,37 @@ export const VariantSimpleBugForm = ({ apiKey, workspaceId: externalWorkspaceId 
     }
 
     setStatus('sending');
-    try {
-      const finalWorkspaceId = externalWorkspaceId || contextWorkspaceId;
 
-      // Prepare request config
+    if (showcaseMode) {
+      setStatus('sent');
+      setTimeout(() => {
+        setStatus('idle');
+        setTitle('');
+        setDescription('');
+      }, 3000);
+      return;
+    }
+
+    try {
+      const finalWorkspaceId = contextWorkspaceId;
+
       const config = apiKey ? {
         headers: {
           'x-api-key': apiKey,
         }
       } : {};
 
-      await axios.post('/api/bugs', {
+      const response = await axios.post('/api/bugs', {
         workspace_id: finalWorkspaceId,
         title: title.trim(),
         description: description.trim(),
-        type: 'bug', // Default type
-        priority: 'medium', // Default priority
-        status: 'open', // Default status
+        type: 'bug',
+        priority: 'medium',
+        status: 'open',
       }, config);
 
       setStatus('sent');
+      onSuccess?.(response.data);
       toast.success('Bug report submitted successfully!');
       setTimeout(() => {
         setStatus('idle');
@@ -69,7 +82,9 @@ export const VariantSimpleBugForm = ({ apiKey, workspaceId: externalWorkspaceId 
     } catch (err: any) {
       console.error('Error submitting bug:', err);
       setStatus('error');
-      toast.error(`Failed to submit bug: ${err.response?.data?.error || err.message}`);
+      const errorMsg = err.response?.data?.error || err.message;
+      onError?.(new Error(errorMsg));
+      toast.error(`Failed to submit bug: ${errorMsg}`);
       setTimeout(() => setStatus('idle'), 3000);
     }
   };

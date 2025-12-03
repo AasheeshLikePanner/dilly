@@ -149,7 +149,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-20 mix-blend-overlay pointer-events-none z-10" />
 
           <motion.img
-            src="https://png.pngtree.com/png-clipart/20240420/original/pngtree-cute-sleeping-chubby-cat-cartoon-element-png-image_14912786.png"
+            src="https://png.pngtree.com/png-vector/20240124/ourmid/pngtree-sleeping-cat-illustration-png-image_11490666.png"
             alt="Resting cat"
             // Jitter/Glitch Animation
             animate={{

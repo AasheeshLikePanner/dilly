@@ -1,0 +1,33 @@
+{
+  "name": "@zynta/slider-cinematic",
+  "version": "1.0.0",
+  "description": "Spotlight number selector feedback component for React",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsup src/index.tsx --format cjs,esm --dts --external react --external framer-motion --external lucide-react",
+    "dev": "tsup src/index.tsx --format cjs,esm --dts --watch --external react --external framer-motion --external lucide-react",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "framer-motion": "^10.0.0 || ^11.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": ["react", "feedback", "component", "ui", "dilly"],
+  "author": "Dilly",
+  "license": "MIT"
+}

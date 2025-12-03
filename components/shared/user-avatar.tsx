@@ -2,29 +2,15 @@
 
 import React from 'react';
 
-/**
- * UserAvatar Component
- * 
- * Displays a user avatar with initials fallback.
- * Used across bugs and feedback pages for consistent user representation.
- * 
- * Used in: Bug table, Feedback table, Drawers
- */
-
 interface UserAvatarProps {
-    /** User's full name */
     name: string | null;
-    /** User's email (fallback if name is not available) */
     email: string | null;
-    /** Size variant */
     size?: 'sm' | 'md' | 'lg';
 }
 
 export function UserAvatar({ name, email, size = 'md' }: UserAvatarProps) {
-    // Generate initial from name or email
     const initial = (name || email || '?').charAt(0).toUpperCase();
 
-    // Size classes
     const sizeClasses = {
         sm: 'w-5 h-5 text-[9px]',
         md: 'w-6 h-6 text-[10px]',

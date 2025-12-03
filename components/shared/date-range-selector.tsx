@@ -10,32 +10,17 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
-/**
- * DateRangeSelector Component
- * 
- * A reusable component for selecting date ranges with preset options (24h, 7d, 30d, All)
- * and a custom calendar picker.
- * 
- * Used in: Bugs page, Feedback page
- */
-
-// Supported preset range values
 type PresetRange = '1d' | '7d' | '1m' | 'max';
 
-// Custom date range with start and end dates
 type CustomDateRange = {
     start: string; // ISO date string
     end: string;   // ISO date string
 };
 
 interface DateRangeSelectorProps {
-    /** Current selected preset range */
     value: PresetRange;
-    /** Callback when preset range changes */
     onChange: (range: PresetRange) => void;
-    /** Current custom date range (if selected) */
     customRange: CustomDateRange | null;
-    /** Callback when custom range changes */
     onCustomChange: (range: CustomDateRange | null) => void;
 }
 
@@ -45,7 +30,6 @@ export function DateRangeSelector({
     customRange,
     onCustomChange,
 }: DateRangeSelectorProps) {
-    // Preset range options
     const presetRanges: { value: PresetRange; label: string }[] = [
         { value: '1d', label: '24h' },
         { value: '7d', label: '7d' },
@@ -53,13 +37,11 @@ export function DateRangeSelector({
         { value: 'max', label: 'All' },
     ];
 
-    // Handle preset range click
     const handlePresetClick = (range: PresetRange) => {
         onChange(range);
         onCustomChange(null); // Clear custom range
     };
 
-    // Handle custom calendar selection
     const handleCalendarSelect = (range: any) => {
         if (range?.from && range?.to) {
             onCustomChange({
@@ -71,7 +53,6 @@ export function DateRangeSelector({
 
     return (
         <div className="flex items-center gap-4">
-            {/* Preset Range Buttons */}
             <div className="flex gap-2">
                 {presetRanges.map((range) => (
                     <button
@@ -89,10 +70,8 @@ export function DateRangeSelector({
                 ))}
             </div>
 
-            {/* Divider */}
             <div className="w-px h-3 bg-zinc-200 dark:bg-zinc-800" />
 
-            {/* Custom Calendar Picker */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <button

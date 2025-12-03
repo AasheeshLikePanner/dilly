@@ -3,24 +3,12 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-/**
- * ChartsGrid Component
- * 
- * A responsive 3-column grid for displaying charts and statistics.
- * Includes loading state with skeleton placeholders.
- * 
- * Used in: Bugs page, Feedback page
- */
-
 interface ChartsGridProps {
-    /** Chart components to display */
     children: React.ReactNode;
-    /** Whether data is loading */
     loading?: boolean;
 }
 
 export function ChartsGrid({ children, loading = false }: ChartsGridProps) {
-    // Show loading skeletons while data is being fetched
     if (loading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -34,7 +22,6 @@ export function ChartsGrid({ children, loading = false }: ChartsGridProps) {
         );
     }
 
-    // Render charts in responsive grid
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {children}
@@ -42,16 +29,8 @@ export function ChartsGrid({ children, loading = false }: ChartsGridProps) {
     );
 }
 
-/**
- * ChartSection Component
- * 
- * Wrapper for individual chart sections with title.
- */
-
 interface ChartSectionProps {
-    /** Chart section title */
     title: string;
-    /** Chart component */
     children: React.ReactNode;
 }
 
