@@ -21,6 +21,7 @@ const inter = Inter({
 });
 
 import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -43,7 +44,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={<div>Loading sidebar...</div>}> {/* Add Suspense boundary */}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-screen bg-background">
+              <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
+            </div>
+          }>
             <WorkspaceProvider>
               <SidebarWrapper>{children}</SidebarWrapper>
             </WorkspaceProvider>
