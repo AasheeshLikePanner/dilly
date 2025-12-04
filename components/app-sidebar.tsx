@@ -14,7 +14,7 @@ import {
   Lightbulb,
   MapTrifold,
   UserCircle,
-  SignOut, 
+  SignOut,
   Cube, // New icon for Feedback parent
   Sun,
   Moon,
@@ -38,6 +38,7 @@ import {
   SidebarRail,
   SidebarTrigger,
   useSidebar, // Import useSidebar
+  SidebarMenuBadge,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import SidebarHeaderContent from "@/components/sidebar-header-content"
@@ -85,6 +86,8 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
     }
     return baseHref;
   };
+
+  const isComponentsLocked = process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'false' || (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_COMPONENTS !== 'true');
 
   return (
     <Sidebar collapsible="icon" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} {...props}>
@@ -134,21 +137,45 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton aria-disabled="true" className="pointer-events-none opacity-50" tooltip="Coming Soon">
-                <Lightbulb />
-                <span className="flex items-center gap-2">
-                  <span>Features</span>
-                  <Lock className="size-3 text-zinc-500" weight="fill" />
-                </span>
+              <SidebarMenuButton
+                asChild={!isComponentsLocked}
+                tooltip={isComponentsLocked ? "Coming Soon" : "Features"}
+                aria-disabled={isComponentsLocked}
+                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+              >
+                {isComponentsLocked ? (
+                  <>
+                    <Lightbulb />
+                    <span>Features</span>
+                    <SidebarMenuBadge>Soon</SidebarMenuBadge>
+                  </>
+                ) : (
+                  <Link href="/features">
+                    <Lightbulb />
+                    <span>Features</span>
+                  </Link>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton aria-disabled="true" className="pointer-events-none opacity-50" tooltip="Roadmap (Coming Soon)">
-                <MapTrifold />
-                <span className="flex items-center gap-2">
-                  <span>Roadmap</span>
-                  <Lock className="size-3 text-zinc-500" weight="fill" />
-                </span>
+              <SidebarMenuButton
+                asChild={!isComponentsLocked}
+                tooltip={isComponentsLocked ? "Coming Soon" : "Roadmap"}
+                aria-disabled={isComponentsLocked}
+                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+              >
+                {isComponentsLocked ? (
+                  <>
+                    <MapTrifold />
+                    <span>Roadmap</span>
+                    <SidebarMenuBadge>Soon</SidebarMenuBadge>
+                  </>
+                ) : (
+                  <Link href="/roadmap">
+                    <MapTrifold />
+                    <span>Roadmap</span>
+                  </Link>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -161,48 +188,62 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
           </div>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Feedback Components">
+              <SidebarMenuButton
+                tooltip={isComponentsLocked ? "Coming Soon" : "Feedback Components"}
+                aria-disabled={isComponentsLocked}
+                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+              >
                 <Cube />
                 <span>Components</span>
+                {isComponentsLocked && <SidebarMenuBadge>Soon</SidebarMenuBadge>}
               </SidebarMenuButton>
-              <SidebarMenuSub>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
-                    <Link href={getHrefWithSlug('/components/feedback/emoji')}>
-                      <span>Emoji Feedback</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
-                    <Link href={getHrefWithSlug('/components/feedback/slider')}>
-                      <span>Slider Feedback</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
-                    <Link href={getHrefWithSlug('/components/feedback/form')}>
-                      <span>Form Feedback</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              </SidebarMenuSub>
+              {!isComponentsLocked && (
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
+                      <Link href={getHrefWithSlug('/components/feedback/emoji')}>
+                        <span>Emoji Feedback</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
+                      <Link href={getHrefWithSlug('/components/feedback/slider')}>
+                        <span>Slider Feedback</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
+                      <Link href={getHrefWithSlug('/components/feedback/form')}>
+                        <span>Form Feedback</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              )}
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Bug Reporting">
+              <SidebarMenuButton
+                tooltip={isComponentsLocked ? "Coming Soon" : "Bug Reporting"}
+                aria-disabled={isComponentsLocked}
+                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+              >
                 <Bug />
                 <span>Bug Reporting</span>
+                {isComponentsLocked && <SidebarMenuBadge>Soon</SidebarMenuBadge>}
               </SidebarMenuButton>
-              <SidebarMenuSub>
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>
-                    <Link href={getHrefWithSlug('/components/bug-reporting/form')}>
-                      <span>Simple Form</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              </SidebarMenuSub>
+              {!isComponentsLocked && (
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>
+                      <Link href={getHrefWithSlug('/components/bug-reporting/form')}>
+                        <span>Simple Form</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              )}
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>

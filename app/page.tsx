@@ -22,6 +22,37 @@ const staggerContainer = {
   }
 };
 
+const HoverText = ({ text, hoverText, className }: { text: string, hoverText: string, className?: string }) => {
+  return (
+    <motion.div
+      className={`relative overflow-hidden cursor-pointer grid ${className}`}
+      initial="initial"
+      whileHover="hover"
+    >
+      <motion.div
+        className="col-start-1 row-start-1"
+        variants={{
+          initial: { y: 0 },
+          hover: { y: "100%" }
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        {text}
+      </motion.div>
+      <motion.div
+        className="col-start-1 row-start-1"
+        variants={{
+          initial: { y: "-100%" },
+          hover: { y: 0 }
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        {hoverText}
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -51,7 +82,7 @@ export default function LandingPage() {
           </div>
 
           <button className="text-[10px] font-medium text-white/60 hover:text-white transition-colors uppercase tracking-wide">
-            Get Started
+            <HoverText text="Get Started" hoverText="Coming Soon..." />
           </button>
         </div>
       </nav>
@@ -106,7 +137,9 @@ export default function LandingPage() {
           {/* Call to Action (Inline) */}
           <motion.div variants={fadeUp} className="pt-6">
             <button className="group flex items-center gap-3 text-white text-xs font-medium hover:text-zinc-300 transition-colors">
-              <span className="border-b border-white/30 pb-0.5 group-hover:border-white transition-all">Start your integration</span>
+              <span className="border-b border-white/30 pb-0.5 group-hover:border-white transition-all">
+                <HoverText text="Start your integration" hoverText="Coming Soon..." />
+              </span>
               <ArrowRight className="w-3 h-3 opacity-50 group-hover:translate-x-1 group-hover:text-white transition-all" />
             </button>
           </motion.div>

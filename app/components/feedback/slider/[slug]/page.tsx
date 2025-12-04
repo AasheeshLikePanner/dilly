@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, Terminal, Sparkles, Box } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { notFound } from "next/navigation"
 // Ensure these are imported correctly from your file
 import { VariantShapeShifter, VariantCinematic, VariantCrystal } from '@/components/slider-reaction';
 
@@ -43,7 +44,7 @@ const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps)
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      
+
       {/* Code Area */}
       <div className="overflow-x-auto p-4">
         <pre className="font-mono text-sm text-zinc-300 leading-relaxed">
@@ -55,6 +56,10 @@ const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps)
 };
 
 export default function SliderFeedbackPage() {
+  if (process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'false' || (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_COMPONENTS !== 'true')) {
+    notFound()
+  }
+
   const installCmd = "npm install @/components/slider-reaction framer-motion lucide-react";
   const usageCode = `import { VariantShapeShifter } from '@/components/slider-reaction';
 
@@ -82,10 +87,10 @@ export default function Page() {
       </div>
 
       <main className="max-w-5xl mx-auto px-6 py-12 md:py-20">
-        
+
         {/* Hero Section */}
         <div className="mb-16 text-center space-y-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-400 mb-4"
@@ -103,12 +108,12 @@ export default function Page() {
 
         {/* Interactive Playground */}
         <div className="grid lg:grid-cols-5 gap-8 mb-20">
-          
+
           {/* Left: The Preview Area */}
           <div className="lg:col-span-3">
             <div className="rounded-3xl border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl shadow-black/50">
               <Tabs defaultValue="shape-shifter" className="w-full">
-                
+
                 {/* iOS Style Segmented Control */}
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <TabsList className="w-full bg-[#1A1A1A] p-1 rounded-xl border border-white/5">
@@ -149,7 +154,7 @@ export default function Page() {
               </h3>
               <CodeSnippet title="Page.tsx" code={usageCode} />
             </div>
-            
+
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs text-blue-200/80 leading-5">
               <strong>Pro Tip:</strong> Each variant exports a standalone component. Ensure you have <code>framer-motion</code> installed for the physics animations to work.
             </div>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Copy, Terminal, Sparkles, Box, AlertCircle, Loader2 } from 'lucide-react'; // Added AlertCircle, Loader2
 import axios from 'axios'; // Import axios
-import { useParams } from 'next/navigation'; // Import useParams
+import { useParams, notFound } from 'next/navigation'; // Import useParams and notFound
 import { WorkspaceProvider } from '@/components/workspace-context'; // Import WorkspaceProvider
 // Ensure these are imported correctly from your file
 import { VariantSimpleBugForm } from '@/components/bug-reporting';
@@ -45,7 +45,7 @@ const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps)
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      
+
       {/* Code Area */}
       <div className="overflow-x-auto p-4">
         <pre className="font-mono text-sm text-zinc-300 leading-relaxed">
@@ -57,6 +57,10 @@ const CodeSnippet = ({ title, code, language = "typescript" }: CodeSnippetProps)
 };
 
 export default function BugReportingFormPage() {
+  if (process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'false' || (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_COMPONENTS !== 'true')) {
+    notFound()
+  }
+
   const params = useParams();
   const [resolvedWorkspaceId, setResolvedWorkspaceId] = useState<string | null>(null);
   const [isLoadingWorkspace, setIsLoadingWorkspace] = useState<boolean>(true);
@@ -116,10 +120,10 @@ export default function Page() {
       </div>
 
       <main className="max-w-5xl mx-auto px-6 py-12 md:py-20">
-        
+
         {/* Hero Section */}
         <div className="mb-16 text-center space-y-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-400 mb-4"
@@ -137,7 +141,7 @@ export default function Page() {
 
         {/* Interactive Playground */}
         <div className="grid lg:grid-cols-5 gap-8 mb-20">
-          
+
           {/* Left: The Preview Area */}
           <div className="lg:col-span-3">
             {isLoadingWorkspace ? (
@@ -178,7 +182,7 @@ export default function Page() {
               </h3>
               <CodeSnippet title="Page.tsx" code={usageCode} />
             </div>
-            
+
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs text-blue-200/80 leading-5">
               <strong>Pro Tip:</strong> Each variant exports a standalone component. Ensure you have <code>framer-motion</code> installed for the animations to work.
             </div>

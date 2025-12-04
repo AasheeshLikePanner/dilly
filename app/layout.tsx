@@ -27,6 +27,7 @@ import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from "@/components/theme-provider"
 
 import { WorkspaceProvider } from "@/components/providers/workspace-provider";
+import { ToastProvider } from "@/hooks/use-toast";
 
 export default function RootLayout({
   children,
@@ -50,7 +51,11 @@ export default function RootLayout({
             </div>
           }>
             <WorkspaceProvider>
-              <SidebarWrapper>{children}</SidebarWrapper>
+              <SidebarWrapper>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </SidebarWrapper>
             </WorkspaceProvider>
           </Suspense>
           <Toaster />
