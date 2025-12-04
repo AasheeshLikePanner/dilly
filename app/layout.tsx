@@ -28,7 +28,7 @@ import { WorkspaceProvider } from "@/components/providers/workspace-provider";
 import { ToastProvider } from "@/hooks/use-toast";
 
 export const metadata = {
-  title: "zynta - Simple Bug Reporting",
+  title: "zynta",
   description: "The art of doing less. Simple, quiet bug reporting for modern teams.",
   icons: {
     icon: '/icon.png',

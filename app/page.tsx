@@ -70,9 +70,8 @@ export default function LandingPage() {
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-zinc-900/20 rounded-full blur-[120px] opacity-40 mix-blend-screen" />
       </div>
 
-      {/* --- Minimalist Sticky Header --- */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled ? 'py-4 bg-black/80 backdrop-blur-xl' : 'py-8 bg-transparent'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled ? 'py-4 backdrop-blur-xl border-b border-white/10' : 'py-8 bg-transparent'
           }`}
       >
         <div className="w-full md:w-[550px] mx-auto px-6 flex items-center justify-between">
