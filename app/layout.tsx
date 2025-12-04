@@ -1,5 +1,3 @@
-"use client";
-
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from '@/components/ui/sonner';
@@ -28,6 +26,15 @@ import { ThemeProvider } from "@/components/theme-provider"
 
 import { WorkspaceProvider } from "@/components/providers/workspace-provider";
 import { ToastProvider } from "@/hooks/use-toast";
+
+export const metadata = {
+  title: "zynta - Simple Bug Reporting",
+  description: "The art of doing less. Simple, quiet bug reporting for modern teams.",
+  icons: {
+    icon: '/icon.png',
+  },
+};
+
 
 export default function RootLayout({
   children,

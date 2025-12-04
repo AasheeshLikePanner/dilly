@@ -77,7 +77,7 @@ export default function LandingPage() {
       >
         <div className="w-full md:w-[550px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
-            <div className="w-2.5 h-2.5 bg-white rounded-sm" />
+            <img src="/cat.png" alt="zynta logo" className="w-6 h-6 rounded-sm object-cover" />
             <span className="font-medium text-[10px] tracking-widest text-white uppercase">zynta</span>
           </div>
 
