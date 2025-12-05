@@ -273,8 +273,8 @@ export default function WorkspacesPage() {
       {/* --- HEADER --- */}
       <header className="relative z-10 px-10 py-8 flex justify-between items-center animate-fade-in-down">
         <div className="flex items-center gap-3 font-semibold tracking-tight text-sm">
-          <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.6)] animate-pulse" />
-          NEXUS OS
+          <img src="/cat.png" alt="Zynta Logo" className="w-6 h-6 rounded-sm object-cover" />
+          ZYNTA
         </div>
         <div className="text-xs text-[#404040] font-mono">SYSTEM ONLINE</div>
       </header>
