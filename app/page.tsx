@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 // --- Animations ---
 const fadeUp = {
@@ -80,9 +81,9 @@ export default function LandingPage() {
             <span className="font-medium text-[10px] tracking-widest text-white uppercase">zynta</span>
           </div>
 
-          <button className="text-[10px] font-medium text-white/60 hover:text-white transition-colors uppercase tracking-wide">
-            <HoverText text="Get Started" hoverText="Coming Soon..." />
-          </button>
+          <Link href="/auth" className="text-[10px] font-medium text-white/60 hover:text-white transition-colors uppercase tracking-wide">
+            Get Started
+          </Link>
         </div>
       </nav>
 
@@ -135,12 +136,12 @@ export default function LandingPage() {
 
           {/* Call to Action (Inline) */}
           <motion.div variants={fadeUp} className="pt-6">
-            <button className="group flex items-center gap-3 text-white text-xs font-medium hover:text-zinc-300 transition-colors">
+            <Link href="/auth" className="group flex items-center gap-3 text-white text-xs font-medium hover:text-zinc-300 transition-colors">
               <span className="border-b border-white/30 pb-0.5 group-hover:border-white transition-all">
-                <HoverText text="Start your integration" hoverText="Coming Soon..." />
+                Start your integration
               </span>
               <ArrowRight className="w-3 h-3 opacity-50 group-hover:translate-x-1 group-hover:text-white transition-all" />
-            </button>
+            </Link>
           </motion.div>
 
         </motion.article>

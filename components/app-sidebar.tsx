@@ -8,7 +8,6 @@ import Link from "next/link"
 import {
   Bug,
   ChatCircleText,
-  Check,
   Gear,
   House,
   Lightbulb,
@@ -269,7 +268,7 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                   <Gear className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-background" side="bottom" align="end" sideOffset={4}>
+              <DropdownMenuContent className="w-56 bg-background border border-border rounded-lg" side="bottom" align="end" sideOffset={4}>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground border border-sidebar-border">
@@ -289,16 +288,14 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setTheme("light")} className="flex items-center">
-                  <Sun className="mr-2 size-4" />
-                  Light Mode
-                  {theme === "light" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")} className="flex items-center">
-                  <Moon className="mr-2 size-4" />
-                  Dark Mode
-                  {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
+                <div className="flex items-center px-2 py-1.5 text-sm cursor-default rounded-sm hover:bg-accent hover:text-accent-foreground">
+                  {theme === "dark" ? (
+                    <Moon className="size-4 mr-2" />
+                  ) : (
+                    <Sun className="size-4 mr-2" />
+                  )}
+                  <span>Dark Mode</span>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={async () => {

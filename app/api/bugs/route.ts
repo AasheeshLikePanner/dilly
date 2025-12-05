@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query.order('updated_at', { ascending: false }).order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching bugs:', error);

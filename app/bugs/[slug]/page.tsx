@@ -271,15 +271,19 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
             </div>
             {!isEditing && <StatusBadge status={bug.status} />}
             {isEditing && (
-              <select
+              <Select
                 value={editedBug.status}
-                onChange={e => setEditedBug({ ...editedBug, status: e.target.value as any })}
-                className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 text-xs rounded px-2 py-1 outline-none focus:border-zinc-400"
+                onValueChange={(value) => setEditedBug({ ...editedBug, status: value as any })}
               >
-                {['open', 'triage', 'todo', 'in_progress', 'blocked', 'needs_info', 'testing', 'qa_failed', 'qa_passed', 'review', 'ready_for_deploy', 'deployed', 'done', 'closed', 'reopened', 'archived'].map(s => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
-                ))}
-              </select>
+                <SelectTrigger className="h-auto py-1 px-2 text-xs border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+                  {['open', 'triage', 'todo', 'in_progress', 'blocked', 'needs_info', 'testing', 'qa_failed', 'qa_passed', 'review', 'ready_for_deploy', 'deployed', 'done', 'closed', 'reopened', 'archived'].map(s => (
+                    <SelectItem key={s} value={s}>{s.replace(/_/g, ' ')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
           </div>
           <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
@@ -300,24 +304,32 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
                 </>
               ) : (
                 <div className="flex gap-2">
-                  <select
+                  <Select
                     value={editedBug.type}
-                    onChange={e => setEditedBug({ ...editedBug, type: e.target.value as any })}
-                    className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 text-xs rounded px-2 py-1 outline-none focus:border-zinc-400"
+                    onValueChange={(value) => setEditedBug({ ...editedBug, type: value as any })}
                   >
-                    {['bug', 'feature', 'ui', 'performance', 'security', 'other'].map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                  <select
+                    <SelectTrigger className="h-auto py-1 px-2 text-xs border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+                      {['bug', 'feature', 'ui', 'performance', 'security', 'other'].map(t => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
                     value={editedBug.priority}
-                    onChange={e => setEditedBug({ ...editedBug, priority: e.target.value as any })}
-                    className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 text-xs rounded px-2 py-1 outline-none focus:border-zinc-400"
+                    onValueChange={(value) => setEditedBug({ ...editedBug, priority: value as any })}
                   >
-                    {['low', 'medium', 'high', 'critical'].map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-auto py-1 px-2 text-xs border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+                      {['low', 'medium', 'high', 'critical'].map(p => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
             </div>
@@ -372,19 +384,28 @@ const BugDrawer = ({ bug, onClose, onUpdate }: { bug: Bug, onClose: () => void, 
                   </div>
                 </div>
               ) : (
-                <select
-                  value={editedBug.assigned_to || ''}
-                  onChange={e => setEditedBug({ ...editedBug, assigned_to: e.target.value || null })}
-                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 text-sm rounded px-2 py-1 outline-none focus:border-zinc-400"
+                <Select
+                  value={editedBug.assigned_to || 'unassigned'}
+                  onValueChange={(value) => setEditedBug({ ...editedBug, assigned_to: value === 'unassigned' ? null : value })}
                   disabled={loadingMembers}
                 >
-                  <option value="">Unassigned</option>
-                  {members.map(m => (
-                    <option key={m.user_id} value={m.user_id}>
-                      {m.profiles?.full_name || m.profiles?.email || 'Unknown User'}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full h-auto py-1.5 px-2 text-sm border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                    <SelectValue placeholder="Unassigned" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {members.map(m => (
+                      <SelectItem key={m.user_id} value={m.user_id}>
+                        <div className="flex items-center gap-2">
+                          <Avatar name={m.profiles?.full_name || null} email={m.profiles?.email || null} />
+                          <span className="text-xs">
+                            {m.profiles?.full_name || m.profiles?.email || 'Unknown User'}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
 
