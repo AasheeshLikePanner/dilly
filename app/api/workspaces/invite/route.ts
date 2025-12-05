@@ -126,21 +126,21 @@ export async function POST(request: Request) {
     console.log('Resend: Attempting to send email...');
     console.log(`Resend: API Key (masked): ${process.env.RESEND_API_KEY?.substring(0, 5)}...`);
     console.log(`Resend: From: onboarding@resend.dev, To: ${invitee_email}`);
-    console.log(`Resend: Subject: You're invited to join ${workspaceName} on Dilly!`);
+    console.log(`Resend: Subject: You're invited to join ${workspaceName} on Zynta!`);
     console.log(`Resend: Invite Link: ${inviteLink}`);
 
     const emailResponse = await resend.emails.send({
       from: 'onboarding@resend.dev', // Replace with your verified Resend domain
       to: invitee_email,
-      subject: `You're invited to join ${workspaceName} on Dilly!`,
+      subject: `You're invited to join ${workspaceName} on Zynta!`,
       html: `
         <p>Hello,</p>
-        <p>You've been invited to join <strong>${workspaceName}</strong> on Dilly by ${user.email}.</p>
+        <p>You've been invited to join <strong>${workspaceName}</strong> on Zynta by ${user.email}.</p>
         <p>Click the link below to accept the invitation:</p>
         <p><a href="${inviteLink}">${inviteLink}</a></p>
         <p>This invitation will expire in 7 days.</p>
         <p>Best regards,</p>
-        <p>The Dilly Team</p>
+        <p>The Zynta Team</p>
       `,
     });
     console.log('Resend: Raw email send response:', emailResponse); // Log the full response

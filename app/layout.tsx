@@ -29,7 +29,7 @@ import { ToastProvider } from "@/hooks/use-toast";
 
 export const metadata = {
   title: "zynta",
-  description: "The art of doing less. Simple, quiet bug reporting for modern teams.",
+  description: "The art of doing less. Simple, quiet tracking for bugs, feedback, and modern teams.",
   icons: {
     icon: '/icon.png',
   },
