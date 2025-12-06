@@ -40,7 +40,7 @@ export const BugReporter = ({ apiKey, showcaseMode = false, onSuccess, onError }
         }
 
         try {
-            const response = await fetch('https://zynta.cloud/api/bugs', {
+            const response = await fetch('https://www.zynta.cloud/api/bugs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 {
   "name": "@zynta/bug-reporter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Bug submission form component for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -1,6 +1,6 @@
 {
   "name": "@zynta/slider-crystal",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Crystal charge bars feedback component for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

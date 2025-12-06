@@ -1,6 +1,6 @@
 {
   "name": "@zynta/emoji-interactive",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Full modal flow emoji feedback with comment for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

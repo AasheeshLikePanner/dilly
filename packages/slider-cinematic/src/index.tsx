@@ -32,7 +32,7 @@ export const SliderCinematic = ({ apiKey, showcaseMode = false, onSuccess, onErr
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('https://zynta.cloud/api/feedback', {
+            const response = await fetch('https://www.zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -71,7 +71,7 @@ var EmojiDock = ({ apiKey, showcaseMode = false, onSuccess, onError } = {}) => {
     }
     setIsSubmitting(true);
     try {
-      const response = await fetch("https://zynta.cloud/api/feedback", {
+      const response = await fetch("https://www.zynta.cloud/api/feedback", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

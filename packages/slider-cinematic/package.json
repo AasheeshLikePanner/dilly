@@ -1,6 +1,6 @@
 {
   "name": "@zynta/slider-cinematic",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Spotlight number selector feedback component for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -1,6 +1,6 @@
 {
   "name": "@zynta/text-feedback",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Animated text input feedback form for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

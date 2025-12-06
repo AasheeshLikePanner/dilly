@@ -1,10 +1,14 @@
 import './styles.css';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { X } from 'lucide-react';
 
 interface EmojiReactionProps {
     apiKey?: string;
     showcaseMode?: boolean;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    autoShowDelay?: number;
     onSuccess?: (data: any) => void;
     onError?: (error: Error) => void;
 }
@@ -49,14 +53,55 @@ const FEEDBACK_OPTIONS: FeedbackOption[] = [
     { id: 5, label: 'Amazing', emoji: '😍', anim: 'heartbeat', color: 'bg-rose-500', rating: 10 },
 ];
 
-export const EmojiSoul = ({ apiKey, showcaseMode = false, onSuccess, onError }: EmojiReactionProps = {}) => {
+export const EmojiSoul = ({
+    apiKey,
+    showcaseMode = false,
+    open,
+    onOpenChange,
+    autoShowDelay,
+    onSuccess,
+    onError
+}: EmojiReactionProps = {}) => {
+    // Internal state for uncontrolled mode
+    const [internalOpen, setInternalOpen] = useState(false);
+    const isControlled = open !== undefined;
+    const isOpen = isControlled ? open : internalOpen;
+
     const [selected, setSelected] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleOpenChange = (newOpen: boolean) => {
+        if (!isControlled) {
+            setInternalOpen(newOpen);
+        }
+        onOpenChange?.(newOpen);
+    };
+
+    // Handle auto-show delay
+    useEffect(() => {
+        if (autoShowDelay !== undefined && autoShowDelay > 0) {
+            const timer = setTimeout(() => {
+                handleOpenChange(true);
+            }, autoShowDelay);
+            return () => clearTimeout(timer);
+        }
+    }, [autoShowDelay]);
+
+    const handleClose = () => {
+        handleOpenChange(false);
+        // Reset selection after closing
+        setTimeout(() => {
+            setSelected(null);
+        }, 300);
+    };
 
     const handleSelect = async (option: FeedbackOption) => {
         setSelected(option.id);
 
         if (showcaseMode) {
+            setTimeout(() => {
+                handleClose();
+            }, 1000);
             return;
         }
 
@@ -67,7 +112,7 @@ export const EmojiSoul = ({ apiKey, showcaseMode = false, onSuccess, onError }: 
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('https://zynta.cloud/api/feedback', {
+            const response = await fetch('https://www.zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,6 +134,9 @@ export const EmojiSoul = ({ apiKey, showcaseMode = false, onSuccess, onError }: 
 
             const data = await response.json();
             onSuccess?.(data);
+            setTimeout(() => {
+                handleClose();
+            }, 1000); // Close after success
         } catch (error) {
             onError?.(error as Error);
         } finally {
@@ -97,75 +145,93 @@ export const EmojiSoul = ({ apiKey, showcaseMode = false, onSuccess, onError }: 
     };
 
     return (
-        <div className="flex flex-col items-center justify-center gap-4">
-            <div className="bg-black relative w-full max-w-md rounded-[2rem] border border-zinc-800 p-1 overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 opacity-30 transition-colors duration-700 ease-in-out bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.1),transparent_70%)]" />
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center justify-center gap-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="relative"
+                    >
+                        <button
+                            onClick={handleClose}
+                            className="absolute -top-3 -right-3 z-20 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white/50 hover:text-white transition-all backdrop-blur-sm border border-white/10"
+                        >
+                            <X size={14} />
+                        </button>
 
-                <AnimatePresence>
-                    {selected && (
-                        <motion.div
-                            key={selected}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.15 }}
-                            exit={{ opacity: 0 }}
-                            className={`absolute inset-0 ${FEEDBACK_OPTIONS.find(o => o.id === selected)?.color} blur-3xl`}
-                        />
-                    )}
-                </AnimatePresence>
+                        <div className="bg-black relative w-full max-w-md rounded-[2rem] border border-zinc-800 p-1 overflow-hidden shadow-2xl">
+                            <div className="absolute inset-0 opacity-30 transition-colors duration-700 ease-in-out bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.1),transparent_70%)]" />
 
-                <div className="relative z-10 bg-zinc-900/80 backdrop-blur-sm rounded-[1.8rem] p-8 text-center">
-                    <h3 className="text-white font-medium text-xl mb-8 tracking-tight">How was the quality?</h3>
-
-                    <div className="flex justify-between items-center px-2">
-                        {FEEDBACK_OPTIONS.map((option) => {
-                            const isSelected = selected === option.id;
-
-                            return (
-                                <motion.button
-                                    key={option.id}
-                                    onClick={() => handleSelect(option)}
-                                    whileHover="hover"
-                                    whileTap="tap"
-                                    disabled={isSubmitting}
-                                    variants={emojiVariants[option.anim]}
-                                    className="relative outline-none group"
-                                >
+                            <AnimatePresence>
+                                {selected && (
                                     <motion.div
-                                        animate={{
-                                            scale: isSelected ? 1.5 : 1,
-                                            opacity: selected && !isSelected ? 0.3 : 1,
-                                            filter: isSelected ? 'grayscale(0%)' : selected ? 'grayscale(100%)' : 'grayscale(0%)'
-                                        }}
-                                        className="text-4xl transition-all duration-300"
-                                    >
-                                        {option.emoji}
-                                    </motion.div>
+                                        key={selected}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 0.15 }}
+                                        exit={{ opacity: 0 }}
+                                        className={`absolute inset-0 ${FEEDBACK_OPTIONS.find(o => o.id === selected)?.color} blur-3xl`}
+                                    />
+                                )}
+                            </AnimatePresence>
 
-                                    {isSelected && (
-                                        <motion.div
-                                            layoutId="soul-dot"
-                                            className={`absolute -bottom-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${option.color.replace('bg-', 'bg-')}`}
-                                        />
+                            <div className="relative z-10 bg-zinc-900/80 backdrop-blur-sm rounded-[1.8rem] p-8 text-center">
+                                <h3 className="text-white font-medium text-xl mb-8 tracking-tight">How was the quality?</h3>
+
+                                <div className="flex justify-between items-center px-2">
+                                    {FEEDBACK_OPTIONS.map((option) => {
+                                        const isSelected = selected === option.id;
+
+                                        return (
+                                            <motion.button
+                                                key={option.id}
+                                                onClick={() => handleSelect(option)}
+                                                whileHover="hover"
+                                                whileTap="tap"
+                                                disabled={isSubmitting}
+                                                variants={emojiVariants[option.anim]}
+                                                className="relative outline-none group"
+                                            >
+                                                <motion.div
+                                                    animate={{
+                                                        scale: isSelected ? 1.5 : 1,
+                                                        opacity: selected && !isSelected ? 0.3 : 1,
+                                                        filter: isSelected ? 'grayscale(0%)' : selected ? 'grayscale(100%)' : 'grayscale(0%)'
+                                                    }}
+                                                    className="text-4xl transition-all duration-300"
+                                                >
+                                                    {option.emoji}
+                                                </motion.div>
+
+                                                {isSelected && (
+                                                    <motion.div
+                                                        layoutId="soul-dot"
+                                                        className={`absolute -bottom-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${option.color.replace('bg-', 'bg-')}`}
+                                                    />
+                                                )}
+                                            </motion.button>
+                                        )
+                                    })}
+                                </div>
+
+                                <div className="mt-10 h-8">
+                                    {selected && (
+                                        <motion.p
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="text-sm text-zinc-400"
+                                        >
+                                            Thanks for feedback!
+                                        </motion.p>
                                     )}
-                                </motion.button>
-                            )
-                        })}
-                    </div>
-
-                    <div className="mt-10 h-8">
-                        {selected && (
-                            <motion.p
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-sm text-zinc-400"
-                            >
-                                Thanks for feedback!
-                            </motion.p>
-                        )}
-                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            )}
+        </AnimatePresence>
     );
 };
 

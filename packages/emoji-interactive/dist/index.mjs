@@ -86,7 +86,7 @@ var EmojiInteractive = ({ apiKey, showcaseMode = false, onSuccess, onError } = {
       if (!selectedOption) {
         throw new Error("Invalid rating");
       }
-      const response = await fetch("https://zynta.cloud/api/feedback", {
+      const response = await fetch("https://www.zynta.cloud/api/feedback", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
