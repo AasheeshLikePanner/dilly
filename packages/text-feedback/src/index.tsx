@@ -1,3 +1,4 @@
+import './styles.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, X, MessageSquare, Check } from 'lucide-react';
@@ -46,7 +47,7 @@ export const TextFeedback = ({ apiKey, showcaseMode = false, onSuccess, onError 
         }
 
         try {
-            const response = await fetch('/api/feedback', {
+            const response = await fetch('https://zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -326,3 +326,7 @@ export async function DELETE(request: Request) {
 
   return NextResponse.json({ success: true });
 }
+
+export async function OPTIONS(request: Request) {
+  return NextResponse.json({}, { status: 200 });
+}

@@ -1,3 +1,4 @@
+import './styles.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { TrendingDown, Minus, Zap } from 'lucide-react';
@@ -53,7 +54,7 @@ export const SliderShapeShifter = ({ apiKey, showcaseMode = false, onSuccess, on
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/feedback', {
+            const response = await fetch('https://zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

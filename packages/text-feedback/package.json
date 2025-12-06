@@ -1,6 +1,6 @@
 {
   "name": "@zynta/text-feedback",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Animated text input feedback form for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -12,9 +12,13 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsup src/index.tsx --format cjs,esm --dts --external react --external framer-motion --external lucide-react",
+    "build": "npm run build:css && tsup src/index.tsx --format cjs,esm --dts --external react --external framer-motion --external lucide-react --inject-style",
+    "build:css": "npx @tailwindcss/cli -i style-input.css -o src/styles.css --minify",
     "dev": "tsup src/index.tsx --format cjs,esm --dts --watch --external react --external framer-motion --external lucide-react",
     "prepublishOnly": "npm run build"
   },
@@ -27,7 +31,13 @@
     "tsup": "^8.0.0",
     "typescript": "^5.3.0"
   },
-  "keywords": ["react", "feedback", "component", "ui", "dilly"],
+  "keywords": [
+    "react",
+    "feedback",
+    "component",
+    "ui",
+    "dilly"
+  ],
   "author": "Dilly",
   "license": "MIT"
 }

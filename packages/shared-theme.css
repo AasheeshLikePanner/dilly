@@ -1,0 +1,209 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+    --radius: 0.625rem;
+    /* --- 1. Backgrounds (Light Mode - Warm Paper/Sand) --- */
+    --background: #FAFAF9;
+    --bg-body: #FAFAF9;
+    --bg-gradient-start: #FAFAF9;
+    --bg-gradient-end: #EBEBE9;
+
+    /* --- 2. Cards & Surfaces --- */
+    --card: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F5F5F4;
+
+    /* --- 3. Borders --- */
+    --border: #E7E5E4;
+    --border-subtle: #E7E5E4;
+    --border-highlight: #D6D3D1;
+
+    /* --- 4. Typography --- */
+    --foreground: #1C1917;
+    --text-primary: #1C1917;
+    --secondary-foreground: #57534E;
+    --text-secondary: #57534E;
+    --muted-foreground: #78716C;
+    --text-tertiary: #78716C;
+
+    /* --- 5. Status Accents --- */
+    --status-red: #ef4444;
+    --status-green: #22c55e;
+    --status-orange: #f97316;
+    --status-blue: #3b82f6;
+
+    /* from previous config */
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --muted: 240 4.8% 95.9%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: hsl(12 76% 61%);
+    --chart-2: hsl(173 58% 39%);
+    --chart-3: hsl(197 37% 24%);
+    --chart-4: hsl(43 74% 66%);
+    --chart-5: hsl(27 87% 67%);
+
+    /* --- Sidebar Colors (Light Mode - Warm) --- */
+    --sidebar: #F5F5F4;
+    --sidebar-foreground: #1C1917;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: #E7E5E4;
+    --sidebar-accent-foreground: #1C1917;
+    --sidebar-border: #E7E5E4;
+    --sidebar-ring: #D6D3D1;
+}
+
+.dark {
+    /* --- 1. Backgrounds --- */
+    --background: #101010;
+    --bg-body: #101010;
+
+    /* --- 2. Cards & Surfaces --- */
+    --card: #151516;
+    --bg-card: #151516;
+    --bg-card-hover: #1c1c1e;
+
+    /* --- 3. Borders --- */
+    --border: #2c2c2e;
+    --border-subtle: #2c2c2e;
+    --border-highlight: #3a3a3c;
+
+    /* --- 4. Typography --- */
+    --foreground: #ffffff;
+    --text-primary: #ffffff;
+    --secondary-foreground: #8e8e93;
+    --text-secondary: #8e8e93;
+    --muted-foreground: #48484a;
+    --text-tertiary: #48484a;
+
+    /* --- 5. Status Accents (Muted for Dark Mode) --- */
+    --status-red: #ff453a;
+    --status-green: #32d74b;
+    --status-orange: #ff9f0a;
+    --status-blue: #0a84ff;
+
+    /* from previous config */
+    --popover: 0.205 0 0;
+    --popover-foreground: 0.985 0 0;
+    --primary: 0.922 0 0;
+    --primary-foreground: 0.205 0 0;
+    --secondary: 0.269 0 0;
+    --muted: 0.269 0 0;
+    --accent: 0.269 0 0;
+    --accent-foreground: 0.985 0 0;
+    --destructive: 0.704 0.191 22.216;
+    --input: 1 0 0 / 15%;
+    --ring: 0.556 0 0;
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+
+    /* --- Sidebar Colors (Dark Mode) --- */
+    --sidebar: #161616;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: 0.488 0.243 264.376;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #2c2c2e;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: #8e8e93;
+}
+
+/* Utilities */
+.background-spotlight {
+    background: radial-gradient(circle at 50% 0%,
+            #222222 0%,
+            #101010 60%);
+}
+
+.text-metallic {
+    background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glass-panel {
+    background: rgba(16, 16, 16, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+}
+
+@keyframes magic-pulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        filter: blur(0px);
+        transform: scale(0.995);
+    }
+
+    50% {
+        opacity: 0.8;
+        filter: blur(1px);
+        transform: scale(1);
+    }
+}
+
+.animate-magic-pulse {
+    animation: magic-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

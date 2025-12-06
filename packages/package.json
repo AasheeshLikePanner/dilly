@@ -2,7 +2,7 @@
     "name": "dilly-monorepo",
     "private": true,
     "workspaces": [
-        "packages/*"
+        "*"
     ],
     "scripts": {
         "build:all": "npm run build --workspaces",

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import './styles.css';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bug, Send, Check } from 'lucide-react';
 
@@ -39,7 +40,7 @@ export const BugReporter = ({ apiKey, showcaseMode = false, onSuccess, onError }
         }
 
         try {
-            const response = await fetch('/api/bugs', {
+            const response = await fetch('https://zynta.cloud/api/bugs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+import './styles.css';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, Check } from 'lucide-react';
@@ -30,7 +31,7 @@ export const SliderCrystal = ({ apiKey, showcaseMode = false, onSuccess, onError
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/feedback', {
+            const response = await fetch('https://zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

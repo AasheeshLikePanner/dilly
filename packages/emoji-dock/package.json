@@ -1,6 +1,6 @@
 {
     "name": "@zynta/emoji-dock",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "description": "Mac OS dock-style emoji feedback component for React",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -17,7 +17,8 @@
         "README.md"
     ],
     "scripts": {
-        "build": "tsup src/index.tsx --format cjs,esm --dts --external react --external framer-motion",
+        "build": "npm run build:css && tsup src/index.tsx --format cjs,esm --dts --external react --external framer-motion --inject-style",
+        "build:css": "npx @tailwindcss/cli -i style-input.css -o src/styles.css --minify",
         "dev": "tsup src/index.tsx --format cjs,esm --dts --watch --external react --external framer-motion",
         "prepublishOnly": "npm run build"
     },

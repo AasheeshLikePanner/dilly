@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import './styles.css';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface EmojiDockProps {
@@ -67,7 +68,7 @@ export const EmojiDock = ({ apiKey, showcaseMode = false, onSuccess, onError }: 
 
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/feedback', {
+            const response = await fetch('https://zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

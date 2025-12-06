@@ -1,3 +1,4 @@
+import './styles.css';
 import React, { useState } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -83,7 +84,7 @@ export const EmojiInteractive = ({ apiKey, showcaseMode = false, onSuccess, onEr
                 throw new Error('Invalid rating');
             }
 
-            const response = await fetch('/api/feedback', {
+            const response = await fetch('https://zynta.cloud/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

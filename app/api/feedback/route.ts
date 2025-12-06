@@ -223,3 +223,7 @@ export async function POST(request: Request) {
   console.log('POST /api/feedback: Insert successful. Returning new feedback:', newFeedback);
   return NextResponse.json(newFeedback, { status: 201 });
 }
+
+export async function OPTIONS(request: Request) {
+  return NextResponse.json({}, { status: 200 });
+}

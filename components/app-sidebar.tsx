@@ -17,7 +17,11 @@ import {
   Cube, // New icon for Feedback parent
   Sun,
   Moon,
-  Lock // Import Lock icon for locked items
+  Lock, // Import Lock icon for locked items
+  Sparkle,
+  SquaresFour,
+  Trash,
+  Book,
 } from "phosphor-react"
 
 import {
@@ -46,6 +50,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrig
 
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
+
 
 export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }: React.ComponentProps<typeof Sidebar> & { workspaceId?: string, onMouseEnter?: () => void, onMouseLeave?: () => void }) {
   const pathname = usePathname();
@@ -281,6 +286,12 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/docs" className="flex items-center">
+                    <Book className="mr-2 size-4" />
+                    Docs
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={getHrefWithSlug('/settings')} className="flex items-center">
                     <Gear className="mr-2 size-4" />
