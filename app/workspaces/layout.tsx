@@ -1,4 +1,6 @@
 // app/workspaces/layout.tsx (Server Component)
+export const dynamic = 'force-dynamic';
+
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase-server';

@@ -20,7 +20,7 @@ import {
   Check,
   X
 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+// Removed: import { supabase } from '../../lib/supabase';
 import { Profile, Workspace } from '../../types/supabase';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -127,30 +127,11 @@ export default function WorkspacesPage() {
 
   const handleDeclineInvite = async (inviteId: string) => {
     try {
-      // We need a decline endpoint or just delete the invite if we have permission
-      // For now, let's assume we can just ignore it or we need a specific endpoint.
-      // Since we don't have a specific decline endpoint in the plan, let's assume we can't delete it easily 
-      // without an endpoint. But usually decline = delete or status update.
-      // Let's try to update status to 'declined' via a new endpoint or existing one if it supported it.
-      // Given the constraints, I'll add a simple decline logic if possible, or just hide it.
-      // Actually, let's just show a toast for now as "Decline not implemented" if I can't find the endpoint,
-      // BUT the user asked for it. So I should probably add a decline endpoint or use the accept one with action.
-      // Let's stick to the plan: "Add Accept and Decline buttons".
-      // I'll implement a decline call assuming a DELETE or PUT endpoint exists or create one.
-      // Since I didn't create a decline endpoint, I'll use a placeholder and maybe add it if I can.
-      // Wait, I can use the supabase client directly if RLS allows it, but better to use API.
-      // I'll use a direct supabase call for now if RLS allows 'update' on own invites.
-      // If not, I'll just leave it as a TODO or try to implement it.
-
-      // Let's try to use the supabase client directly for now as a quick fix if RLS permits.
-      // "invitations" table usually allows user to see their own invites.
-
-      const { error } = await supabase
-        .from('workspace_invites')
-        .update({ status: 'declined' })
-        .eq('id', inviteId);
-
-      if (error) throw error;
+      // Use API route instead of direct Supabase call
+      await axios.put('/api/user/invitations', {
+        inviteId,
+        action: 'decline'
+      });
 
       toast.success("Invitation declined");
       fetchInvitations();
@@ -198,36 +179,19 @@ export default function WorkspacesPage() {
       }
     }
 
-    // 2. Create Workspace
+    // 2. Create Workspace via API
     try {
       const newWsData = {
         name: newWorkspaceName,
         description: newWorkspaceDescription,
-        owner_id: userProfile.id,
         slug: newWorkspaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         logo_url: logoUrl,
       };
 
-      const { data, error } = await supabase
-        .from('workspaces')
-        .insert(newWsData)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const response = await axios.post('/api/workspaces', newWsData);
+      const data = response.data;
 
       if (data) {
-        // Add owner member
-        const { error: memberError } = await supabase
-          .from('workspace_members')
-          .insert({
-            user_id: userProfile.id,
-            workspace_id: data.id,
-            role: 'owner',
-          });
-
-        if (memberError) console.error("Member creation error:", memberError);
-
         setWorkspaces([...workspaces, data]);
         setView('list');
         setNewWorkspaceName('');
@@ -238,7 +202,7 @@ export default function WorkspacesPage() {
       }
     } catch (error: any) {
       console.error("Error creating workspace:", error);
-      toast.error("Failed to create workspace.");
+      toast.error(error.response?.data?.error || "Failed to create workspace.");
     } finally {
       setIsCreating(false);
     }
