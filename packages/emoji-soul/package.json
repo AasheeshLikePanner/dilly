@@ -1,6 +1,6 @@
 {
   "name": "@zynta/emoji-soul",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "High contrast card-style emoji feedback component for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

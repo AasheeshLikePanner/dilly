@@ -9,6 +9,8 @@ interface EmojiReactionProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     autoShowDelay?: number;
+    metadata?: Record<string, any>;
+    userId?: string;
     onSuccess?: (data: any) => void;
     onError?: (error: Error) => void;
 }
@@ -59,6 +61,8 @@ export const EmojiInteractive = ({
     open,
     onOpenChange,
     autoShowDelay,
+    metadata,
+    userId,
     onSuccess,
     onError
 }: EmojiReactionProps = {}) => {
@@ -138,6 +142,9 @@ export const EmojiInteractive = ({
                     comment: comment || undefined,
                     component_name: 'EmojiReaction',
                     component_variant: 'Interactive',
+                    metadata,
+                    created_by: userId,
+                    source: typeof window !== 'undefined' ? window.location.href : undefined,
                 }),
             });
 
@@ -284,5 +291,3 @@ export const EmojiInteractive = ({
 };
 
 export default EmojiInteractive;
-
-

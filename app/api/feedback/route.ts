@@ -202,7 +202,7 @@ export async function POST(request: Request) {
     emoji: body.emoji,
     source: body.source,
     metadata: body.metadata,
-    created_by: validApiKey.user_id,
+    created_by: body.created_by || validApiKey.user_id,
     component_name: body.component_name,
     component_variant: body.component_variant,
     context: body.context,

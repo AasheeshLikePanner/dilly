@@ -9,6 +9,8 @@ interface EmojiReactionProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     autoShowDelay?: number;
+    metadata?: Record<string, any>;
+    userId?: string;
     onSuccess?: (data: any) => void;
     onError?: (error: Error) => void;
 }
@@ -59,6 +61,8 @@ export const EmojiSoul = ({
     open,
     onOpenChange,
     autoShowDelay,
+    metadata,
+    userId,
     onSuccess,
     onError
 }: EmojiReactionProps = {}) => {
@@ -124,6 +128,9 @@ export const EmojiSoul = ({
                     emoji: option.emoji,
                     component_name: 'EmojiReaction',
                     component_variant: 'Soul',
+                    metadata,
+                    created_by: userId,
+                    source: typeof window !== 'undefined' ? window.location.href : undefined,
                 }),
             });
 

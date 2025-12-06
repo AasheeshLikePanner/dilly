@@ -6,9 +6,11 @@ interface EmojiReactionProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     autoShowDelay?: number;
+    metadata?: Record<string, any>;
+    userId?: string;
     onSuccess?: (data: any) => void;
     onError?: (error: Error) => void;
 }
-declare const EmojiSoul: ({ apiKey, showcaseMode, open, onOpenChange, autoShowDelay, onSuccess, onError }?: EmojiReactionProps) => react_jsx_runtime.JSX.Element;
+declare const EmojiSoul: ({ apiKey, showcaseMode, open, onOpenChange, autoShowDelay, metadata, userId, onSuccess, onError }?: EmojiReactionProps) => react_jsx_runtime.JSX.Element;
 
 export { EmojiSoul, EmojiSoul as default };

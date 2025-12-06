@@ -1,5 +1,5 @@
 import './styles.css';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -9,6 +9,8 @@ interface EmojiDockProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     autoShowDelay?: number;
+    metadata?: Record<string, any>;
+    userId?: string;
     onSuccess?: (data: any) => void;
     onError?: (error: Error) => void;
 }
@@ -59,6 +61,8 @@ export const EmojiDock = ({
     open,
     onOpenChange,
     autoShowDelay,
+    metadata,
+    userId,
     onSuccess,
     onError
 }: EmojiDockProps = {}) => {
@@ -125,6 +129,9 @@ export const EmojiDock = ({
                     emoji: option.emoji,
                     component_name: 'EmojiReaction',
                     component_variant: 'Dock',
+                    metadata,
+                    created_by: userId,
+                    source: typeof window !== 'undefined' ? window.location.href : undefined,
                 }),
             });
 
@@ -224,5 +231,3 @@ export const EmojiDock = ({
         </AnimatePresence>
     );
 };
-
-

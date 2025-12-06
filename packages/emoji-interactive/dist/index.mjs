@@ -63,6 +63,8 @@ var EmojiInteractive = ({
   open,
   onOpenChange,
   autoShowDelay,
+  metadata,
+  userId,
   onSuccess,
   onError
 } = {}) => {
@@ -129,7 +131,10 @@ var EmojiInteractive = ({
           emoji: selectedOption.emoji,
           comment: comment || void 0,
           component_name: "EmojiReaction",
-          component_variant: "Interactive"
+          component_variant: "Interactive",
+          metadata,
+          created_by: userId,
+          source: typeof window !== "undefined" ? window.location.href : void 0
         })
       });
       if (!response.ok) {

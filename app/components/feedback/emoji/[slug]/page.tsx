@@ -103,6 +103,14 @@ export default function EmojiFeedbackPage() {
       props += `\n        open={isOpen}\n        onOpenChange={setIsOpen}`;
     }
 
+    // Add detailed examples of other available props
+    props += `\n        // theme={{ primary: '#6366f1', background: '#000000' }}`;
+    props += `\n        // userId="user_123"
+        // metadata={{ 
+        //   plan: "pro",
+        //   page: "/dashboard" 
+        // }}`;
+
     return `import { ${comp} } from '${pkg}';
 import { useState } from 'react';
 
@@ -304,6 +312,39 @@ ${stateLogic}
                 )}
               </div>
             </Tabs>
+          </div>
+        </div>
+
+        {/* PROPS API TABLE */}
+        <div className="mt-20 border-t border-white/10 pt-16">
+          <h2 className="text-2xl font-bold tracking-tight text-white mb-8">Component API</h2>
+
+          <div className="rounded-xl border border-white/10 bg-[#0A0A0A] overflow-hidden">
+            <div className="grid grid-cols-4 gap-4 p-4 border-b border-white/10 bg-white/5 text-xs font-bold text-zinc-300 uppercase tracking-wider">
+              <div>Prop</div>
+              <div>Type</div>
+              <div>Default</div>
+              <div>Description</div>
+            </div>
+
+            <div className="divide-y divide-white/5">
+              {[
+                { name: 'apiKey', type: 'string', default: 'Required', desc: 'Your Dilly project API key.' },
+                { name: 'open', type: 'boolean', default: 'undefined', desc: 'Controlled state for visibility. If provided, you must also provide onOpenChange.' },
+                { name: 'onOpenChange', type: '(open: boolean) => void', default: 'undefined', desc: 'Callback fired when the open state changes.' },
+                { name: 'autoShowDelay', type: 'number', default: 'undefined', desc: 'Automatically opens the widget after X milliseconds.' },
+                { name: 'metadata', type: 'object', default: '{}', desc: 'Additional data (userId, plan, etc). Source URL is automatically added.' },
+                { name: 'userId', type: 'string', default: 'undefined', desc: 'Identifies the user (e.g. "user_123"). Overrides the API Key owner.' },
+                { name: 'theme', type: 'Theme', default: 'Dark', desc: 'Custom theme object to override colors and fonts.' },
+              ].map((prop) => (
+                <div key={prop.name} className="grid grid-cols-4 gap-4 p-4 text-sm text-zinc-400 hover:bg-white/[0.02]">
+                  <div className="font-mono text-indigo-400">{prop.name}</div>
+                  <div className="font-mono text-xs">{prop.type}</div>
+                  <div className="font-mono text-xs opacity-50">{prop.default}</div>
+                  <div>{prop.desc}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>

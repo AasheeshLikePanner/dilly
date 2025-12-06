@@ -160,6 +160,8 @@ var EmojiDock = ({
   open,
   onOpenChange,
   autoShowDelay,
+  metadata,
+  userId,
   onSuccess,
   onError
 } = {}) => {
@@ -214,7 +216,10 @@ var EmojiDock = ({
           rating: option.rating,
           emoji: option.emoji,
           component_name: "EmojiReaction",
-          component_variant: "Dock"
+          component_variant: "Dock",
+          metadata,
+          created_by: userId,
+          source: typeof window !== "undefined" ? window.location.href : void 0
         })
       });
       if (!response.ok) {
