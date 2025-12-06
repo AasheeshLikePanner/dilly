@@ -10,9 +10,9 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 
 // Direct imports from packages to showcase the source of truth
-import { EmojiDock } from '../../../../../packages/emoji-dock/src';
-import { EmojiSoul } from '../../../../../packages/emoji-soul/src';
-import { EmojiInteractive } from '../../../../../packages/emoji-interactive/src';
+import { EmojiDock } from '../../../../../packages/emoji-dock/dist';
+import { EmojiSoul } from '../../../../../packages/emoji-soul/dist';
+import { EmojiInteractive } from '../../../../../packages/emoji-interactive/dist';
 
 // --- Custom Code Block Component ---
 interface CodeSnippetProps {
