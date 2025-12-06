@@ -91,7 +91,7 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
     return baseHref;
   };
 
-  const isComponentsLocked = process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'false' || (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_COMPONENTS !== 'true');
+  const isGlobalLocked = process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'false' || (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_COMPONENTS !== 'true');
 
   return (
     <Sidebar collapsible="icon" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} {...props}>
@@ -142,12 +142,12 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                asChild={!isComponentsLocked}
-                tooltip={isComponentsLocked ? "Coming Soon" : "Features"}
-                aria-disabled={isComponentsLocked}
-                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+                asChild={!isGlobalLocked}
+                tooltip={isGlobalLocked ? "Coming Soon" : "Features"}
+                aria-disabled={isGlobalLocked}
+                className={isGlobalLocked ? "pointer-events-none opacity-50" : ""}
               >
-                {isComponentsLocked ? (
+                {isGlobalLocked ? (
                   <>
                     <Lightbulb />
                     <span>Features</span>
@@ -163,12 +163,12 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                asChild={!isComponentsLocked}
-                tooltip={isComponentsLocked ? "Coming Soon" : "Roadmap"}
-                aria-disabled={isComponentsLocked}
-                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+                asChild={!isGlobalLocked}
+                tooltip={isGlobalLocked ? "Coming Soon" : "Roadmap"}
+                aria-disabled={isGlobalLocked}
+                className={isGlobalLocked ? "pointer-events-none opacity-50" : ""}
               >
-                {isComponentsLocked ? (
+                {isGlobalLocked ? (
                   <>
                     <MapTrifold />
                     <span>Roadmap</span>
@@ -193,51 +193,52 @@ export function AppSidebar({ workspaceId, onMouseEnter, onMouseLeave, ...props }
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                tooltip={isComponentsLocked ? "Coming Soon" : "Feedback Components"}
-                aria-disabled={isComponentsLocked}
-                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+                tooltip="Feedback Components"
+                className=""
               >
                 <Cube />
                 <span>Components</span>
-                {isComponentsLocked && <SidebarMenuBadge>Soon</SidebarMenuBadge>}
               </SidebarMenuButton>
-              {!isComponentsLocked && (
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
-                      <Link href={getHrefWithSlug('/components/feedback/emoji')}>
-                        <span>Emoji Feedback</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
-                      <Link href={getHrefWithSlug('/components/feedback/slider')}>
-                        <span>Slider Feedback</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
-                      <Link href={getHrefWithSlug('/components/feedback/form')}>
-                        <span>Form Feedback</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              )}
+              <SidebarMenuSub>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/emoji'))}>
+                    <Link href={getHrefWithSlug('/components/feedback/emoji')}>
+                      <span>Emoji Feedback</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                {!isGlobalLocked && (
+                  <>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/slider'))}>
+                        <Link href={getHrefWithSlug('/components/feedback/slider')}>
+                          <span>Slider Feedback</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/feedback/form'))}>
+                        <Link href={getHrefWithSlug('/components/feedback/form')}>
+                          <span>Form Feedback</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </>
+                )}
+              </SidebarMenuSub>
             </SidebarMenuItem>
+
             <SidebarMenuItem>
               <SidebarMenuButton
-                tooltip={isComponentsLocked ? "Coming Soon" : "Bug Reporting"}
-                aria-disabled={isComponentsLocked}
-                className={isComponentsLocked ? "pointer-events-none opacity-50" : ""}
+                tooltip={isGlobalLocked ? "Coming Soon" : "Bug Reporting"}
+                aria-disabled={isGlobalLocked}
+                className={isGlobalLocked ? "pointer-events-none opacity-50" : ""}
               >
                 <Bug />
                 <span>Bug Reporting</span>
-                {isComponentsLocked && <SidebarMenuBadge>Soon</SidebarMenuBadge>}
+                {isGlobalLocked && <SidebarMenuBadge>Soon</SidebarMenuBadge>}
               </SidebarMenuButton>
-              {!isComponentsLocked && (
+              {!isGlobalLocked && (
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
                     <SidebarMenuSubButton asChild isActive={isActive(getHrefWithSlug('/components/bug-reporting/form'))}>

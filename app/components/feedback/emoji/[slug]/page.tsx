@@ -58,9 +58,7 @@ const CodeSnippet = ({ title, code }: CodeSnippetProps) => {
 };
 
 export default function EmojiFeedbackPage() {
-  if (process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'false' || (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SHOW_COMPONENTS !== 'true')) {
-    notFound();
-  }
+
 
   const [activeTab, setActiveTab] = useState('interactive');
 
