@@ -1,6 +1,6 @@
 {
   "name": "@zynta/emoji-interactive",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "Full modal flow emoji feedback with comment for React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -24,7 +24,7 @@
   },
   "peerDependencies": {
     "react": "^18.0.0",
-    "framer-motion": "^10.0.0 || ^11.0.0"
+    "framer-motion": "^10.0.0 || ^11.0.0 || ^12.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
